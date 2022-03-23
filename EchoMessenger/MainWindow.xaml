@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EchoMessenger"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Echo" Height="450" Width="800" WindowStyle="SingleBorderWindow" WindowStartupLocation="CenterScreen" ResizeMode="CanResize">
+    <Grid SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="60"/>
             <ColumnDefinition/>
@@ -14,24 +14,102 @@
 
         <!--#283EFF-->
 
-        <StackPanel Background="#1D1E27" Grid.Column="0">
-            <Canvas>
-                <Ellipse Stroke="Gray" Fill="#252527" Width="40" Height="40" Canvas.Top="10" Canvas.Left="10"></Ellipse>
-                <Ellipse Width="25" Height="25" Canvas.Top="17.5" Canvas.Left="17.5">
-                    <Ellipse.Fill>
-                        <ImageBrush ImageSource="C:\Users\makst\source\repos\EchoMessenger\EchoMessenger\resources\search.png" Stretch="Fill"></ImageBrush>
-                    </Ellipse.Fill>
-                </Ellipse>
+        <Canvas Background="#FF1C1D26" Grid.Column="0">
+            <StackPanel>
+                <StackPanel x:Name="SpecialMenu" Margin="10">
+                    <Button Background="#252527" Margin="0 0 0 10" Width="40" Height="40" Content="">
+                        <Button.Template>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Grid>
+                                    <Ellipse Stroke="Gray"></Ellipse>
+                                    <Image Width="30" Height="30" Source="/EchoMessenger;component/resources/user.png" Stretch="Fill"/>
+                                    <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
 
-                <Ellipse Stroke="Gray" Fill="#252527" Width="40" Height="40" Canvas.Top="60" Canvas.Left="10"/>
-                <Label Foreground="White" Margin="0 -3 0 0" HorizontalContentAlignment="Center" FontSize="25" Canvas.Top="60" Canvas.Left="10" Height="40" Width="40">F</Label>
+                    <Button Background="#252527" Width="40" Height="40" Content="">
+                        <Button.Template>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Grid>
+                                    <Ellipse Stroke="Gray"></Ellipse>
+                                    <Ellipse Width="25" Height="25">
+                                        <Ellipse.Fill>
+                                            <ImageBrush ImageSource="/EchoMessenger;component/resources/search.png" Stretch="Fill"></ImageBrush>
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+                                    <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
 
-                <Ellipse Stroke="#283EFF" Fill="#252527" Width="40" Height="40" Canvas.Top="110" Canvas.Left="10"/>
-                <Label Foreground="White" Margin="0 -3 0 0" HorizontalContentAlignment="Center" FontSize="25" Canvas.Top="110" Canvas.Left="10" Height="40" Width="40">Q</Label>
-            </Canvas>
-        </StackPanel>
-        <Canvas Background="#1B1C22" Grid.Column="1">
-            
+                <Line Margin="15 0" X1="0" Y1="0" X2="30" Y2="0" Stroke="DimGray" StrokeThickness="1"></Line>
+
+                <StackPanel x:Name="GroupsMenu" Margin="10">
+                    <Button Background="#252527" Margin="0 0 0 10" Width="40" Height="40">
+                        <Button.Template>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Grid>
+                                    <Ellipse Stroke="Gray"></Ellipse>
+                                    <Label Foreground="White" FontSize="18" Content="D" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Grid>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Background="#252527" Width="40" Height="40" Content="K">
+                        <Button.Template>
+                            <ControlTemplate TargetType="{x:Type Button}">
+                                <Grid>
+                                    <Ellipse Stroke="Gray"></Ellipse>
+                                    <Label Foreground="White" FontSize="18" Content="K" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Line X1="0" Y1="0" X2="0" Y2="30" Margin="-9 5 0 5" Stroke="White" StrokeThickness="3"></Line>
+                                </Grid>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
         </Canvas>
+
+
+        <Grid ShowGridLines="False" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+
+            <Canvas Background="#FF242430" Grid.Row="0">
+                <Label HorizontalContentAlignment="Left" Margin="10 0" MaxWidth="300" Foreground="White" FontSize="16">kuchuchkaa</Label>
+            </Canvas>
+
+            <StackPanel Orientation="Vertical" Background="#FF131419" Grid.Row="1">
+                <Rectangle Fill="#FF1C1D26" Stroke="White" Margin="10" Width="200" Height="60" RadiusX="33" RadiusY="33" HorizontalAlignment="Left"/>
+                <Rectangle Fill="#283EFF" Stroke="White" Margin="10" Width="200" Height="60" RadiusX="33" RadiusY="33" HorizontalAlignment="Right"/>
+
+            </StackPanel>
+
+            <DockPanel Background="#FF242430" Grid.Row="2" LastChildFill="True">
+                <Button DockPanel.Dock="Left" BorderThickness="0" Width="30" Height="30" Margin="10" Background="{x:Null}">
+                    <Image Source="/EchoMessenger;component/resources/attachment.png" />
+                </Button>
+
+                <Button DockPanel.Dock="Right" BorderThickness="0" Width="30" Height="30" Margin="10" Background="{x:Null}">
+                    <Image Source="/EchoMessenger;component/resources/send.png" />
+                </Button>
+
+                <TextBox  Foreground="White" VerticalContentAlignment="Center" FontSize="14" Margin="0 10" Width="Auto" BorderBrush="White" Background="{x:Null}" Height="30">
+                    <TextBox.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius" Value="10"/>
+                        </Style>
+                    </TextBox.Resources>
+                </TextBox>
+            </DockPanel>
+        </Grid>
     </Grid>
 </Window>

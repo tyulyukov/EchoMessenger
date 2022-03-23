@@ -4,6 +4,9 @@
              xmlns:local="clr-namespace:EchoMessenger"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <BitmapImage x:Key="UserImage" UriSource="/resources/user.png" />
+        <BitmapImage x:Key="SearchImage" UriSource="/resources/search.png" />
+        <BitmapImage x:Key="AttachmentImage" UriSource="/resources/attachment.png" />
+        <BitmapImage x:Key="SendImage" UriSource="/resources/attachment.png" />
     </Application.Resources>
 </Application>

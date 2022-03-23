@@ -7,4 +7,18 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="resources\attachment.png" />
+    <None Remove="resources\search.png" />
+    <None Remove="resources\send.png" />
+    <None Remove="resources\user.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="resources\attachment.png" />
+    <Resource Include="resources\search.png" />
+    <Resource Include="resources\send.png" />
+    <Resource Include="resources\user.png" />
+  </ItemGroup>
+
 </Project>
