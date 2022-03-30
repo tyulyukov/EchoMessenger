@@ -2,7 +2,6 @@
 using Firebase.Database;
 using Firebase.Database.Query;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace EchoMessenger.Helpers

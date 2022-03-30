@@ -219,20 +219,27 @@
 
             <ScrollViewer x:Name="MessagesScroll" VerticalScrollBarVisibility="Auto" Grid.Row="1">
                 <StackPanel x:Name="MessagesStackPanel" Orientation="Vertical" Background="#FF131419" >
-                    <Border MinHeight="50" MaxWidth="500" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Left" Background="#FF1C1D26" CornerRadius="30,30,30,30">
-                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Left" Margin="10">what tf is this</TextBlock>
+                    <Border MinHeight="50" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Left" Background="#FF1C1D26" CornerRadius="30,30,30,30">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition MinWidth="50" MaxWidth="500"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Center" Margin="10">what tf is this</TextBlock>
+                            <TextBlock Grid.Column="1" Foreground="LightGray" VerticalAlignment="Bottom" Margin="0,0,10,15">00:34</TextBlock>
+                        </Grid>
                     </Border>
-                    <Border MinHeight="50" MaxWidth="500" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Left" Background="#FF1C1D26" CornerRadius="30,30,30,30">
-                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Left" Margin="10">idk, but it seems to me kinda pretty u know</TextBlock>
-                    </Border>
-                    <Border MinHeight="50" MaxWidth="500" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Right" Background="#283EFF" CornerRadius="30,30,30,30">
-                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Left" Margin="10">wdym, its echo</TextBlock>
-                    </Border>
-                    <Border MinHeight="50" MaxWidth="500" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Right" Background="#283EFF" CornerRadius="30,30,30,30">
-                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Left" Margin="10">very simple chat app</TextBlock>
-                    </Border>
-                    <Border MinHeight="50" MaxWidth="500" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Right" Background="#283EFF" CornerRadius="30,30,30,30">
-                        <TextBlock TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Left" Margin="10">i enjoy this</TextBlock>
+                    <Border MinHeight="50" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Right" Background="#283EFF" CornerRadius="30,30,30,30">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition MinWidth="50" MaxWidth="500"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Center" Margin="10">яbgghdghghghgfhdfhhdfhghdghgfhdhdgfhgfhgdhgdghfhghhdhgdhdfghghdghfhghghgfhgfhghghghgfhvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv</TextBlock>
+                            <TextBlock Grid.Column="1" Foreground="LightGray" VerticalAlignment="Bottom" Margin="0,0,10,15">00:34</TextBlock>
+                        </Grid>
                     </Border>
                 </StackPanel>
             </ScrollViewer>
