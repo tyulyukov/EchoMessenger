@@ -8,17 +8,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="resources\attachment.png" />
-    <None Remove="resources\search.png" />
-    <None Remove="resources\send.png" />
-    <None Remove="resources\user.png" />
+    <None Remove="Resources\attachment.png" />
+    <None Remove="Resources\echo.png" />
+    <None Remove="Resources\search.png" />
+    <None Remove="Resources\send.png" />
+    <None Remove="Resources\user.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="resources\attachment.png" />
-    <Resource Include="resources\search.png" />
-    <Resource Include="resources\send.png" />
-    <Resource Include="resources\user.png" />
+    <PackageReference Include="FirebaseDatabase.net" Version="4.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\attachment.png" />
+    <Resource Include="Resources\echo.png" />
+    <Resource Include="Resources\search.png" />
+    <Resource Include="Resources\send.png" />
+    <Resource Include="Resources\user.png" />
   </ItemGroup>
 
 </Project>

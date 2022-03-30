@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using EchoMessenger.Helpers;
+using System;
 using System.Windows;
 
 namespace EchoMessenger
@@ -13,5 +9,27 @@ namespace EchoMessenger
     /// </summary>
     public partial class App : Application
     {
+        private async void Application_Startup(object sender, StartupEventArgs e)
+        {
+            Database.Configure();
+
+            var userInfo = LogInManager.GetCurrentUser();
+
+            if (userInfo == null)
+            {
+                new LoginWindow().Show();
+                return;
+            }
+
+            var firebaseUser = await Database.LoginUserWithHashAsync(userInfo.Name, userInfo.PasswordHash);
+
+            if (firebaseUser == null)
+            {
+                new LoginWindow().Show();
+                return;
+            }
+
+            new MessengerWindow(firebaseUser).Show();
+        }
     }
 }
