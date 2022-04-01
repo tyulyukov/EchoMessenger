@@ -24,25 +24,21 @@ namespace EchoMessenger
             if (String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password))
                 return;
 
-            var firebaseUser = await Database.LoginUserAsync(username, password);
-
-            if (firebaseUser == null)
+            if (!await Database.LoginUserAsync(username, password))
             {
                 MessageBox.Show("Invalid username or password");
                 return;
             }
 
-            LogInManager.Remember(firebaseUser.Object);
+            LogInManager.Remember(Database.User.Object);
 
-            MessengerWindow messengerWindow = new MessengerWindow(firebaseUser);
-            messengerWindow.Show();
+            new MessengerWindow().Show();
             this.Close();
         }
 
         private void RegisterButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            RegistrationWindow registrationWindow = new RegistrationWindow();
-            registrationWindow.Show();
+            new RegistrationWindow().Show();
             this.Close();
         }
     }

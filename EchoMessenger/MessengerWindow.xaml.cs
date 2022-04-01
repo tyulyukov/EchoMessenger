@@ -1,10 +1,11 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
+using EchoMessenger.Views.Settings;
 using Firebase.Database;
 using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
+using System.Windows.Input;
 
 namespace EchoMessenger
 {
@@ -13,27 +14,34 @@ namespace EchoMessenger
     /// </summary>
     public partial class MessengerWindow : Window
     {
-        private FirebaseObject<User> user;
+        private readonly MessagesView messagesView;
+        private readonly SettingsView settingsView;
 
-        public MessengerWindow(FirebaseObject<User> user)
+        public MessengerWindow()
         {
             InitializeComponent();
-            this.user = user;
 
-            var message = UIMessageFactory.CreateForeignMessage("ты че даун?", DateTime.Now);
-            MessagesStackPanel.Children.Add(message);
+            messagesView = new MessagesView();
+            settingsView = new SettingsView(this);
+
+            OpenTab(messagesView);
         }
 
-        private void SendMessageButtonClick(object sender, RoutedEventArgs e)
+        private void OpenTab(UserControl tab)
         {
-            if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
-                return;
+            OpenedTab.Children.Clear();
+            OpenedTab.Children.Add(tab);
+        }
+        
+        private void ButtonOpenChat_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            OpenTab(messagesView);
+        }
 
-            var message = UIMessageFactory.CreateOwnMessage(MessageTextBox.Text, DateTime.Now);
-            MessageTextBox.Text = String.Empty;
-
-            MessagesStackPanel.Children.Add(message);
-            MessagesScroll.ScrollToBottom();
+        private void ButtonSettings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            settingsView.Open();
+            OpenTab(settingsView);
         }
     }
 }

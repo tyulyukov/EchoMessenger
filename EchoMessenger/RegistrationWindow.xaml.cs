@@ -19,8 +19,7 @@ namespace EchoMessenger
 
         private void LoginButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            LoginWindow loginWindow = new LoginWindow();
-            loginWindow.Show();
+            new LoginWindow().Show();
             this.Close();
         }
 
@@ -52,18 +51,15 @@ namespace EchoMessenger
 
             User user = new User(username, password);
 
-            var firebaseUser = await Database.RegisterUserAsync(user);
-
-            if (firebaseUser == null)
+            if (!await Database.RegisterUserAsync(user))
             {
                 MessageBox.Show("Oops! Something went wrong...");
                 return;
             }
 
-            LogInManager.Remember(user);
+            LogInManager.Remember(Database.User.Object);
 
-            MessengerWindow messengerWindow = new MessengerWindow(firebaseUser);
-            messengerWindow.Show();
+            new MessengerWindow().Show();
             this.Close();
         }
     }

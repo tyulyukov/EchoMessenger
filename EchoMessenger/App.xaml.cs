@@ -21,15 +21,13 @@ namespace EchoMessenger
                 return;
             }
 
-            var firebaseUser = await Database.LoginUserWithHashAsync(userInfo.Name, userInfo.PasswordHash);
-
-            if (firebaseUser == null)
+            if (!await Database.LoginUserWithHashAsync(userInfo.Name, userInfo.PasswordHash))
             {
                 new LoginWindow().Show();
                 return;
             }
 
-            new MessengerWindow(firebaseUser).Show();
+            new MessengerWindow().Show();
         }
     }
 }
