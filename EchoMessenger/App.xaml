@@ -9,5 +9,6 @@
         <BitmapImage x:Key="AttachmentImage" UriSource="/Resources/attachment.png" />
         <BitmapImage x:Key="SendImage" UriSource="/Resources/attachment.png" />
         <BitmapImage x:Key="EchoImage" UriSource="/Resources/echo.png" />
+        <BitmapImage x:Key="Image" UriSource="/Resources/image.png" />
     </Application.Resources>
 </Application>

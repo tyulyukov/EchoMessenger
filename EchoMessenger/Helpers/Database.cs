@@ -2,7 +2,6 @@
 using Firebase.Database;
 using Firebase.Database.Query;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EchoMessenger.Helpers
@@ -101,6 +100,18 @@ namespace EchoMessenger.Helpers
                 return false;
 
             User.Object.PasswordHash = LogInManager.GetPasswordHash(newPassword);
+
+            await firebase.Child("users").Child(User.Key).PatchAsync(User.Object);
+
+            return true;
+        }
+
+        public static async Task<bool> ChangeAvatar(String avatarUrl)
+        {
+            if (firebase == null || User == null)
+                return false;
+
+            User.Object.AvatarUrl = avatarUrl;
 
             await firebase.Child("users").Child(User.Key).PatchAsync(User.Object);
 

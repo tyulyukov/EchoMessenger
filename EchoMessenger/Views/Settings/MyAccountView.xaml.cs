@@ -1,4 +1,5 @@
 ﻿using EchoMessenger.Helpers;
+using Microsoft.Win32;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -92,6 +93,45 @@ namespace EchoMessenger.Views.Settings
 
             OldPasswordBox.Password = String.Empty;
             NewPasswordBox.Password = String.Empty;
+        }
+
+        private void Avatar_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            AvatarOverlay.Visibility = Visibility.Visible;
+        }
+
+        private void Avatar_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            AvatarOverlay.Visibility = Visibility.Hidden;
+        }
+
+        private async void AvatarOverlay_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var open = new OpenFileDialog();
+            open.Multiselect = false;
+            open.CheckFileExists = true;
+            open.Filter = "Image Files(*.jpg; *.jpeg; *.bmp)|*.jpg; *.jpeg; *.bmp";
+
+            if (open.ShowDialog(owner) == true)
+            {
+                var image = Media.ProccessImage(open.FileName);
+                var avatarUrl = await Storage.UploadAvatarAsync(image);
+
+                if (String.IsNullOrWhiteSpace(avatarUrl))
+                {
+                    MessageBox.Show("Something went wrong...");
+                    return;
+                }
+
+                await Database.ChangeAvatar(avatarUrl);
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(Database.User.Object.AvatarUrl, UriKind.Absolute);
+                bitmap.EndInit();
+
+                Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+            }
         }
     }
 }

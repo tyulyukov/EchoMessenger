@@ -201,9 +201,9 @@
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
-        
+
         <Grid Grid.Column="1" x:Name="OpenedTab">
-                
+
         </Grid>
     </Grid>
 </Window>

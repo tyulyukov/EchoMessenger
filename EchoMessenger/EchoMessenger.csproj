@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Remove="Resources\attachment.png" />
     <None Remove="Resources\echo.png" />
+    <None Remove="Resources\image.png" />
     <None Remove="Resources\search.png" />
     <None Remove="Resources\send.png" />
     <None Remove="Resources\user.png" />
@@ -17,11 +18,15 @@
 
   <ItemGroup>
     <PackageReference Include="FirebaseDatabase.net" Version="4.0.7" />
+    <PackageReference Include="FirebaseStorage.net" Version="1.0.3" />
+    <PackageReference Include="ImageProcessor" Version="2.9.1" />
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Resources\attachment.png" />
     <Resource Include="Resources\echo.png" />
+    <Resource Include="Resources\image.png" />
     <Resource Include="Resources\search.png" />
     <Resource Include="Resources\send.png" />
     <Resource Include="Resources\user.png" />
