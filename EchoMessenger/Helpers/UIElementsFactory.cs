@@ -2,10 +2,11 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace EchoMessenger.Helpers
 {
-    public static class UIMessageFactory
+    public static class UIElementsFactory
     {
         public static Border CreateOwnMessage(String text, DateTime dateTime)
         {
@@ -65,6 +66,59 @@ namespace EchoMessenger.Helpers
 
             Grid.SetColumn(timeTextBlock, 1);
             grid.Children.Add(timeTextBlock);
+
+            border.Child = grid;
+
+            return border;
+        }
+
+        public static Border CreateUsersCard(String avatarUrl, String username)
+        {
+            var border = new Border();
+            border.BorderBrush = new SolidColorBrush(Colors.White);
+            border.BorderThickness = new Thickness(1);
+            border.Margin = new Thickness(10, 10, 10, 0);
+            border.HorizontalAlignment = HorizontalAlignment.Left;
+            border.CornerRadius = new CornerRadius(30);
+            border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
+
+            var grid = new Grid();
+
+            var avatarColumn = new ColumnDefinition();
+            avatarColumn.Width = new GridLength(75);
+
+            var usernameColumn = new ColumnDefinition();
+
+            grid.ColumnDefinitions.Add(avatarColumn);
+            grid.ColumnDefinitions.Add(usernameColumn);
+
+            var avatarBorder = new Border();
+            avatarBorder.BorderBrush = new SolidColorBrush(Colors.Gray);
+            avatarBorder.BorderThickness = new Thickness(1);
+            avatarBorder.CornerRadius = new CornerRadius(100);
+            avatarBorder.Width = avatarBorder.Height = 50;
+            avatarBorder.Margin = new Thickness(10);
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(avatarUrl, UriKind.Absolute);
+            bitmap.EndInit();
+            avatarBorder.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+
+            var usernameTextBlock = new TextBlock();
+            usernameTextBlock.MinWidth = 400;
+            usernameTextBlock.VerticalAlignment = VerticalAlignment.Center;
+            usernameTextBlock.Foreground = new SolidColorBrush(Colors.White);
+            usernameTextBlock.Margin = new Thickness(10);
+            usernameTextBlock.FontSize = 14d;
+            usernameTextBlock.FontFamily = new FontFamily("Segoe UI Semibold");
+            usernameTextBlock.Text = username;
+
+            Grid.SetColumn(avatarBorder, 0);
+            grid.Children.Add(avatarBorder);
+
+            Grid.SetColumn(usernameTextBlock, 1);
+            grid.Children.Add(usernameTextBlock);
 
             border.Child = grid;
 

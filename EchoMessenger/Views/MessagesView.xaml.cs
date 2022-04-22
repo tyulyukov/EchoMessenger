@@ -14,7 +14,7 @@ namespace EchoMessenger
         {
             InitializeComponent();
 
-            var message = UIMessageFactory.CreateForeignMessage("ты че даун?", DateTime.Now);
+            var message = UIElementsFactory.CreateForeignMessage("ты че даун?", DateTime.Now);
             MessagesStackPanel.Children.Add(message);
         }
 
@@ -23,7 +23,7 @@ namespace EchoMessenger
             if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
                 return;
 
-            var message = UIMessageFactory.CreateOwnMessage(MessageTextBox.Text, DateTime.Now);
+            var message = UIElementsFactory.CreateOwnMessage(MessageTextBox.Text, DateTime.Now);
             MessageTextBox.Text = String.Empty;
 
             MessagesStackPanel.Children.Add(message);

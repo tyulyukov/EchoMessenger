@@ -11,6 +11,7 @@
     <None Remove="Resources\attachment.png" />
     <None Remove="Resources\echo.png" />
     <None Remove="Resources\image.png" />
+    <None Remove="Resources\loading spinner.gif" />
     <None Remove="Resources\search.png" />
     <None Remove="Resources\send.png" />
     <None Remove="Resources\user.png" />

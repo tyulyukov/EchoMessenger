@@ -2,6 +2,8 @@
 using Firebase.Database;
 using Firebase.Database.Query;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EchoMessenger.Helpers
@@ -116,6 +118,19 @@ namespace EchoMessenger.Helpers
             await firebase.Child("users").Child(User.Key).PatchAsync(User.Object);
 
             return true;
+        }
+
+        public static async Task<IEnumerable<FirebaseObject<User>>?> SearchUsers(Func<FirebaseObject<User>, bool> predicate)
+        {
+            if (firebase == null || User == null)
+                return null;
+
+            var users = (await firebase.Child("users").OnceAsync<User>()).Where(predicate);
+
+            foreach (var user in users)
+                user.Object.PasswordHash = String.Empty;
+
+            return users;
         }
     }
 }

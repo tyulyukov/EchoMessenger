@@ -1,5 +1,6 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
+using EchoMessenger.Views;
 using EchoMessenger.Views.Settings;
 using Firebase.Database;
 using System;
@@ -16,6 +17,7 @@ namespace EchoMessenger
     {
         private readonly MessagesView messagesView;
         private readonly SettingsView settingsView;
+        private readonly SearchView searchView;
 
         public MessengerWindow()
         {
@@ -23,6 +25,7 @@ namespace EchoMessenger
 
             messagesView = new MessagesView();
             settingsView = new SettingsView(this);
+            searchView = new SearchView();
 
             OpenTab(messagesView);
         }
@@ -42,6 +45,11 @@ namespace EchoMessenger
         {
             settingsView.Open();
             OpenTab(settingsView);
+        }
+
+        private void ButtonSearch_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            OpenTab(searchView);
         }
     }
 }

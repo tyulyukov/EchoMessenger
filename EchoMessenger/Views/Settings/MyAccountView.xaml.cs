@@ -123,14 +123,15 @@ namespace EchoMessenger.Views.Settings
                     return;
                 }
 
-                await Database.ChangeAvatar(avatarUrl);
+                if (await Database.ChangeAvatar(avatarUrl))
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(Database.User.Object.AvatarUrl, UriKind.Absolute);
+                    bitmap.EndInit();
 
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(Database.User.Object.AvatarUrl, UriKind.Absolute);
-                bitmap.EndInit();
-
-                Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+                    Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+                }
             }
         }
     }
