@@ -4,20 +4,30 @@ using Firebase.Database.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace EchoMessenger.Helpers
 {
     public static class Database
     {
-        public static FirebaseObject<User> User { get; private set; }
+        public static FirebaseObject<User>? User { get; private set; }
+        private static IEnumerable<FirebaseObject<User>>? users;
 
         private static FirebaseClient? firebase;
 
-        public static void Configure()
+        public static async void Configure()
         {
             firebase = new FirebaseClient("https://echo-c09f3-default-rtdb.europe-west1.firebasedatabase.app/");
             User = null;
+            users = await firebase.Child("users").OnceAsync<User>();
+            var observable = firebase
+              .Child("users")
+              .AsObservable<User>()
+              .Subscribe(async u => users = await firebase.Child("users").OnceAsync<User>());
+
+            foreach (var user in users)
+                user.Object.PasswordHash = String.Empty;
         }
 
         public static async Task<bool> RegisterUserAsync(User user)
@@ -122,15 +132,12 @@ namespace EchoMessenger.Helpers
 
         public static async Task<IEnumerable<FirebaseObject<User>>?> SearchUsers(Func<FirebaseObject<User>, bool> predicate)
         {
-            if (firebase == null || User == null)
+            if (firebase == null || User == null || users == null)
                 return null;
 
-            var users = (await firebase.Child("users").OnceAsync<User>()).Where(predicate);
+            var searchedUsers = users.Where(predicate);
 
-            foreach (var user in users)
-                user.Object.PasswordHash = String.Empty;
-
-            return users;
+            return searchedUsers;
         }
     }
 }
