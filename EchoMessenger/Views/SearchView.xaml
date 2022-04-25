@@ -9,7 +9,7 @@
     <Grid Background="#FF131419">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
-            <RowDefinition Height="5"/>
+            <RowDefinition Height="3"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         
@@ -27,7 +27,7 @@
             </TextBox>
         </DockPanel>
 
-        <ProgressBar x:Name="SearchProgressBar" Grid.Row="1" Background="#FF131419" Foreground="White"></ProgressBar>
+        <ProgressBar x:Name="SearchProgressBar" Grid.Row="1" Background="#FF131419" Foreground="White" BorderBrush="{x:Null}"></ProgressBar>
 
         <ScrollViewer Grid.Row="2" x:Name="UsersScroll" VerticalScrollBarVisibility="Auto">
             <StackPanel x:Name="UsersStackPanel" Orientation="Vertical" Background="#FF131419"/>

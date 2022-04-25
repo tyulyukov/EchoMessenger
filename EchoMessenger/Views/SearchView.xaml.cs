@@ -17,6 +17,8 @@ namespace EchoMessenger.Views
         private bool isSearching = false;
         private double progress = 0;
         private SynchronizationContext? uiSync;
+        private IEnumerable<FirebaseObject<User>>? users;
+        private object locker = new object();
 
         public SearchView()
         {
@@ -26,23 +28,28 @@ namespace EchoMessenger.Views
 
         private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            UsersStackPanel.Children.Clear();
-
             TextBox? textBox = sender as TextBox;
 
             if (textBox == null || String.IsNullOrWhiteSpace(textBox.Text))
+            {
+                UsersStackPanel.Children.Clear();
                 return;
-
+            }
+            
             _ = Task.Run(StartFillingProgressBar);
-            var users = await SearchUsers(textBox.Text);
+            users = await SearchUsers(textBox.Text);
             _ = Task.Run(EndFillingProgressBar);
 
             if (users == null)
                 return;
+              
+            lock (locker)
+            {
+                UsersStackPanel.Children.Clear();
 
-            foreach (var user in users)
-                UsersStackPanel.Children.Add(UIElementsFactory.CreateUsersCard(user.Object.AvatarUrl, user.Object.Name));
-            
+                foreach (var user in users)
+                    UsersStackPanel.Children.Add(UIElementsFactory.CreateUsersCard(user.Object.AvatarUrl, user.Object.Name));
+            }
         }
 
         private async Task<IEnumerable<FirebaseObject<User>>?> SearchUsers(String contains)
