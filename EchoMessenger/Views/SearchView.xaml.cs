@@ -26,7 +26,7 @@ namespace EchoMessenger.Views
             uiSync = SynchronizationContext.Current;
         }
 
-        private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox? textBox = sender as TextBox;
 
@@ -35,14 +35,14 @@ namespace EchoMessenger.Views
                 UsersStackPanel.Children.Clear();
                 return;
             }
-            
+
             _ = Task.Run(StartFillingProgressBar);
-            users = await SearchUsers(textBox.Text);
+            users = SearchUsers(textBox.Text);
             _ = Task.Run(EndFillingProgressBar);
 
             if (users == null)
                 return;
-              
+
             lock (locker)
             {
                 UsersStackPanel.Children.Clear();
@@ -52,9 +52,9 @@ namespace EchoMessenger.Views
             }
         }
 
-        private async Task<IEnumerable<FirebaseObject<User>>?> SearchUsers(String contains)
+        private IEnumerable<FirebaseObject<User>>? SearchUsers(String contains)
         {
-            return await Database.SearchUsers(u => u.Object.Name.ToLower().Contains(contains.Trim().ToLower()) && u.Key != Database.User.Key);
+            return Database.SearchUsers(u => u.Object.Name.ToLower().Contains(contains.Trim().ToLower()) && u.Key != Database.User?.Key);
         }
 
         private void ButtonSearch_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)

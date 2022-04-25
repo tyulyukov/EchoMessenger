@@ -12,22 +12,20 @@ namespace EchoMessenger.Helpers
     public static class Database
     {
         public static FirebaseObject<User>? User { get; private set; }
-        private static IEnumerable<FirebaseObject<User>>? users;
 
+        private static IEnumerable<FirebaseObject<User>>? users;
         private static FirebaseClient? firebase;
 
         public static async void Configure()
         {
             firebase = new FirebaseClient("https://echo-c09f3-default-rtdb.europe-west1.firebasedatabase.app/");
             User = null;
-            users = await firebase.Child("users").OnceAsync<User>();
+            users = await GetUsers();
+
             var observable = firebase
               .Child("users")
               .AsObservable<User>()
-              .Subscribe(async u => users = await firebase.Child("users").OnceAsync<User>());
-
-            foreach (var user in users)
-                user.Object.PasswordHash = String.Empty;
+              .Subscribe(async u => users = await GetUsers());
         }
 
         public static async Task<bool> RegisterUserAsync(User user)
@@ -130,7 +128,7 @@ namespace EchoMessenger.Helpers
             return true;
         }
 
-        public static async Task<IEnumerable<FirebaseObject<User>>?> SearchUsers(Func<FirebaseObject<User>, bool> predicate)
+        public static IEnumerable<FirebaseObject<User>>? SearchUsers(Func<FirebaseObject<User>, bool> predicate)
         {
             if (firebase == null || User == null || users == null)
                 return null;
@@ -138,6 +136,19 @@ namespace EchoMessenger.Helpers
             var searchedUsers = users.Where(predicate);
 
             return searchedUsers;
+        }
+
+        private static async Task<IEnumerable<FirebaseObject<User>>> GetUsers()
+        {
+            if (firebase == null || User == null || users == null)
+                return null;
+
+            var firebaseUsers = await firebase.Child("users").OnceAsync<User>();
+
+            foreach (var user in firebaseUsers)
+                user.Object.PasswordHash = String.Empty;
+
+            return firebaseUsers;
         }
     }
 }
