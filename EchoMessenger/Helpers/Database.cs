@@ -14,6 +14,7 @@ namespace EchoMessenger.Helpers
         public static FirebaseObject<User>? User { get; private set; }
 
         private static IEnumerable<FirebaseObject<User>>? users;
+        private static IEnumerable<FirebaseObject<Message>>? messages;
         private static FirebaseClient? firebase;
 
         public static async Task Configure()
@@ -21,11 +22,17 @@ namespace EchoMessenger.Helpers
             firebase = new FirebaseClient("https://echo-c09f3-default-rtdb.europe-west1.firebasedatabase.app/");
             User = null;
             users = await GetUsers();
+            messages = await GetMessages();
 
-            var observable = firebase
+            var observableUsers = firebase
               .Child("users")
               .AsObservable<User>()
               .Subscribe(async u => users = await GetUsers());
+
+            var observableMessages = firebase
+              .Child("messages")
+              .AsObservable<Message>()
+              .Subscribe(async m => messages = await GetMessages());
         }
 
         public static async Task<bool> RegisterUserAsync(User user)
@@ -138,6 +145,30 @@ namespace EchoMessenger.Helpers
             return searchedUsers;
         }
 
+        public static Chat? GetChat(FirebaseObject<User> targetUser)
+        {
+            if (firebase == null || User == null || users == null)
+                return null;
+
+            var chatMessages = messages?.Where(m => 
+                             (m.Object.Receiver.Name == targetUser.Object.Name && m.Object.Sender.Name == User.Object.Name)
+                             || (m.Object.Sender.Name == targetUser.Object.Name && m.Object.Receiver.Name == User.Object.Name))
+                             .OrderBy(m => m.Object.SentAt)
+                             .ToList();
+
+            return new Chat(targetUser, chatMessages);
+        }
+
+        public static async Task<bool> SendMessage(Message message)
+        {
+            if (firebase == null || String.IsNullOrWhiteSpace(message.Text))
+                return false;
+
+            await firebase.Child("messages").PostAsync(message);
+
+            return true;
+        }
+
         private static async Task<IEnumerable<FirebaseObject<User>>> GetUsers()
         {
             if (firebase == null)
@@ -149,6 +180,14 @@ namespace EchoMessenger.Helpers
                 user.Object.PasswordHash = String.Empty;
 
             return firebaseUsers;
+        }
+
+        private static async Task<IEnumerable<FirebaseObject<Message>>> GetMessages()
+        {
+            if (firebase == null)
+                return null;
+
+            return await firebase.Child("messages").OnceAsync<Message>();
         }
     }
 }

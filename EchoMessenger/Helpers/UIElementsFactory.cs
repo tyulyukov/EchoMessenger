@@ -32,7 +32,7 @@ namespace EchoMessenger.Helpers
             border.MinHeight = 50;
             border.BorderBrush = new SolidColorBrush(Colors.White);
             border.BorderThickness = new Thickness(1);
-            border.Margin = new Thickness(10);
+            border.Margin = new Thickness(10, 10, 10, 0);
             border.CornerRadius = new CornerRadius(30);
 
             var grid = new Grid();

@@ -14,12 +14,12 @@
         </Grid.RowDefinitions>
 
         <Canvas Background="#FF242430" Grid.Row="0">
-            <Label HorizontalContentAlignment="Left" Margin="10 0" MaxWidth="300" Foreground="White" FontSize="16">ur homie</Label>
+            <Label x:Name="TargetUserName" HorizontalContentAlignment="Left" Margin="10 0" MaxWidth="300" Foreground="White" FontSize="16">-nickname-</Label>
         </Canvas>
 
         <ScrollViewer x:Name="MessagesScroll" VerticalScrollBarVisibility="Auto" Grid.Row="1">
             <StackPanel x:Name="MessagesStackPanel" Orientation="Vertical" Background="#FF131419" >
-                <Border MinHeight="50" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Left" Background="#FF1C1D26" CornerRadius="30,30,30,30">
+                <!--<Border MinHeight="50" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Left" Background="#FF1C1D26" CornerRadius="30,30,30,30">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition MinWidth="50" MaxWidth="500"/>
@@ -40,7 +40,7 @@
                         <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Center" Margin="10">яbgghdghghghgfhdfhhdfhghdghgfhdhdgfhgfhgdhgdghfhghhdhgdhdfghghdghfhghghgfhgfhghghghgfhvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv</TextBlock>
                         <TextBlock Grid.Column="1" Foreground="LightGray" VerticalAlignment="Bottom" Margin="0,0,10,15">00:34</TextBlock>
                     </Grid>
-                </Border>
+                </Border>-->
             </StackPanel>
         </ScrollViewer>
 

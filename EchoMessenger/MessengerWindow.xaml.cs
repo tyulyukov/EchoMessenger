@@ -23,14 +23,14 @@ namespace EchoMessenger
         {
             InitializeComponent();
 
-            MessagesView = new MessagesView();
+            MessagesView = new MessagesView(this);
             SettingsView = new SettingsView(this);
-            SearchView = new SearchView();
+            SearchView = new SearchView(this);
 
             OpenTab(MessagesView);
         }
 
-        private void OpenTab(UserControl tab)
+        public void OpenTab(UserControl tab)
         {
             OpenedTab.Children.Clear();
             OpenedTab.Children.Add(tab);

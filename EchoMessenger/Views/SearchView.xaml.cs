@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace EchoMessenger.Views
 {
@@ -19,11 +21,14 @@ namespace EchoMessenger.Views
         private SynchronizationContext? uiSync;
         private IEnumerable<FirebaseObject<User>>? users;
         private object locker = new object();
+        private MessengerWindow? Owner;
 
-        public SearchView()
+        public SearchView(Window owner)
         {
             InitializeComponent();
             uiSync = SynchronizationContext.Current;
+
+            Owner = (MessengerWindow)owner;
         }
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -50,7 +55,22 @@ namespace EchoMessenger.Views
                 UsersStackPanel.Children.Clear();
 
                 foreach (var user in users)
-                    UsersStackPanel.Children.Add(UIElementsFactory.CreateUsersCard(user.Object.AvatarUrl, user.Object.Name));
+                {
+                    var userCard = UIElementsFactory.CreateUsersCard(user.Object.AvatarUrl, user.Object.Name);
+
+                    var chat = Database.GetChat(user);
+
+                    if (chat != null)
+                    {
+                        userCard.MouseLeftButtonUp += (object sender, MouseButtonEventArgs e) =>
+                        {
+                            Owner?.MessagesView.OpenChat(chat);
+                            Owner?.OpenTab(Owner.MessagesView);
+                        };
+                    }
+
+                    UsersStackPanel.Children.Add(userCard);
+                }
             }
         }
 
@@ -59,7 +79,7 @@ namespace EchoMessenger.Views
             return Database.SearchUsers(u => u.Object.Name.ToLower().Contains(contains.Trim().ToLower()) && u.Key != Database.User?.Key);
         }
 
-        private void ButtonSearch_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ButtonSearch_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             SearchTextBox_TextChanged(SearchTextBox, (TextChangedEventArgs)EventArgs.Empty);
         }

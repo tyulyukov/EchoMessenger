@@ -31,7 +31,7 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <ProgressBar x:Name="SettingsProgressBar" Grid.Row="0" Background="#FF131419" Foreground="White" BorderBrush="{x:Null}"></ProgressBar>
+            <ProgressBar x:Name="SettingsProgressBar" Grid.Row="0" Background="#FF131419" Foreground="White" BorderThickness="0" BorderBrush="#FF131419"></ProgressBar>
 
             <ScrollViewer Grid.Row="1" Background="#FF131419">
                 <StackPanel Orientation="Vertical">

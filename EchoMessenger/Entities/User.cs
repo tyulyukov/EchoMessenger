@@ -5,14 +5,16 @@ namespace EchoMessenger.Entities
     public class User
     {
         public String Name { get; set; }
+        public String Description { get; set; }
         public String PasswordHash { get; set; }
         public String AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public User(String name, String password, String avatarUrl = null)
+        public User(String name, String password, String description = null, String avatarUrl = null)
         {
             CreatedAt = DateTime.Now;
             Name = name;
+            Description = description;
             PasswordHash = Helpers.LogInManager.GetPasswordHash(password);
 
             if (avatarUrl != null)

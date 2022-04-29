@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Firebase.Database;
+using System;
 using System.Collections.Generic;
 
 namespace EchoMessenger.Entities
@@ -14,12 +15,12 @@ namespace EchoMessenger.Entities
         public bool HaveSeen { get; set; }
         public List<Attachment> Attachments { get; set; }
 
-        public Message(User sender, User receiver, string text, DateTime sentAt, Message repliedOn = null, List<Attachment> attachments = null)
+        public Message(User sender, User receiver, string text, Message repliedOn = null, List<Attachment> attachments = null)
         {
             Sender = sender;
             Receiver = receiver;
             Text = text;
-            SentAt = sentAt;
+            SentAt = DateTime.Now;
             RepliedOn = repliedOn;
             IsEdited = false;
             HaveSeen = false;
