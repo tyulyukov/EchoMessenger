@@ -16,7 +16,7 @@ namespace EchoMessenger.Helpers
         private static IEnumerable<FirebaseObject<User>>? users;
         private static FirebaseClient? firebase;
 
-        public static async void Configure()
+        public static async Task Configure()
         {
             firebase = new FirebaseClient("https://echo-c09f3-default-rtdb.europe-west1.firebasedatabase.app/");
             User = null;
@@ -140,7 +140,7 @@ namespace EchoMessenger.Helpers
 
         private static async Task<IEnumerable<FirebaseObject<User>>> GetUsers()
         {
-            if (firebase == null || User == null || users == null)
+            if (firebase == null)
                 return null;
 
             var firebaseUsers = await firebase.Child("users").OnceAsync<User>();

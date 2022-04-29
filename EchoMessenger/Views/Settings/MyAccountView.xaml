@@ -33,7 +33,7 @@
 
             <Border x:Name="Avatar" MouseEnter="Avatar_MouseEnter" MouseLeave="Avatar_MouseLeave" Grid.Column="0" Width="130" Height="130" Margin="10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
                 <Border x:Name="AvatarOverlay" MouseLeftButtonUp="AvatarOverlay_MouseLeftButtonUp" Visibility="Hidden" Background="#59000000" CornerRadius="100">
-                    <Image Width="40" Height="40" Source="/EchoMessenger;component/resources/image.png"/>
+                    <Image Width="40" Height="40" Source="/EchoMessenger;component/Images/image.png"/>
                 </Border>
             </Border>
 

@@ -8,13 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\attachment.png" />
-    <None Remove="Resources\echo.png" />
-    <None Remove="Resources\image.png" />
-    <None Remove="Resources\loading spinner.gif" />
-    <None Remove="Resources\search.png" />
-    <None Remove="Resources\send.png" />
-    <None Remove="Resources\user.png" />
+    <None Remove="Images\attachment.png" />
+    <None Remove="Images\echo.png" />
+    <None Remove="Images\image.png" />
+    <None Remove="Images\loading spinner.gif" />
+    <None Remove="Images\search.png" />
+    <None Remove="Images\send.png" />
+    <None Remove="Images\user.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,12 +25,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\attachment.png" />
-    <Resource Include="Resources\echo.png" />
-    <Resource Include="Resources\image.png" />
-    <Resource Include="Resources\search.png" />
-    <Resource Include="Resources\send.png" />
-    <Resource Include="Resources\user.png" />
+    <Resource Include="Images\attachment.png" />
+    <Resource Include="Images\echo.png" />
+    <Resource Include="Images\image.png" />
+    <Resource Include="Images\search.png" />
+    <Resource Include="Images\send.png" />
+    <Resource Include="Images\user.png" />
   </ItemGroup>
 
 </Project>

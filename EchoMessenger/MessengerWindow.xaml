@@ -22,7 +22,7 @@
                     <Border MouseLeftButtonUp="ButtonSettings_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
                         <Border Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Border.Background>
-                                <ImageBrush ImageSource="/EchoMessenger;component/resources/user.png" Stretch="UniformToFill"/>
+                                <ImageBrush ImageSource="/EchoMessenger;component/Images/user.png" Stretch="UniformToFill"/>
                             </Border.Background>
                         </Border>
                     </Border>
@@ -30,7 +30,7 @@
                     <Border MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" Width="40" Height="40" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
                         <Border Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Border.Background>
-                                <ImageBrush ImageSource="/EchoMessenger;component/resources/search.png" Stretch="UniformToFill"/>
+                                <ImageBrush ImageSource="/EchoMessenger;component/Images/search.png" Stretch="UniformToFill"/>
                             </Border.Background>
                         </Border>
                     </Border>

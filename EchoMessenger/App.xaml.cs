@@ -11,7 +11,7 @@ namespace EchoMessenger
     {
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
-            Database.Configure();
+            await Database.Configure();
             Storage.Configure();
 
             var userInfo = LogInManager.GetCurrentUser();

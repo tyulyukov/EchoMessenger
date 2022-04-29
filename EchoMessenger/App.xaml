@@ -5,12 +5,12 @@
              Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
-            <BitmapImage x:Key="UserImage" UriSource="/Resources/user.png" />
-            <BitmapImage x:Key="SearchImage" UriSource="/Resources/search.png" />
-            <BitmapImage x:Key="AttachmentImage" UriSource="/Resources/attachment.png" />
-            <BitmapImage x:Key="SendImage" UriSource="/Resources/attachment.png" />
-            <BitmapImage x:Key="EchoImage" UriSource="/Resources/echo.png" />
-            <BitmapImage x:Key="Image" UriSource="/Resources/image.png" />
+            <ImageBrush x:Key="UserImage" ImageSource="/EchoMessenger;component/Images/user.png"/>
+            <ImageBrush x:Key="SearchImage" ImageSource="/EchoMessenger;component/Images/search.png"/>
+            <ImageBrush x:Key="AttachmentImage" ImageSource="/EchoMessenger;component/Images/attachment.png"/>
+            <ImageBrush x:Key="SendImage" ImageSource="/EchoMessenger;component/Images/send.png"/>
+            <ImageBrush x:Key="EchoImage" ImageSource="/EchoMessenger;component/Images/echo.png"/>
+            <ImageBrush x:Key="Image" ImageSource="/EchoMessenger;component/Images/image.png"/>
 
             <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
                 <Setter Property="OverridesDefaultStyle" Value="true"/>

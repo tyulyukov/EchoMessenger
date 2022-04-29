@@ -15,19 +15,19 @@ namespace EchoMessenger
     /// </summary>
     public partial class MessengerWindow : Window
     {
-        private readonly MessagesView messagesView;
-        private readonly SettingsView settingsView;
-        private readonly SearchView searchView;
+        public readonly MessagesView MessagesView;
+        public readonly SettingsView SettingsView;
+        public readonly SearchView SearchView;
 
         public MessengerWindow()
         {
             InitializeComponent();
 
-            messagesView = new MessagesView();
-            settingsView = new SettingsView(this);
-            searchView = new SearchView();
+            MessagesView = new MessagesView();
+            SettingsView = new SettingsView(this);
+            SearchView = new SearchView();
 
-            OpenTab(messagesView);
+            OpenTab(MessagesView);
         }
 
         private void OpenTab(UserControl tab)
@@ -38,18 +38,18 @@ namespace EchoMessenger
         
         private void ButtonOpenChat_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            OpenTab(messagesView);
+            OpenTab(MessagesView);
         }
 
         private void ButtonSettings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            settingsView.Open();
-            OpenTab(settingsView);
+            SettingsView.Open();
+            OpenTab(SettingsView);
         }
 
         private void ButtonSearch_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            OpenTab(searchView);
+            OpenTab(SearchView);
         }
     }
 }

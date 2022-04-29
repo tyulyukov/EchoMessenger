@@ -25,18 +25,25 @@
             <ColumnDefinition Width="175"/>
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Column="0" Background="#FF131419">
-            <StackPanel Orientation="Vertical">
-                <TextBlock x:Name="TabName" HorizontalAlignment="Center" Foreground="White" Margin="10" FontSize="22" FontFamily="Segoe UI Semibold">TabName</TextBlock>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
 
-                <Border Margin="15 0" Background="DimGray" Height="1"/>
+            <ProgressBar x:Name="SettingsProgressBar" Grid.Row="0" Background="#FF131419" Foreground="White" BorderBrush="{x:Null}"></ProgressBar>
 
-                <Grid x:Name="OpenedTab">
-                    
-                </Grid>
-            </StackPanel>
-        </ScrollViewer>
+            <ScrollViewer Grid.Row="1" Background="#FF131419">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock x:Name="TabName" HorizontalAlignment="Center" Foreground="White" Margin="10" FontSize="22" FontFamily="Segoe UI Semibold">TabName</TextBlock>
 
+                    <Border Margin="15 0" Background="DimGray" Height="1"/>
+
+                    <Grid x:Name="OpenedTab"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+        
         <ScrollViewer Grid.Column="1" Background="#FF242430">
             <StackPanel Orientation="Vertical">
                 <Border x:Name="MyAccountButtonTab" Style="{StaticResource BorderMouseOver}" MouseLeftButtonUp="ButtonTab_MouseLeftButtonUp" Margin="10,10,10,2" CornerRadius="5" Uid="0" BorderThickness="1">

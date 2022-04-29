@@ -15,7 +15,7 @@
         
         <DockPanel Background="#FF242430" Grid.Row="0">
             <Button DockPanel.Dock="Right" x:Name="ButtonSearch" MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" BorderThickness="0" Width="30" Height="30" Margin="10" Background="Transparent">
-                <Image Source="/EchoMessenger;component/resources/search.png" />
+                <Image Source="/EchoMessenger;component/Images/search.png" />
             </Button>
 
             <TextBox x:Name="SearchTextBox" TextChanged="SearchTextBox_TextChanged" Foreground="White" VerticalContentAlignment="Center" FontSize="14" BorderBrush="White" Background="{x:Null}" Margin="10,10,5,10" Height="30">

@@ -1,6 +1,8 @@
 ﻿using EchoMessenger.Helpers;
+using Firebase.Storage;
 using Microsoft.Win32;
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -13,12 +15,12 @@ namespace EchoMessenger.Views.Settings
     /// </summary>
     public partial class MyAccountView : UserControl
     {
-        private Window owner;
+        private MessengerWindow? owner;
 
         public MyAccountView(Window owner)
         {
             InitializeComponent();
-            this.owner = owner;
+            this.owner = owner as MessengerWindow;
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
@@ -37,12 +39,12 @@ namespace EchoMessenger.Views.Settings
         {
             LogInManager.ForgetCurrentUser();
             new LoginWindow().Show();
-            owner.Close();
+            owner?.Close();
         }
 
         private async void ButtonSaveUsername_Click(object sender, RoutedEventArgs e)
         {
-            if (Database.User.Object.Name.ToLower() == UsernameBox.Text.ToLower())
+            if (Database.User?.Object.Name.ToLower() == UsernameBox.Text.ToLower())
             {
                 UsernameBox.Text = Database.User.Object.Name.ToLower();
                 return;
@@ -86,6 +88,8 @@ namespace EchoMessenger.Views.Settings
                 return;
             }
 
+
+
             LogInManager.ForgetCurrentUser();
             LogInManager.Remember(Database.User.Object);
 
@@ -114,16 +118,21 @@ namespace EchoMessenger.Views.Settings
 
             if (open.ShowDialog(owner) == true)
             {
+                _ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
+
                 var image = Media.ProccessImage(open.FileName);
                 var avatarUrl = await Storage.UploadAvatarAsync(image);
 
                 if (String.IsNullOrWhiteSpace(avatarUrl))
                 {
+                    owner?.SettingsView.EndFillingProgressBar();
                     MessageBox.Show("Something went wrong...");
                     return;
                 }
 
-                if (await Database.ChangeAvatar(avatarUrl))
+                var changingAvatarTask = Database.ChangeAvatar(avatarUrl);
+
+                if (await changingAvatarTask)
                 {
                     var bitmap = new BitmapImage();
                     bitmap.BeginInit();
@@ -132,6 +141,8 @@ namespace EchoMessenger.Views.Settings
 
                     Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
                 }
+
+                _ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
             }
         }
     }

@@ -32,6 +32,8 @@ namespace EchoMessenger.Views
 
             if (textBox == null || String.IsNullOrWhiteSpace(textBox.Text))
             {
+                _ = Task.Run(EndFillingProgressBar);
+                users = null;
                 UsersStackPanel.Children.Clear();
                 return;
             }
