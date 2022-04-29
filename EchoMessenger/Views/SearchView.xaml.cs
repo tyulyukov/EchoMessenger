@@ -31,7 +31,7 @@ namespace EchoMessenger.Views
             Owner = (MessengerWindow)owner;
         }
 
-        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox? textBox = sender as TextBox;
 
@@ -58,16 +58,16 @@ namespace EchoMessenger.Views
                 {
                     var userCard = UIElementsFactory.CreateUsersCard(user.Object.AvatarUrl, user.Object.Name);
 
-                    var chat = Database.GetChat(user);
-
-                    if (chat != null)
+                    userCard.MouseLeftButtonUp += async (object sender, MouseButtonEventArgs e) =>
                     {
-                        userCard.MouseLeftButtonUp += (object sender, MouseButtonEventArgs e) =>
-                        {
-                            Owner?.MessagesView.OpenChat(chat);
-                            Owner?.OpenTab(Owner.MessagesView);
-                        };
-                    }
+                        var chat = await Database.GetChat(user.Object);
+
+                        if (chat == null)
+                            return;
+
+                        Owner?.MessagesView.OpenChat(chat);
+                        Owner?.OpenTab(Owner.MessagesView);
+                    };
 
                     UsersStackPanel.Children.Add(userCard);
                 }

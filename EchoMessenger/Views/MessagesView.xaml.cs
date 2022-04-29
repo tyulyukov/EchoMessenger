@@ -13,7 +13,7 @@ namespace EchoMessenger
     /// </summary>
     public partial class MessagesView : UserControl
     {
-        private Chat? currentChat;
+        private FirebaseObject<Chat> currentChat;
         public MessengerWindow? Owner;
 
         public MessagesView(Window owner)
@@ -23,24 +23,24 @@ namespace EchoMessenger
             Owner = (MessengerWindow?)owner;
         }
 
-        public void OpenChat(Chat chat)
+        public void OpenChat(FirebaseObject<Chat> chat)
         {
             currentChat = chat;
 
             MessagesStackPanel.Children.Clear();
-            TargetUserName.Content = chat.TargetUser.Object.Name;
+            TargetUserName.Content = chat.Object.TargetUser.Name;
 
-            if (currentChat.Messages == null)
+            if (currentChat.Object.Messages == null)
                 return;
 
-            foreach (var message in currentChat.Messages)
+            foreach (var message in currentChat.Object.Messages)
             {
                 Border messageBorder;
 
-                if (message.Object.Sender.Name == Database.User?.Object.Name)
-                    messageBorder = UIElementsFactory.CreateOwnMessage(message.Object.Text, message.Object.SentAt);
+                if (message.Sender.Name == Database.User?.Object.Name)
+                    messageBorder = UIElementsFactory.CreateOwnMessage(message.Text, message.SentAt);
                 else
-                    messageBorder = UIElementsFactory.CreateForeignMessage(message.Object.Text, message.Object.SentAt);
+                    messageBorder = UIElementsFactory.CreateForeignMessage(message.Text, message.SentAt);
 
                 MessagesStackPanel.Children.Add(messageBorder);
             }
@@ -51,10 +51,10 @@ namespace EchoMessenger
             if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
                 return;
 
-            var message = new Message(Database.User.Object, currentChat.TargetUser.Object, MessageTextBox.Text);
+            var message = new Message(Database.User.Object, currentChat.Object.TargetUser, MessageTextBox.Text);
             MessageTextBox.Text = String.Empty;
 
-            if (!await Database.SendMessage(message))
+            if (!await Database.SendMessage(currentChat, message))
             {
                 MessageBox.Show("Something went wrong...");
                 return;

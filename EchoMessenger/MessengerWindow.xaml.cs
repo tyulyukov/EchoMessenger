@@ -27,7 +27,31 @@ namespace EchoMessenger
             SettingsView = new SettingsView(this);
             SearchView = new SearchView(this);
 
-            OpenTab(MessagesView);
+            ChatsMenu.Children.Clear();
+            var chats = Database.GetLastChats();
+
+            if (chats == null)
+                return;
+
+            foreach (var chat in chats)
+            {
+                var targetUser = chat.Object.FromUser.Name == Database.User.Object.Name ? chat.Object.TargetUser : chat.Object.FromUser;
+
+                var icon = UIElementsFactory.CreateUserIcon(targetUser.AvatarUrl);
+
+                icon.MouseLeftButtonUp += async (object sender, MouseButtonEventArgs e) =>
+                {
+                    var chat = await Database.GetChat(targetUser);
+
+                    if (chat == null)
+                        return;
+
+                    MessagesView.OpenChat(chat);
+                    OpenTab(MessagesView);
+                };
+
+                ChatsMenu.Children.Add(icon);
+            }
         }
 
         public void OpenTab(UserControl tab)

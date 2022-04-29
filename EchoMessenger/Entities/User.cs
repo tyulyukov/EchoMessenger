@@ -20,7 +20,7 @@ namespace EchoMessenger.Entities
             if (avatarUrl != null)
                 AvatarUrl = avatarUrl;
             else
-                AvatarUrl = "https://upload.wikimedia.org/wikipedia/commons/f/f4/User_Avatar_2.png?20170128014309";
+                AvatarUrl = "https://firebasestorage.googleapis.com/v0/b/echo-c09f3.appspot.com/o/avatars%2Fdefault%20avatar.png?alt=media&token=3d11a976-b768-4895-acd5-cfb5fa6ba1b2";
         }
 
         public UserInfo GetUserInfo()

@@ -38,8 +38,8 @@
 
                 <Border Margin="15 0" Background="DimGray" Height="1"/>
 
-                <StackPanel x:Name="GroupsMenu" Margin="10 10 10 10">
-                    <Border MouseLeftButtonUp="ButtonOpenChat_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
+                <StackPanel x:Name="ChatsMenu" Margin="10 10 10 10">
+                    <!--<Border MouseLeftButtonUp="ButtonOpenChat_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
                         <Border.Background>
                             <ImageBrush ImageSource="https://upload.wikimedia.org/wikipedia/commons/f/f4/User_Avatar_2.png?20170128014309" Stretch="UniformToFill"/>
                         </Border.Background>
@@ -51,13 +51,21 @@
                         <Border.Background>
                             <ImageBrush ImageSource="C:\Users\makst\Downloads\me ka4ok.jpg" Stretch="UniformToFill"/>
                         </Border.Background>
-                    </Border>
+                    </Border>-->
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
 
         <Grid Grid.Column="1" x:Name="OpenedTab">
+            <Grid Background="#FF131419">
+                <Border Background="#FF242430" Width="200" Height="25" CornerRadius="15">
+                    <Border.Effect>
+                        <DropShadowEffect/>
+                    </Border.Effect>
 
+                    <Label Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center">Select chat</Label>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

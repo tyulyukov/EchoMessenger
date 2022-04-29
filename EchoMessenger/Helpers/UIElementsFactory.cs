@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
 namespace EchoMessenger.Helpers
 {
@@ -123,6 +124,39 @@ namespace EchoMessenger.Helpers
             border.Child = grid;
 
             return border;
+        }
+
+        public static Border CreateUserIcon(String avatarUrl)
+        {
+            var border = new Border();
+            border.Width = 40;
+            border.Height = 40;
+            border.Margin = new Thickness(0, 0, 0, 10);
+            border.CornerRadius = new CornerRadius(100);
+            border.BorderBrush = new SolidColorBrush(Colors.Gray);
+            border.BorderThickness = new Thickness(1);
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(avatarUrl, UriKind.Absolute);
+            bitmap.EndInit();
+            border.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+
+            return border;
+        }
+
+        public static Line CreateSelectionLine()
+        {
+            Line line = new Line();
+            line.X1 = 0;
+            line.Y1 = 0;
+            line.X2 = 0;
+            line.Y2 = 30;
+            line.Margin = new Thickness(-9, 5, 0, 5);
+            line.Stroke = new SolidColorBrush(Colors.White);
+            line.StrokeThickness = 3;
+
+            return line;
         }
     }
 }

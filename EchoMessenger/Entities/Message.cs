@@ -18,7 +18,11 @@ namespace EchoMessenger.Entities
         public Message(User sender, User receiver, string text, Message repliedOn = null, List<Attachment> attachments = null)
         {
             Sender = sender;
+            Sender.PasswordHash = String.Empty;
+
             Receiver = receiver;
+            Receiver.PasswordHash = String.Empty;
+
             Text = text;
             SentAt = DateTime.Now;
             RepliedOn = repliedOn;
