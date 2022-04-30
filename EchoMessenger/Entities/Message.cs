@@ -7,7 +7,6 @@ namespace EchoMessenger.Entities
     public class Message
     {
         public User Sender { get; set; }
-        public User Receiver { get; set; }
         public String Text { get; set; }
         public Message RepliedOn { get; set; }
         public DateTime SentAt { get; set; }
@@ -15,13 +14,10 @@ namespace EchoMessenger.Entities
         public bool HaveSeen { get; set; }
         public List<Attachment> Attachments { get; set; }
 
-        public Message(User sender, User receiver, string text, Message repliedOn = null, List<Attachment> attachments = null)
+        public Message(User sender, string text, Message repliedOn = null, List<Attachment> attachments = null)
         {
             Sender = sender;
             Sender.PasswordHash = String.Empty;
-
-            Receiver = receiver;
-            Receiver.PasswordHash = String.Empty;
 
             Text = text;
             SentAt = DateTime.Now;

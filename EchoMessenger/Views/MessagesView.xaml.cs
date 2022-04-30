@@ -51,7 +51,7 @@ namespace EchoMessenger
             if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
                 return;
 
-            var message = new Message(Database.User.Object, currentChat.Object.TargetUser, MessageTextBox.Text);
+            var message = new Message(Database.User.Object, MessageTextBox.Text);
             MessageTextBox.Text = String.Empty;
 
             if (!await Database.SendMessage(currentChat, message))

@@ -38,21 +38,7 @@
 
                 <Border Margin="15 0" Background="DimGray" Height="1"/>
 
-                <StackPanel x:Name="ChatsMenu" Margin="10 10 10 10">
-                    <!--<Border MouseLeftButtonUp="ButtonOpenChat_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
-                        <Border.Background>
-                            <ImageBrush ImageSource="https://upload.wikimedia.org/wikipedia/commons/f/f4/User_Avatar_2.png?20170128014309" Stretch="UniformToFill"/>
-                        </Border.Background>
-
-                        <Line X1="0" Y1="0" X2="0" Y2="30" Margin="-9 5 0 5" Stroke="White" StrokeThickness="3"/>
-                    </Border>
-
-                    <Border MouseLeftButtonUp="ButtonOpenChat_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
-                        <Border.Background>
-                            <ImageBrush ImageSource="C:\Users\makst\Downloads\me ka4ok.jpg" Stretch="UniformToFill"/>
-                        </Border.Background>
-                    </Border>-->
-                </StackPanel>
+                <StackPanel x:Name="ChatsMenu" Margin="10 10 10 10"/>
             </StackPanel>
         </ScrollViewer>
 

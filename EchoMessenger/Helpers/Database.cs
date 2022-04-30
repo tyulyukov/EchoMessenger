@@ -161,7 +161,7 @@ namespace EchoMessenger.Helpers
             if (firebase == null || User == null || users == null)
                 return null;
 
-            return chats?.Where(c => c.Object.TargetUser.Name == User.Object.Name || c.Object.FromUser.Name == User.Object.Name).OrderBy(c => c.Object.LastDateTime);
+            return chats?.Where(c => c.Object.TargetUser.Name == User.Object.Name || c.Object.FromUser.Name == User.Object.Name).OrderBy(c => c.Object.GetLastSentAt());
         }
 
         public static async Task<bool> SendMessage(FirebaseObject<Chat> chat, Message message)

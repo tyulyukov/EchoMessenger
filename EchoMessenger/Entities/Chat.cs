@@ -10,15 +10,6 @@ namespace EchoMessenger.Entities
         public User TargetUser { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<Message> Messages { get; set; }
-        public DateTime LastDateTime { 
-            get 
-            {
-                if (Messages.Count == 0)
-                    return CreatedAt;
-
-                return Messages.OrderBy(m => m.SentAt).Last().SentAt;
-            } 
-        }
 
         public Chat(User fromUser, User targetUser, List<Message> messages = null)
         {
@@ -30,6 +21,14 @@ namespace EchoMessenger.Entities
                 Messages = messages;
             else
                 Messages = new List<Message>();
+        }
+
+        public DateTime GetLastSentAt()
+        {
+            if (Messages.Count == 0)
+                return CreatedAt;
+
+            return Messages.OrderBy(m => m.SentAt).Last().SentAt;
         }
     }
 }
