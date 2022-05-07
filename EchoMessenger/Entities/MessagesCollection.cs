@@ -7,6 +7,7 @@ namespace EchoMessenger.Entities
     public class MessagesCollection
     {
         public IReadOnlyList<Message> Messages => messages;
+        public bool IsAllLoaded { get; private set; } = false;
 
         private List<Message> messages;
         private List<Message> remainingLoadedMessages;
@@ -32,6 +33,9 @@ namespace EchoMessenger.Entities
                 remainingLoadedMessages.RemoveRange(0, count);
             }
             
+            if (remainingLoadedMessages.Count == 0)
+                IsAllLoaded = true;
+
             return range;
         }
     }

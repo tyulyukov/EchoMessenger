@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
@@ -11,7 +12,7 @@ namespace EchoMessenger.Helpers
     {
         public static Border CreateOwnMessage(String text, DateTime dateTime)
         {
-            var border = CreateDefaultBorder(text, dateTime);
+            var border = CreateDefaultMessageBorder(text, dateTime);
             border.HorizontalAlignment = HorizontalAlignment.Right;
             border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#283EFF");
             
@@ -20,14 +21,14 @@ namespace EchoMessenger.Helpers
 
         public static Border CreateForeignMessage(String text, DateTime dateTime)
         {
-            var border = CreateDefaultBorder(text, dateTime);
+            var border = CreateDefaultMessageBorder(text, dateTime);
             border.HorizontalAlignment = HorizontalAlignment.Left;
             border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
 
             return border;
         }
 
-        private static Border CreateDefaultBorder(String text, DateTime time)
+        private static Border CreateDefaultMessageBorder(String text, DateTime time)
         {
             var border = new Border();
             border.MinHeight = 50;
@@ -157,6 +158,27 @@ namespace EchoMessenger.Helpers
             line.StrokeThickness = 3;
 
             return line;
+        }
+
+        public static Border CreateDateCard(DateTime date)
+        {
+            Border border = new Border();
+            border.Width = 200;
+            border.Height = 25;
+            border.CornerRadius = new CornerRadius(15);
+            border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF242430");
+            border.Margin = new Thickness(0, 10, 0, 0);
+            border.Effect = new DropShadowEffect();
+
+            Label label = new Label();
+            label.Foreground = new SolidColorBrush(Colors.White);
+            label.HorizontalContentAlignment = HorizontalAlignment.Center;
+            label.VerticalContentAlignment = VerticalAlignment.Center;
+            label.Content = date.ToLongDateString();
+
+            border.Child = label;
+
+            return border;
         }
     }
 }

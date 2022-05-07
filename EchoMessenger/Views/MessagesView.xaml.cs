@@ -2,12 +2,10 @@
 using EchoMessenger.Helpers;
 using Firebase.Database;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace EchoMessenger
 {
@@ -23,6 +21,9 @@ namespace EchoMessenger
         private FirebaseObject<Chat> currentChat;
         private double prevHeight = 0;
         private bool isLoadingMessages = false;
+        private bool loaded = false;
+        private DateTime? lastMessageSentAt = null;
+        private DateTime? firstMessageSentAt = null;
 
         public MessagesView(MessengerWindow owner)
         {
@@ -65,6 +66,9 @@ namespace EchoMessenger
 
         public void OpenChat(FirebaseObject<Chat> chat)
         {
+            if (currentChat == chat)
+                return;
+
             MessagesStackPanel.Children.Clear();
             currentChat = chat;
 
@@ -95,6 +99,12 @@ namespace EchoMessenger
 
             foreach (var message in messages)
             {
+                if (firstMessageSentAt == null)
+                    firstMessageSentAt = message.SentAt;
+
+                if ((lastMessageSentAt?.Year == message.SentAt.Year && lastMessageSentAt?.DayOfYear > message.SentAt.DayOfYear) || lastMessageSentAt?.Year > message.SentAt.Year)
+                    MessagesStackPanel.Children.Insert(0, UIElementsFactory.CreateDateCard((DateTime)lastMessageSentAt));
+
                 Border messageBorder;
 
                 if (message.Sender.Name == Database.User?.Object.Name)
@@ -102,8 +112,14 @@ namespace EchoMessenger
                 else
                     messageBorder = UIElementsFactory.CreateForeignMessage(message.Text, message.SentAt);
 
+                lastMessageSentAt = message.SentAt;
+
                 MessagesStackPanel.Children.Insert(0, messageBorder);
             }
+
+            if (messagesCollection.IsAllLoaded)
+                MessagesStackPanel.Children.Insert(0, UIElementsFactory.CreateDateCard((DateTime)lastMessageSentAt));
+
         }
 
         private void MessagesScroll_LayoutUpdated(object? sender, EventArgs e)
@@ -135,6 +151,9 @@ namespace EchoMessenger
                 return;
             }
 
+            if ((firstMessageSentAt?.Year == message.SentAt.Year && firstMessageSentAt?.DayOfYear < message.SentAt.DayOfYear) || firstMessageSentAt?.Year < message.SentAt.Year)
+                MessagesStackPanel.Children.Add(UIElementsFactory.CreateDateCard(message.SentAt));
+
             var messageBorder = UIElementsFactory.CreateOwnMessage(message.Text, message.SentAt);
 
             MessagesStackPanel.Children.Add(messageBorder);
@@ -148,13 +167,25 @@ namespace EchoMessenger
 
         private void MessagesScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (MessagesScroll.VerticalOffset + 50 > MessagesScroll.ScrollableHeight)
-                ButtonGoBottom.Visibility = Visibility.Collapsed;
-            else
-                ButtonGoBottom.Visibility = Visibility.Visible;
+            bool isVisible = MessagesScroll.VerticalOffset + 50 < MessagesScroll.ScrollableHeight;
+            ButtonGoBottom.ChangeVisibility(isVisible, TimeSpan.FromMilliseconds(150));
 
             if (MessagesScroll.VerticalOffset == 0 && !isLoadingMessages)
                 LoadOlderMessages();
+        }
+
+        private void UserControl_LayoutUpdated(object sender, EventArgs e)
+        {
+            if ((ActualHeight > 0 || ActualWidth > 0) && !loaded)
+            {
+                TargetUserName.ShowSmoothly(TimeSpan.FromMilliseconds(150));
+
+                loaded = true;
+            }
+            else if (ActualHeight == 0 && ActualWidth == 0)
+            {
+                loaded = false;
+            }
         }
     }
 }

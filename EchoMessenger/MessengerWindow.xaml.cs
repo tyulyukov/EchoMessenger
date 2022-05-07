@@ -59,11 +59,6 @@ namespace EchoMessenger
             OpenedTab.Children.Clear();
             OpenedTab.Children.Add(tab);
         }
-        
-        private void ButtonOpenChat_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            OpenTab(MessagesView);
-        }
 
         private void ButtonSettings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
