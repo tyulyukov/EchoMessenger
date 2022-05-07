@@ -30,5 +30,10 @@ namespace EchoMessenger.Entities
 
             return Messages.OrderBy(m => m.SentAt).Last().SentAt;
         }
+
+        public MessagesCollection GetMessagesCollection()
+        {
+            return new MessagesCollection(Messages);
+        }
     }
 }

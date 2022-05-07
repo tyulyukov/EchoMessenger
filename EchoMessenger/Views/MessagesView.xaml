@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition/>
+            <RowDefinition Height="0"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
 
@@ -17,9 +18,10 @@
             <Label x:Name="TargetUserName" HorizontalContentAlignment="Left" Margin="10 0" MaxWidth="300" Foreground="White" FontSize="16">-nickname-</Label>
         </Canvas>
 
-        <ScrollViewer x:Name="MessagesScroll" VerticalScrollBarVisibility="Auto" Grid.Row="1">
-            <StackPanel x:Name="MessagesStackPanel" Orientation="Vertical" Background="#FF131419" >
-                <!--<Border MinHeight="50" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Left" Background="#FF1C1D26" CornerRadius="30,30,30,30">
+        <ScrollViewer ScrollChanged="MessagesScroll_ScrollChanged" x:Name="MessagesScroll" CanContentScroll="True" VerticalScrollBarVisibility="Auto" Grid.Row="1">
+            <Border Background="#FF131419" Padding="15,0,15,10">
+                <StackPanel x:Name="MessagesStackPanel" Orientation="Vertical">
+                    <!--<Border MinHeight="50" BorderBrush="White" BorderThickness="1" Margin="10" HorizontalAlignment="Left" Background="#FF1C1D26" CornerRadius="30,30,30,30">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition MinWidth="50" MaxWidth="500"/>
@@ -41,10 +43,15 @@
                         <TextBlock Grid.Column="1" Foreground="LightGray" VerticalAlignment="Bottom" Margin="0,0,10,15">00:34</TextBlock>
                     </Grid>
                 </Border>-->
-            </StackPanel>
+                </StackPanel>
+            </Border>
         </ScrollViewer>
 
-        <DockPanel Background="#FF242430" Grid.Row="2" LastChildFill="True">
+        <Border x:Name="ButtonGoBottom" MouseLeftButtonUp="ButtonGoBottom_MouseLeftButtonUp" HorizontalAlignment="Right" CornerRadius="50" Background="#E5808080" Grid.Row="2" Width="30" Height="30" Margin="0 -60 12 0">
+            <Image Margin="7" Source="/EchoMessenger;component/Images/arrow down.png" />
+        </Border>
+        
+        <DockPanel Background="#FF242430" Grid.Row="3" LastChildFill="True">
             <Button DockPanel.Dock="Left" BorderThickness="0" Width="30" Height="30" Margin="10" Background="Transparent">
                 <Image Source="/EchoMessenger;component/Images/attachment.png" />
             </Button>

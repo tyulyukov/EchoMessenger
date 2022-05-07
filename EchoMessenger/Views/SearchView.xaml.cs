@@ -21,14 +21,14 @@ namespace EchoMessenger.Views
         private SynchronizationContext? uiSync;
         private IEnumerable<FirebaseObject<User>>? users;
         private object locker = new object();
-        private MessengerWindow? Owner;
+        private MessengerWindow owner;
 
-        public SearchView(Window owner)
+        public SearchView(MessengerWindow owner)
         {
             InitializeComponent();
             uiSync = SynchronizationContext.Current;
 
-            Owner = (MessengerWindow)owner;
+            this.owner = owner;
         }
 
         private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -65,8 +65,8 @@ namespace EchoMessenger.Views
                         if (chat == null)
                             return;
 
-                        Owner?.MessagesView.OpenChat(chat);
-                        Owner?.OpenTab(Owner.MessagesView);
+                        owner?.MessagesView.OpenChat(chat);
+                        owner?.OpenTab(owner.MessagesView);
                     };
 
                     UsersStackPanel.Children.Add(userCard);

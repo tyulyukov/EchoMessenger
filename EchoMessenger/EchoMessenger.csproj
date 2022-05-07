@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\arrow down.png" />
     <None Remove="Images\attachment.png" />
     <None Remove="Images\echo.png" />
     <None Remove="Images\image.png" />
@@ -25,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\arrow down.png" />
     <Resource Include="Images\attachment.png" />
     <Resource Include="Images\echo.png" />
     <Resource Include="Images\image.png" />

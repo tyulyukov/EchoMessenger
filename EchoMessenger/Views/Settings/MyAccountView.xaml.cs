@@ -15,12 +15,12 @@ namespace EchoMessenger.Views.Settings
     /// </summary>
     public partial class MyAccountView : UserControl
     {
-        private MessengerWindow? owner;
+        private MessengerWindow owner;
 
-        public MyAccountView(Window owner)
+        public MyAccountView(MessengerWindow owner)
         {
             InitializeComponent();
-            this.owner = owner as MessengerWindow;
+            this.owner = owner;
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();

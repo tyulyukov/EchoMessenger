@@ -21,7 +21,7 @@ namespace EchoMessenger.Views.Settings
 
         private readonly MyAccountView accountView;
 
-        public SettingsView(Window owner)
+        public SettingsView(MessengerWindow owner)
         {
             InitializeComponent();
 
