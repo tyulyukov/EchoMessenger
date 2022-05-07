@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace EchoMessenger
@@ -55,7 +56,9 @@ namespace EchoMessenger
 
             MessageTextBox.KeyDown += (s, e) =>
             {
-                if (e.Key == System.Windows.Input.Key.Enter)
+                if (e.Key == Key.Enter && Keyboard.IsKeyDown(Key.LeftShift))
+                    MessageTextBox.Text += "\n";
+                else if (e.Key == Key.Enter)
                     SendMessageHandle();
             };
         }
@@ -113,7 +116,7 @@ namespace EchoMessenger
             MessagesScroll.LayoutUpdated -= MessagesScroll_LayoutUpdated;
         }
 
-        private async void SendMessageButtonClick(object sender, RoutedEventArgs e)
+        private void SendMessageButtonClick(object sender, RoutedEventArgs e)
         {
             SendMessageHandle();
         }
@@ -123,7 +126,7 @@ namespace EchoMessenger
             if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
                 return;
 
-            var message = new Message(Database.User.Object, MessageTextBox.Text);
+            var message = new Message(Database.User.Object, MessageTextBox.Text.Trim());
             MessageTextBox.Text = String.Empty;
 
             if (!await Database.SendMessage(currentChat, message))
