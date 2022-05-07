@@ -28,6 +28,36 @@ namespace EchoMessenger
             InitializeComponent();
 
             Owner = owner;
+
+            var placeholder = MessageTextBox.Text;
+            bool isTextChanged = false;
+
+            TextChangedEventHandler textChanged = (s, e) =>
+            {
+                isTextChanged = !String.IsNullOrEmpty(MessageTextBox.Text);
+            };
+
+            MessageTextBox.GotFocus += (s, e) =>
+            {
+                if (MessageTextBox.Text == placeholder && !isTextChanged)
+                    MessageTextBox.Text = String.Empty;
+
+                MessageTextBox.TextChanged += textChanged;
+            };
+
+            MessageTextBox.LostFocus += (s, e) =>
+            {
+                MessageTextBox.TextChanged -= textChanged;
+
+                if (String.IsNullOrEmpty(MessageTextBox.Text))
+                    MessageTextBox.Text = placeholder;
+            };
+
+            MessageTextBox.KeyDown += (s, e) =>
+            {
+                if (e.Key == System.Windows.Input.Key.Enter)
+                    SendMessageHandle();
+            };
         }
 
         public void OpenChat(FirebaseObject<Chat> chat)
@@ -85,6 +115,11 @@ namespace EchoMessenger
 
         private async void SendMessageButtonClick(object sender, RoutedEventArgs e)
         {
+            SendMessageHandle();
+        }
+
+        private async void SendMessageHandle()
+        {
             if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
                 return;
 
@@ -98,7 +133,7 @@ namespace EchoMessenger
             }
 
             var messageBorder = UIElementsFactory.CreateOwnMessage(message.Text, message.SentAt);
-            
+
             MessagesStackPanel.Children.Add(messageBorder);
             MessagesScroll.ScrollToBottom();
         }
