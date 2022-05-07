@@ -31,16 +31,16 @@ namespace EchoMessenger.Helpers
         private static Border CreateDefaultMessageBorder(String text, DateTime time)
         {
             var border = new Border();
-            border.MinHeight = 50;
+            border.MinHeight = 40;
             border.BorderBrush = new SolidColorBrush(Colors.White);
             border.BorderThickness = new Thickness(1);
-            border.Margin = new Thickness(0, 10, 0, 0);
-            border.CornerRadius = new CornerRadius(30);
+            border.Margin = new Thickness(0, 3, 0, 0);
+            border.CornerRadius = new CornerRadius(20);
 
             var grid = new Grid();
 
             var messageColumn = new ColumnDefinition();
-            messageColumn.MinWidth = 50;
+            messageColumn.MinWidth = 30;
             messageColumn.MaxWidth = 500;
 
             var timeColumn = new ColumnDefinition();
@@ -55,13 +55,13 @@ namespace EchoMessenger.Helpers
             textBlock.Foreground = new SolidColorBrush(Colors.White);
             textBlock.FontSize = 14;
             textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            textBlock.Margin = new Thickness(10);
+            textBlock.Margin = new Thickness(7.5);
 
             var timeTextBlock = new TextBlock();
             timeTextBlock.Text = time.ToString("HH:mm");
             timeTextBlock.Foreground = new SolidColorBrush(Colors.LightGray);
             timeTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
-            timeTextBlock.Margin = new Thickness(0, 0, 10, 15);
+            timeTextBlock.Margin = new Thickness(0, 0, 10, 5);
 
             Grid.SetColumn(textBlock, 0);
             grid.Children.Add(textBlock);
@@ -163,18 +163,20 @@ namespace EchoMessenger.Helpers
         public static Border CreateDateCard(DateTime date)
         {
             Border border = new Border();
-            border.Width = 200;
-            border.Height = 25;
-            border.CornerRadius = new CornerRadius(15);
+            border.HorizontalAlignment = HorizontalAlignment.Center;
+            border.CornerRadius = new CornerRadius(10);
             border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF242430");
             border.Margin = new Thickness(0, 10, 0, 0);
             border.Effect = new DropShadowEffect();
 
             Label label = new Label();
             label.Foreground = new SolidColorBrush(Colors.White);
-            label.HorizontalContentAlignment = HorizontalAlignment.Center;
-            label.VerticalContentAlignment = VerticalAlignment.Center;
-            label.Content = date.ToLongDateString();
+            label.Margin = new Thickness(2);
+
+            if (date.ToLongDateString() == DateTime.Today.ToLongDateString())
+                label.Content = "Today";
+            else
+                label.Content = date.ToLongDateString();
 
             border.Child = label;
 
