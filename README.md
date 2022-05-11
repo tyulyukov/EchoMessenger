@@ -1,6 +1,6 @@
 # Echo
 A simple chat app called ```Echo``` based on WPF .NET 6 and Google Firebase. EXTRATHICK fluid design </3 <br><br>
-##Features
+## Features
 - authorization, registration, remembering in registry keys user's account
 - password hashing in Google Firebase Realtime Database, storaging avatars in Google Firebase Storage
 - settings, changing username, avatar and password
@@ -8,7 +8,7 @@ A simple chat app called ```Echo``` based on WPF .NET 6 and Google Firebase. EXT
 - chat history, messages loading while scrolling up
 - chatting with any user. 
 
-####hey look at this
+#### hey look at this
 
 <span>
 <img src="Screenshots/login.png" width="200px"/>
