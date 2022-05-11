@@ -11,12 +11,12 @@ A simple chat app called ```Echo``` based on WPF .NET 6 and Google Firebase. EXT
 #### hey look at this
 
 <span>
-<img src="Screenshots/login.png" width="150px"/>
-<img src="Screenshots/register.png" width="150px"/>
+<img src="Screenshots/login.png" />
+<img src="Screenshots/register.png" />
 </span>
 
-<img src="Screenshots/old messages.png" height="200px"/>
-<img src="Screenshots/chat fullscreen.png" height="200px"/>
-<img src="Screenshots/search tab.png" height="200px"/>
-<img src="Screenshots/settings tab.png" height="300px"/>
+<img src="Screenshots/old messages.png" />
+<img src="Screenshots/chat fullscreen.png" />
+<img src="Screenshots/search tab.png" />
+<img src="Screenshots/settings tab.png" />
 
