@@ -2,7 +2,6 @@
 using EchoMessenger.Helpers;
 using EchoMessenger.Views;
 using EchoMessenger.Views.Settings;
-using Firebase.Database;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,16 +17,19 @@ namespace EchoMessenger
         public readonly MessagesView MessagesView;
         public readonly SettingsView SettingsView;
         public readonly SearchView SearchView;
+        private readonly UserInfo currentUser;
 
-        public MessengerWindow()
+        public MessengerWindow(UserInfo user)
         {
             InitializeComponent();
+            
+            currentUser = user;
 
             MessagesView = new MessagesView(this);
-            SettingsView = new SettingsView(this);
+            SettingsView = new SettingsView(this, currentUser);
             SearchView = new SearchView(this);
 
-            ChatsMenu.Children.Clear();
+            /*ChatsMenu.Children.Clear();
             var chats = Database.GetLastChats();
 
             if (chats == null)
@@ -51,7 +53,7 @@ namespace EchoMessenger
                 };
 
                 ChatsMenu.Children.Add(icon);
-            }
+            }*/
         }
 
         public void OpenTab(UserControl tab)

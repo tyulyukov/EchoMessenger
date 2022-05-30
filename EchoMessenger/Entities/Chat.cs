@@ -6,12 +6,12 @@ namespace EchoMessenger.Entities
 {
     public class Chat
     {
-        public User FromUser { get; set; }
-        public User TargetUser { get; set; }
+        public UserInfo FromUser { get; set; }
+        public UserInfo TargetUser { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<Message> Messages { get; set; }
 
-        public Chat(User fromUser, User targetUser, List<Message> messages = null)
+        public Chat(UserInfo fromUser, UserInfo targetUser, List<Message> messages = null)
         {
             FromUser = fromUser;
             TargetUser = targetUser;

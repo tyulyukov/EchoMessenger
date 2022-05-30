@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EchoMessenger.Entities
 {
     public class UserInfo
     {
-        public String Name { get; set; }
-        public String PasswordHash { get; set; }
+        public String _id { get; set; }
+        public String username { get; set; }
+        public String description { get; set; }
+        public String avatarUrl { get; set; }
+        public DateTime createdAt { get; set; }
     }
 }

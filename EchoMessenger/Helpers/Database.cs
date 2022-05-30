@@ -1,72 +1,60 @@
-﻿using EchoMessenger.Entities;
-using Firebase.Database;
-using Firebase.Database.Query;
+﻿using dotenv.net;
+using EchoMessenger.Entities;
+using Newtonsoft.Json.Linq;
+using RestSharp;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace EchoMessenger.Helpers
 {
     public static class Database
     {
-        public static FirebaseObject<User>? User { get; private set; }
+        private static Rest rest = new Rest(DotEnv.Read()["SERVER_HOST"]);
 
-        private static IEnumerable<FirebaseObject<User>>? users;
-        private static IEnumerable<FirebaseObject<Chat>>? chats;
-        private static FirebaseClient? firebase;
+        public static String HostUrl(String source) => DotEnv.Read()["SERVER_HOST"] + "/" + source;
 
-        public static async Task Configure()
+        public async static Task<UserInfo?> ConfirmJwt()
         {
-            firebase = new FirebaseClient("https://echo-c09f3-default-rtdb.europe-west1.firebasedatabase.app/");
-            User = null;
-            users = await GetUsers();
-            chats = await GetChats();
+            var jwt = RegistryManager.GetCurrentJwt();
+            if (String.IsNullOrEmpty(jwt))
+                return null;
 
-            var observableUsers = firebase
-              .Child("users")
-              .AsObservable<User>()
-              .Subscribe(async u => users = await GetUsers());
+            var response = await rest.Get("auth/jwt");
 
-            var observableChats = firebase
-              .Child("chats")
-              .AsObservable<Chat>()
-              .Subscribe(async c => chats = await GetChats());
-        }
+            if (response == null)
+                return null;
 
-        public static async Task<bool> RegisterUserAsync(User user)
-        {
-            if (firebase == null)
-                return false;
-
-            user.Name = user.Name.ToLower();
-
-            User = await firebase.Child("users").PostAsync(user);
-
-            return true;
-        }
-
-        public static async Task<bool> LoginUserAsync(String username, String password)
-        {
-            if (firebase == null)
-                return false;
-
-            var users = await firebase.Child("users").OnceAsync<User>();
-
-            foreach (var user in users)
+            if (response.StatusCode == (HttpStatusCode)200)
             {
-                if (user.Object.Name.ToLower() == username.ToLower() && LogInManager.VerifyPassword(user.Object.PasswordHash, password))
-                {
-                    User = user;
-                    return true;
-                }
+                if (response.Content == null)
+                    return null;
+
+                var result = JObject.Parse(response.Content);
+                var user = result.ToObject<UserInfo>();
+
+                return user;
             }
 
-            return false;
+            return null;
         }
 
-        public static async Task<bool> LoginUserWithHashAsync(String username, String passwordHash)
+        public static async Task<RestResponse?> RegisterAsync(String username, String password)
+        {
+            return await rest.Post("auth/register", new { username = username, password = password });
+        }
+
+        public static async Task<RestResponse?> LoginAsync(String username, String password)
+        {
+            return await rest.Post("auth/login", new { username = username, password = password });
+        }
+
+        public static async Task<RestResponse?> SearchUsers(String query)
+        {
+            return await rest.Post("users/search", new { query = query });
+        }
+
+        /*public static async Task<bool> LoginUserWithHashAsync(String username, String passwordHash)
         {
             if (firebase == null)
                 return false;
@@ -206,6 +194,6 @@ namespace EchoMessenger.Helpers
                 return null;
 
             return await firebase.Child("chats").OnceAsync<Chat>();
-        }
+        }*/
     }
 }

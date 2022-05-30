@@ -1,8 +1,9 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
-using Firebase.Database;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,64 +20,101 @@ namespace EchoMessenger.Views
         private bool isSearching = false;
         private double progress = 0;
         private SynchronizationContext? uiSync;
-        private IEnumerable<FirebaseObject<User>>? users;
         private object locker = new object();
         private MessengerWindow owner;
+        private TypeAssistant typeAssistant;
 
         public SearchView(MessengerWindow owner)
         {
             InitializeComponent();
             uiSync = SynchronizationContext.Current;
 
+            typeAssistant= new TypeAssistant(350);
+            typeAssistant.Idled += TypeAssistant_Idled;
+
             this.owner = owner;
+        }
+
+        private void TypeAssistant_Idled(object? sender, EventArgs e)
+        {
+            Dispatcher.Invoke(async () =>
+            {
+                var query = SearchTextBox.Text;
+
+                if (String.IsNullOrWhiteSpace(query))
+                {
+                    _ = Task.Run(EndFillingProgressBar);
+                    UsersStackPanel.Children.Clear();
+                    return;
+                }
+
+                _ = Task.Run(StartFillingProgressBar);
+
+                try
+                {
+                    var response = await Database.SearchUsers(query);
+
+                    if (response == null || response.StatusCode == (HttpStatusCode)0)
+                    {
+                        MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else if (response.StatusCode == (HttpStatusCode)500)
+                    {
+                        MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else if (response.StatusCode == (HttpStatusCode)200)
+                    {
+                        if (response.Content != null)
+                        {
+                            var result = JArray.Parse(response.Content);
+
+                            var users = result?.ToObject<IEnumerable<UserInfo>>();
+
+                            if (users != null)
+                            {
+                                lock (locker)
+                                {
+                                    UsersStackPanel.Children.Clear();
+
+                                    foreach (var user in users)
+                                    {
+                                        var userCard = UIElementsFactory.CreateUsersCard(user.avatarUrl, user.username);
+
+                                        userCard.MouseLeftButtonUp += (object sender, MouseButtonEventArgs e) =>
+                                        {
+                                            /*var chat = await Database.GetChat(user.Object);
+
+                                            if (chat == null)
+                                                return;
+
+                                            owner?.MessagesView.OpenChat(chat);
+                                            owner?.OpenTab(owner.MessagesView);*/
+                                        };
+
+                                        UsersStackPanel.Children.Add(userCard);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (response.StatusCode == (HttpStatusCode)401)
+                    {
+                        RegistryManager.ForgetJwt();
+                        owner.Hide();
+                        new LoginWindow().Show();
+                        owner.Close();
+                    }
+                }
+                finally
+                {
+                    _ = Task.Run(EndFillingProgressBar);
+                }
+            });
         }
 
         private async void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TextBox? textBox = sender as TextBox;
-
-            if (textBox == null || String.IsNullOrWhiteSpace(textBox.Text))
-            {
-                _ = Task.Run(EndFillingProgressBar);
-                users = null;
-                UsersStackPanel.Children.Clear();
-                return;
-            }
-
-            _ = Task.Run(StartFillingProgressBar);
-            users = SearchUsers(textBox.Text);
-            _ = Task.Run(EndFillingProgressBar);
-
-            if (users == null)
-                return;
-
-            lock (locker)
-            {
-                UsersStackPanel.Children.Clear();
-
-                foreach (var user in users)
-                {
-                    var userCard = UIElementsFactory.CreateUsersCard(user.Object.AvatarUrl, user.Object.Name);
-
-                    userCard.MouseLeftButtonUp += async (object sender, MouseButtonEventArgs e) =>
-                    {
-                        var chat = await Database.GetChat(user.Object);
-
-                        if (chat == null)
-                            return;
-
-                        owner?.MessagesView.OpenChat(chat);
-                        owner?.OpenTab(owner.MessagesView);
-                    };
-
-                    UsersStackPanel.Children.Add(userCard);
-                }
-            }
-        }
-
-        private IEnumerable<FirebaseObject<User>>? SearchUsers(String contains)
-        {
-            return Database.SearchUsers(u => u.Object.Name.ToLower().Contains(contains.Trim().ToLower()) && u.Key != Database.User?.Key);
+            typeAssistant.TextChanged();
         }
 
         private void ButtonSearch_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

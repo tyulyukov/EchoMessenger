@@ -1,4 +1,5 @@
-﻿using EchoMessenger.Helpers;
+﻿using EchoMessenger.Entities;
+using EchoMessenger.Helpers;
 using System;
 using System.Threading;
 using System.Windows;
@@ -21,13 +22,13 @@ namespace EchoMessenger.Views.Settings
 
         private readonly MyAccountView accountView;
 
-        public SettingsView(MessengerWindow owner)
+        public SettingsView(MessengerWindow owner, UserInfo user)
         {
             InitializeComponent();
 
             uiSync = SynchronizationContext.Current;
 
-            accountView = new MyAccountView(owner);
+            accountView = new MyAccountView(owner, user);
 
             HandleButtonTabClick(MyAccountButtonTab);
         }

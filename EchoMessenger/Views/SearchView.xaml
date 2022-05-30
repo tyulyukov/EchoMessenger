@@ -18,7 +18,7 @@
                 <Image Source="/EchoMessenger;component/Images/search.png" />
             </Button>
 
-            <TextBox x:Name="SearchTextBox" TextChanged="SearchTextBox_TextChanged" Foreground="White" VerticalContentAlignment="Center" FontSize="14" BorderBrush="White" Background="{x:Null}" Margin="10,10,5,10" Height="30">
+            <TextBox x:Name="SearchTextBox" TextChanged="SearchTextBox_TextChanged" Foreground="White" VerticalContentAlignment="Center" FontSize="14" BorderBrush="White" Background="{x:Null}" Margin="10,10,5,10" Height="30" MaxLength="20">
                 <TextBox.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="10"/>

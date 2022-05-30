@@ -1,6 +1,5 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
-using Firebase.Database;
 using System;
 using System.Linq;
 using System.Windows;
@@ -18,7 +17,7 @@ namespace EchoMessenger
         public MessengerWindow Owner;
 
         private MessagesCollection messagesCollection;
-        private FirebaseObject<Chat> currentChat;
+        // private FirebaseObject<Chat> currentChat;
         private double prevHeight = 0;
         private bool isLoadingMessages = false;
         private bool loaded = false;
@@ -70,7 +69,7 @@ namespace EchoMessenger
             };
         }
 
-        public void OpenChat(FirebaseObject<Chat> chat)
+        /*public void OpenChat(FirebaseObject<Chat> chat)
         {
             if (currentChat == chat)
                 return;
@@ -87,11 +86,11 @@ namespace EchoMessenger
 
             LoadOlderMessages();
             MessagesScroll.ScrollToBottom();
-        }
+        }*/
 
         private void LoadOlderMessages()
         {
-            var messages = messagesCollection.Load(LoadingMessagesCount);
+            /*var messages = messagesCollection.Load(LoadingMessagesCount);
 
             if (messages.Count() == 0)
                 return;
@@ -128,7 +127,7 @@ namespace EchoMessenger
             }
 
             if (messagesCollection.IsAllLoaded)
-                MessagesStackPanel.Children.Insert(0, UIElementsFactory.CreateDateCard((DateTime)lastMessageSentAt));
+                MessagesStackPanel.Children.Insert(0, UIElementsFactory.CreateDateCard((DateTime)lastMessageSentAt));*/
 
         }
 
@@ -149,7 +148,7 @@ namespace EchoMessenger
 
         private async void SendMessageHandle()
         {
-            if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
+            /*if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
                 return;
 
             var message = new Message(Database.User.Object, MessageTextBox.Text.Trim());
@@ -174,7 +173,7 @@ namespace EchoMessenger
             firstMessageSentAt = message.SentAt;
 
             MessagesStackPanel.Children.Add(messageBorder);
-            MessagesScroll.ScrollToBottom();
+            MessagesScroll.ScrollToBottom();*/
         }
 
         private void ButtonGoBottom_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)

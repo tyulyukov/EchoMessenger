@@ -1,4 +1,5 @@
-﻿using EchoMessenger.Helpers;
+﻿using dotenv.net;
+using EchoMessenger.Helpers;
 using System;
 using System.Windows;
 
@@ -11,24 +12,14 @@ namespace EchoMessenger
     {
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
-            await Database.Configure();
-            Storage.Configure();
+            DotEnv.Load();
 
-            var userInfo = LogInManager.GetCurrentUser();
+            var user = await Database.ConfirmJwt();
 
-            if (userInfo == null)
-            {
+            if (user != null)
+                new MessengerWindow(user).Show();
+            else
                 new LoginWindow().Show();
-                return;
-            }
-
-            if (!await Database.LoginUserWithHashAsync(userInfo.Name, userInfo.PasswordHash))
-            {
-                new LoginWindow().Show();
-                return;
-            }
-
-            new MessengerWindow().Show();
         }
     }
 }

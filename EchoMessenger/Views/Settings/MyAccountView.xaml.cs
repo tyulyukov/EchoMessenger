@@ -1,8 +1,6 @@
-﻿using EchoMessenger.Helpers;
-using Firebase.Storage;
-using Microsoft.Win32;
+﻿using EchoMessenger.Entities;
+using EchoMessenger.Helpers;
 using System;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -16,15 +14,18 @@ namespace EchoMessenger.Views.Settings
     public partial class MyAccountView : UserControl
     {
         private MessengerWindow owner;
+        private UserInfo currentUser;
 
-        public MyAccountView(MessengerWindow owner)
+        public MyAccountView(MessengerWindow owner, UserInfo user)
         {
             InitializeComponent();
             this.owner = owner;
 
+            currentUser = user;
+
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(Database.User.Object.AvatarUrl, UriKind.Absolute);
+            bitmap.UriSource = new Uri(Database.HostUrl(currentUser.avatarUrl), UriKind.Absolute);
             bitmap.EndInit();
 
             Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
@@ -32,19 +33,19 @@ namespace EchoMessenger.Views.Settings
 
         public void Open()
         {
-            UsernameBox.Text = Database.User.Object.Name;
+            UsernameBox.Text = currentUser.username;
         }
 
         private void LogOutButton_Click(object sender, RoutedEventArgs e)
         {
-            LogInManager.ForgetCurrentUser();
+            RegistryManager.ForgetJwt();
             new LoginWindow().Show();
             owner?.Close();
         }
 
         private async void ButtonSaveUsername_Click(object sender, RoutedEventArgs e)
         {
-            if (Database.User?.Object.Name.ToLower() == UsernameBox.Text.ToLower())
+            /*if (Database.User?.Object.Name.ToLower() == UsernameBox.Text.ToLower())
             {
                 UsernameBox.Text = Database.User.Object.Name.ToLower();
                 return;
@@ -59,12 +60,12 @@ namespace EchoMessenger.Views.Settings
             LogInManager.ForgetCurrentUser();
             LogInManager.Remember(Database.User.Object);
 
-            MessageBox.Show($"Username is changed to {Database.User.Object.Name}");
+            MessageBox.Show($"Username is changed to {Database.User.Object.Name}");*/
         }
 
         private async void ButtonSavePassword_Click(object sender, RoutedEventArgs e)
         {
-            if (!LogInManager.VerifyPassword(Database.User.Object.PasswordHash, OldPasswordBox.Password))
+            /*if (!LogInManager.VerifyPassword(Database.User.Object.PasswordHash, OldPasswordBox.Password))
             {
                 MessageBox.Show("Please type your old password correctly");
                 return;
@@ -96,7 +97,7 @@ namespace EchoMessenger.Views.Settings
             MessageBox.Show($"Password is changed successfully");
 
             OldPasswordBox.Password = String.Empty;
-            NewPasswordBox.Password = String.Empty;
+            NewPasswordBox.Password = String.Empty;*/
         }
 
         private void Avatar_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
@@ -111,7 +112,7 @@ namespace EchoMessenger.Views.Settings
 
         private async void AvatarOverlay_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var open = new OpenFileDialog();
+            /*var open = new OpenFileDialog();
             open.Multiselect = false;
             open.CheckFileExists = true;
             open.Filter = "Image Files(*.jpg; *.jpeg; *.bmp)|*.jpg; *.jpeg; *.bmp";
@@ -143,7 +144,7 @@ namespace EchoMessenger.Views.Settings
                 }
 
                 _ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
-            }
+            }*/
         }
     }
 }
