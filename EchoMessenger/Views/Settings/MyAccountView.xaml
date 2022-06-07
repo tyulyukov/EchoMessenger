@@ -47,7 +47,7 @@
                             </Style>
                         </Button.Resources>
                     </Button>
-                    <TextBox x:Name="UsernameBox" Template="{StaticResource TextBoxBaseControlTemplate}" Margin="10,5,5,10" Height="35" Foreground="White" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"></TextBox>
+                    <TextBox CharacterCasing="Lower" x:Name="UsernameBox" Template="{StaticResource TextBoxBaseControlTemplate}" Margin="10,5,5,10" Height="35" Foreground="White" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"></TextBox>
                 </DockPanel>
             </StackPanel>
         </Grid>

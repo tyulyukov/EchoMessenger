@@ -6,34 +6,18 @@ namespace EchoMessenger.Entities
 {
     public class Chat
     {
-        public UserInfo FromUser { get; set; }
-        public UserInfo TargetUser { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public List<Message> Messages { get; set; }
-
-        public Chat(UserInfo fromUser, UserInfo targetUser, List<Message> messages = null)
-        {
-            FromUser = fromUser;
-            TargetUser = targetUser;
-            CreatedAt = DateTime.Now;
-
-            if (messages != null)
-                Messages = messages;
-            else
-                Messages = new List<Message>();
-        }
+        public String _id { get; set; }
+        public UserInfo sender { get; set; }
+        public UserInfo receiver { get; set; }
+        public DateTime createdAt { get; set; }
+        public List<Message> messages { get; set; }
 
         public DateTime GetLastSentAt()
         {
-            if (Messages.Count == 0)
-                return CreatedAt;
+            if (messages == null || messages.Count == 0)
+                return createdAt;
 
-            return Messages.OrderBy(m => m.SentAt).Last().SentAt;
-        }
-
-        public MessagesCollection GetMessagesCollection()
-        {
-            return new MessagesCollection(Messages);
+            return messages.OrderBy(m => m.sentAt).Last().sentAt;
         }
     }
 }

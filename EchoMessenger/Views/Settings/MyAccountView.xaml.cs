@@ -1,6 +1,11 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
+using EchoMessenger.Helpers.Server;
+using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Net;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -8,9 +13,6 @@ using System.Windows.Media.Imaging;
 
 namespace EchoMessenger.Views.Settings
 {
-    /// <summary>
-    /// Interaction logic for MyAccountView.xaml
-    /// </summary>
     public partial class MyAccountView : UserControl
     {
         private MessengerWindow owner;
@@ -36,6 +38,11 @@ namespace EchoMessenger.Views.Settings
             UsernameBox.Text = currentUser.username;
         }
 
+        public void UpdateUser(UserInfo user)
+        {
+            currentUser = user;
+        }
+
         private void LogOutButton_Click(object sender, RoutedEventArgs e)
         {
             RegistryManager.ForgetJwt();
@@ -45,59 +52,124 @@ namespace EchoMessenger.Views.Settings
 
         private async void ButtonSaveUsername_Click(object sender, RoutedEventArgs e)
         {
-            /*if (Database.User?.Object.Name.ToLower() == UsernameBox.Text.ToLower())
+            String username = UsernameBox.Text;
+
+            try
             {
-                UsernameBox.Text = Database.User.Object.Name.ToLower();
-                return;
-            }
+                _ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
 
-            if (!await Database.ChangeUsername(UsernameBox.Text))
+                if (String.IsNullOrWhiteSpace(username))
+                {
+                    MessageBox.Show("Username must not be empty");
+                    return;
+                }
+
+                if (!LogInManager.ValidateUsername(username))
+                {
+                    MessageBox.Show(owner, "Username must contain at least 5 symbols and less than 20 symbols. Username must have only latin letters or/and digits. Allowed special symbols: . - _", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var response = await Profile.UpdateUsername(username);
+
+                if (response == null || response.StatusCode == (HttpStatusCode)0)
+                {
+                    MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else if (response.StatusCode == (HttpStatusCode)500)
+                {
+                    MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else if (response.StatusCode == (HttpStatusCode)200)
+                {
+                    MessageBox.Show(owner, $"Username is changed successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    UsernameBox.Text = username;
+
+                    currentUser.username = username;
+                    owner.UpdateUser(currentUser);
+                }
+                else if (response.StatusCode == (HttpStatusCode)401)
+                {
+                    RegistryManager.ForgetJwt();
+                    owner.Hide();
+                    new LoginWindow().Show();
+                    owner.Close();
+                    return;
+                }
+            }
+            finally
             {
-                MessageBox.Show("Something went wrong... Try again later");
-                return;
+                _ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
             }
-
-            LogInManager.ForgetCurrentUser();
-            LogInManager.Remember(Database.User.Object);
-
-            MessageBox.Show($"Username is changed to {Database.User.Object.Name}");*/
         }
 
         private async void ButtonSavePassword_Click(object sender, RoutedEventArgs e)
         {
-            /*if (!LogInManager.VerifyPassword(Database.User.Object.PasswordHash, OldPasswordBox.Password))
+            String oldPassword = OldPasswordBox.Password;
+            String newPassword = NewPasswordBox.Password;
+
+            try
             {
-                MessageBox.Show("Please type your old password correctly");
-                return;
-            }
+                _ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
 
-            if (OldPasswordBox.Password == NewPasswordBox.Password)
+                if (String.IsNullOrWhiteSpace(oldPassword) || String.IsNullOrWhiteSpace(newPassword))
+                {
+                    MessageBox.Show(owner, "Fields must not be empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (oldPassword == newPassword)
+                {
+                    MessageBox.Show(owner, "New password must be different", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (!LogInManager.ValidatePassword(newPassword))
+                {
+                    MessageBox.Show(owner, "Password must contain at least 8 symbols. It must have letters and digits", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var response = await Profile.UpdatePassword(oldPassword, newPassword);
+
+                if (response == null || response.StatusCode == (HttpStatusCode)0)
+                {
+                    MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else if (response.StatusCode == (HttpStatusCode)500)
+                {
+                    MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                else if (response.StatusCode == (HttpStatusCode)406)
+                {
+                    MessageBox.Show(owner, "Old password is incorrect", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                else if (response.StatusCode == (HttpStatusCode)200)
+                {
+                    MessageBox.Show(owner, $"Password is changed successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    OldPasswordBox.Password = String.Empty;
+                    NewPasswordBox.Password = String.Empty;
+                }
+                else if (response.StatusCode == (HttpStatusCode)401)
+                {
+                    RegistryManager.ForgetJwt();
+                    owner.Hide();
+                    new LoginWindow().Show();
+                    owner.Close();
+                    return;
+                }
+            }
+            finally
             {
-                MessageBox.Show("New password must be different");
-                return;
+                _ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
             }
-
-            if (!LogInManager.ValidatePassword(NewPasswordBox.Password))
-            {
-                MessageBox.Show("Password must contain at least 8 symbols. It must have letters and digits");
-                return;
-            }
-
-            if (!await Database.ChangePassword(NewPasswordBox.Password))
-            {
-                MessageBox.Show("Something went wrong... Try again later");
-                return;
-            }
-
-
-
-            LogInManager.ForgetCurrentUser();
-            LogInManager.Remember(Database.User.Object);
-
-            MessageBox.Show($"Password is changed successfully");
-
-            OldPasswordBox.Password = String.Empty;
-            NewPasswordBox.Password = String.Empty;*/
         }
 
         private void Avatar_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
@@ -112,39 +184,96 @@ namespace EchoMessenger.Views.Settings
 
         private async void AvatarOverlay_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            /*var open = new OpenFileDialog();
+            String avatarUrl = String.Empty;
+            String originalAvatarUrl = String.Empty;
+
+            var open = new OpenFileDialog();
             open.Multiselect = false;
             open.CheckFileExists = true;
-            open.Filter = "Image Files(*.jpg; *.jpeg; *.bmp)|*.jpg; *.jpeg; *.bmp";
+            open.Filter = "Image Files|*.jpg;*.jpeg;*.png;";
 
             if (open.ShowDialog(owner) == true)
             {
-                _ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
-
-                var image = Media.ProccessImage(open.FileName);
-                var avatarUrl = await Storage.UploadAvatarAsync(image);
-
-                if (String.IsNullOrWhiteSpace(avatarUrl))
+                try
                 {
-                    owner?.SettingsView.EndFillingProgressBar();
-                    MessageBox.Show("Something went wrong...");
-                    return;
+                    _ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
+
+                    var response = await Storage.UploadAvatar(open.FileName);
+
+                    if (response == null || response.StatusCode == (HttpStatusCode)0)
+                    {
+                        MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else if (response.StatusCode == (HttpStatusCode)500)
+                    {
+                        MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else if (response.StatusCode == (HttpStatusCode)200)
+                    {
+                        if (response.Content == null)
+                            return;
+
+                        var result = JObject.Parse(response.Content);
+
+                        avatarUrl = result["avatarUrl"].ToString();
+                        originalAvatarUrl = result["originalAvatarUrl"].ToString();
+                    }
+                    else if (response.StatusCode == (HttpStatusCode)401)
+                    {
+                        RegistryManager.ForgetJwt();
+                        owner.Hide();
+                        new LoginWindow().Show();
+                        owner.Close();
+                        return;
+                    }
+
+                    if (String.IsNullOrWhiteSpace(avatarUrl) || String.IsNullOrWhiteSpace(originalAvatarUrl))
+                    {
+                        owner?.SettingsView.EndFillingProgressBar();
+                        MessageBox.Show("Something went wrong...");
+                        return;
+                    }
+
+                    var changeResponse = await Profile.UpdateAvatar(avatarUrl, originalAvatarUrl);
+
+                    if (changeResponse == null || changeResponse.StatusCode == (HttpStatusCode)0)
+                    {
+                        MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else if (changeResponse.StatusCode == (HttpStatusCode)500)
+                    {
+                        MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else if (changeResponse.StatusCode == (HttpStatusCode)200)
+                    {
+                        if (changeResponse.Content == null)
+                            return;
+
+                        var bitmap = new BitmapImage();
+                        bitmap.BeginInit();
+                        bitmap.UriSource = new Uri(Database.HostUrl(avatarUrl), UriKind.Absolute);
+                        bitmap.EndInit();
+
+                        Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+                    }
+                    else if (changeResponse.StatusCode == (HttpStatusCode)401)
+                    {
+                        RegistryManager.ForgetJwt();
+                        owner.Hide();
+                        new LoginWindow().Show();
+                        owner.Close();
+                        return;
+                    }
                 }
-
-                var changingAvatarTask = Database.ChangeAvatar(avatarUrl);
-
-                if (await changingAvatarTask)
+                finally
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(Database.User.Object.AvatarUrl, UriKind.Absolute);
-                    bitmap.EndInit();
-
-                    Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+                    _ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
                 }
-
-                _ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
-            }*/
+            }
         }
     }
 }

@@ -14,8 +14,8 @@ namespace EchoMessenger.Entities
         
         public MessagesCollection(IEnumerable<Message> messages)
         {
-            this.messages = messages.OrderBy(m => m.SentAt).ToList();
-            this.remainingLoadedMessages = messages.OrderByDescending(m => m.SentAt).ToList();
+            this.messages = messages.OrderBy(m => m.sentAt).ToList();
+            this.remainingLoadedMessages = messages.OrderByDescending(m => m.sentAt).ToList();
         }
 
         public IEnumerable<Message> Load(int count)

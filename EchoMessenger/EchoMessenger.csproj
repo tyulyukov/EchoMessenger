@@ -26,6 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LoadingSpinnerControl\LoadingSpinnerControl.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Images\arrow down.png" />
     <Resource Include="Images\attachment.png" />
     <Resource Include="Images\echo.png" />

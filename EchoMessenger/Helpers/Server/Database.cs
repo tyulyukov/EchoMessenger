@@ -6,7 +6,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace EchoMessenger.Helpers
+namespace EchoMessenger.Helpers.Server
 {
     public static class Database
     {
@@ -52,6 +52,16 @@ namespace EchoMessenger.Helpers
         public static async Task<RestResponse?> SearchUsers(String query)
         {
             return await rest.Post("users/search", new { query = query });
+        }
+
+        public static async Task<RestResponse?> CreateChat(String receiverId)
+        {
+            return await rest.Post("chats/create", new { receiverId = receiverId });
+        }
+
+        public static async Task<RestResponse?> GetLastChats()
+        {
+            return await rest.Get("chats");
         }
 
         /*public static async Task<bool> LoginUserWithHashAsync(String username, String passwordHash)

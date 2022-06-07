@@ -42,6 +42,11 @@ namespace EchoMessenger.Views.Settings
                 accountView.Open();
         }
 
+        public void UpdateUser(UserInfo user)
+        {
+            accountView.UpdateUser(user);
+        }
+
         private void ButtonTab_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             HandleButtonTabClick((Border)sender);

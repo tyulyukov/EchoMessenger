@@ -1,7 +1,12 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
+using EchoMessenger.Helpers.Server;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,77 +21,123 @@ namespace EchoMessenger
         public const int LoadingMessagesCount = 15;
         public MessengerWindow Owner;
 
-        private MessagesCollection messagesCollection;
-        // private FirebaseObject<Chat> currentChat;
+        private bool isLoading = false;
+        private SynchronizationContext uiSync;
+        private Chat currentChat;
+        private UserInfo currentUser;
         private double prevHeight = 0;
         private bool isLoadingMessages = false;
         private bool loaded = false;
         private DateTime? lastMessageSentAt = null;
         private DateTime? firstMessageSentAt = null;
+        private Dictionary<String, Chat> openedChats;
 
-        public MessagesView(MessengerWindow owner)
+        public MessagesView(MessengerWindow owner, UserInfo user)
         {
             InitializeComponent();
+            uiSync = SynchronizationContext.Current;
 
             Owner = owner;
+            currentUser = user;
 
-            var placeholder = MessageTextBox.Text;
-            bool isTextChanged = false;
-
-            TextChangedEventHandler textChanged = (s, e) =>
-            {
-                isTextChanged = !String.IsNullOrEmpty(MessageTextBox.Text);
-            };
-
-            MessageTextBox.GotFocus += (s, e) =>
-            {
-                if (MessageTextBox.Text == placeholder && !isTextChanged)
-                    MessageTextBox.Text = String.Empty;
-
-                MessageTextBox.TextChanged += textChanged;
-            };
-
-            MessageTextBox.LostFocus += (s, e) =>
-            {
-                MessageTextBox.TextChanged -= textChanged;
-
-                if (String.IsNullOrEmpty(MessageTextBox.Text))
-                    MessageTextBox.Text = placeholder;
-            };
-
-            MessageTextBox.KeyDown += (s, e) =>
-            {
-                if (e.Key == Key.Enter && Keyboard.IsKeyDown(Key.LeftShift))
-                {
-                    var index = MessageTextBox.CaretIndex;
-                    MessageTextBox.Text = MessageTextBox.Text.Insert(index, "\n");
-                    MessageTextBox.CaretIndex = index + 1;
-                }
-                else if (e.Key == Key.Enter)
-                {
-                    SendMessageHandle();
-                }
-            };
+            openedChats = new Dictionary<String, Chat>();
         }
 
-        /*public void OpenChat(FirebaseObject<Chat> chat)
+        public void OpenChat(Chat? chat)
         {
+            if (chat == null)
+                return;
+
             if (currentChat == chat)
                 return;
 
-            MessagesStackPanel.Children.Clear();
-            currentChat = chat;
+            uiSync.Post((s) =>
+            {
+                MessagesStackPanel.Children.Clear();
+                currentChat = chat;
 
-            TargetUserName.Content = chat.Object.FromUser.Name == Database.User.Object.Name ? chat.Object.TargetUser.Name : chat.Object.FromUser.Name;
+                TargetUserName.Content = chat.sender.username == currentUser.username ? chat.receiver.username : chat.sender.username;
 
-            if (currentChat.Object.Messages == null)
-                return;
+                LoadOlderMessages();
+                MessagesScroll.ScrollToBottom();
+            }, null);
+        }
 
-            messagesCollection = currentChat.Object.GetMessagesCollection();
+        public async Task OpenChat(String userId)
+        {
+            Chat? chat = null;
 
-            LoadOlderMessages();
-            MessagesScroll.ScrollToBottom();
-        }*/
+            if (openedChats.ContainsKey(userId))
+            {
+                chat = openedChats[userId];
+            }
+            else
+            {
+                try
+                {
+                    uiSync.Post((s) => { ShowLoading(true); }, null);
+                    var chatResponse = await Database.CreateChat(userId);
+
+                    if (chatResponse == null || chatResponse.StatusCode == (HttpStatusCode)0)
+                    {
+                        MessageBox.Show(Owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else if (chatResponse.StatusCode == (HttpStatusCode)500)
+                    {
+                        MessageBox.Show(Owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else if (chatResponse.StatusCode == (HttpStatusCode)201)
+                    {
+                        if (chatResponse.Content == null)
+                            return;
+
+                        var result = JObject.Parse(chatResponse.Content);
+
+                        chat = result?.ToObject<Chat>();
+
+                        if (chat == null)
+                            return;
+
+                        var targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
+                        Owner.AddUserIcon(targetUser, chat);
+                        openedChats.Add(userId, chat);
+                    }
+                    else if (chatResponse.StatusCode == (HttpStatusCode)401)
+                    {
+                        RegistryManager.ForgetJwt();
+                        Owner.Hide();
+                        new LoginWindow().Show();
+                        Owner.Close();
+                        return;
+                    }
+                }
+                finally
+                {
+                    uiSync.Post((s) => { ShowLoading(false); }, null);
+                }
+            }
+
+            OpenChat(chat);
+        }
+
+        public void LoadChat(String userId, Chat chat)
+        {
+            if (!openedChats.ContainsKey(userId))
+                openedChats.Add(userId, chat);
+        }
+
+        public void UpdateUser(UserInfo user)
+        {
+            currentUser = user;
+        }
+
+        public void ShowLoading(bool visible)
+        {
+            LoadingBorder.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            isLoading = visible;
+        }
 
         private void LoadOlderMessages()
         {
@@ -202,6 +253,47 @@ namespace EchoMessenger
             {
                 loaded = false;
             }
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            var placeholder = MessageTextBox.Text;
+            bool isTextChanged = false;
+
+            TextChangedEventHandler textChanged = (s, e) =>
+            {
+                isTextChanged = !String.IsNullOrEmpty(MessageTextBox.Text);
+            };
+
+            MessageTextBox.GotFocus += (s, e) =>
+            {
+                if (MessageTextBox.Text == placeholder && !isTextChanged)
+                    MessageTextBox.Text = String.Empty;
+
+                MessageTextBox.TextChanged += textChanged;
+            };
+
+            MessageTextBox.LostFocus += (s, e) =>
+            {
+                MessageTextBox.TextChanged -= textChanged;
+
+                if (String.IsNullOrEmpty(MessageTextBox.Text))
+                    MessageTextBox.Text = placeholder;
+            };
+
+            MessageTextBox.KeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Enter && Keyboard.IsKeyDown(Key.LeftShift))
+                {
+                    var index = MessageTextBox.CaretIndex;
+                    MessageTextBox.Text = MessageTextBox.Text.Insert(index, "\n");
+                    MessageTextBox.CaretIndex = index + 1;
+                }
+                else if (e.Key == Key.Enter)
+                {
+                    SendMessageHandle();
+                }
+            };
         }
     }
 }

@@ -49,7 +49,7 @@ namespace EchoMessenger.Helpers
             }
         }
 
-        public async Task<RestResponse?> Post(String target, Object? json = null)
+        public async Task<RestResponse?> Post(String target, Object? json = null, String? filePath = null)
         {
             var request = new RestRequest(target, Method.Post)
                 .AddHeader("Content-Type", "application/json");
@@ -64,6 +64,12 @@ namespace EchoMessenger.Helpers
 
             if (!String.IsNullOrEmpty(jwt))
                 request.AddHeader("authorization", jwt);
+
+            if (!String.IsNullOrEmpty(filePath))
+            {
+                request.AddOrUpdateHeader("Content-Type", "multipart/form-data");
+                request.AddFile("file", filePath);
+            }
 
             try
             {

@@ -3,12 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:EchoMessenger"
+        xmlns:local="clr-namespace:EchoMessenger" xmlns:custom="clr-namespace:LoadingSpinnerControl;assembly=LoadingSpinnerControl"
         mc:Ignorable="d"
         Title="Echo" 
         Height="450" Width="800"
         MinWidth="350" MinHeight="200"
-        WindowStyle="SingleBorderWindow" WindowStartupLocation="CenterScreen">
+        WindowStyle="SingleBorderWindow" WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
     
     <Grid x:Name="MainGrid" SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
@@ -39,6 +40,23 @@
                 <Border Margin="15 0" Background="DimGray" Height="1"/>
 
                 <StackPanel x:Name="ChatsMenu" Margin="10 10 10 10"/>
+
+                <custom:LoadingSpinner x:Name="LoadingSpinner" IsLoading="True" Diameter="25" Color="White" Cap="Round" Thickness="2" StrokeGap="0.75">
+                    <custom:LoadingSpinner.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                    <DoubleAnimation
+                                    Storyboard.TargetProperty="StrokeGap"
+                                    From="0"
+                                    To="1"
+                                    SpeedRatio="0.35"
+                                    AutoReverse="True"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </custom:LoadingSpinner.Triggers>
+                </custom:LoadingSpinner>
             </StackPanel>
         </ScrollViewer>
 

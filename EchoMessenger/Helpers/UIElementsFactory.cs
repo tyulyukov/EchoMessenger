@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EchoMessenger.Helpers.Server;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -139,7 +140,7 @@ namespace EchoMessenger.Helpers
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(avatarUrl, UriKind.Absolute);
+            bitmap.UriSource = new Uri(Database.HostUrl(avatarUrl), UriKind.Absolute);
             bitmap.EndInit();
             border.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
 

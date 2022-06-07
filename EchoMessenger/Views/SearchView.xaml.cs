@@ -1,5 +1,6 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
+using EchoMessenger.Helpers.Server;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace EchoMessenger.Views
             InitializeComponent();
             uiSync = SynchronizationContext.Current;
 
-            typeAssistant= new TypeAssistant(350);
+            typeAssistant = new TypeAssistant(350);
             typeAssistant.Idled += TypeAssistant_Idled;
 
             this.owner = owner;
@@ -64,36 +65,34 @@ namespace EchoMessenger.Views
                     }
                     else if (response.StatusCode == (HttpStatusCode)200)
                     {
-                        if (response.Content != null)
+                        if (response.Content == null)
+                            return;
+
+                        var result = JArray.Parse(response.Content);
+
+                        var users = result?.ToObject<IEnumerable<UserInfo>>();
+
+                        if (users == null)
+                            return;
+
+                        lock (locker)
                         {
-                            var result = JArray.Parse(response.Content);
+                            UsersStackPanel.Children.Clear();
 
-                            var users = result?.ToObject<IEnumerable<UserInfo>>();
-
-                            if (users != null)
+                            foreach (var user in users)
                             {
-                                lock (locker)
+                                var userCard = UIElementsFactory.CreateUsersCard(user.avatarUrl, user.username);
+
+                                userCard.MouseLeftButtonUp += (s, e) =>
                                 {
-                                    UsersStackPanel.Children.Clear();
-
-                                    foreach (var user in users)
+                                    _ = Task.Run(async () =>
                                     {
-                                        var userCard = UIElementsFactory.CreateUsersCard(user.avatarUrl, user.username);
+                                        owner.OpenTab(owner.MessagesView);
+                                        await owner.MessagesView.OpenChat(user._id);
+                                    });
+                                };
 
-                                        userCard.MouseLeftButtonUp += (object sender, MouseButtonEventArgs e) =>
-                                        {
-                                            /*var chat = await Database.GetChat(user.Object);
-
-                                            if (chat == null)
-                                                return;
-
-                                            owner?.MessagesView.OpenChat(chat);
-                                            owner?.OpenTab(owner.MessagesView);*/
-                                        };
-
-                                        UsersStackPanel.Children.Add(userCard);
-                                    }
-                                }
+                                UsersStackPanel.Children.Add(userCard);
                             }
                         }
                     }
