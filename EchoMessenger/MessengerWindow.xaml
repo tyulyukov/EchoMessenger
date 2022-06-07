@@ -17,23 +17,31 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="MenuScrollViewer" Grid.Column="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Background="#FF1C1D26">
                 <StackPanel Name="SpecialMenu" Margin="10 10 10 10">
-                    <Border MouseLeftButtonUp="ButtonSettings_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
-                        <Border Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Border.Background>
-                                <ImageBrush ImageSource="/EchoMessenger;component/Images/user.png" Stretch="UniformToFill"/>
-                            </Border.Background>
-                        </Border>
+                    <Border MouseLeftButtonUp="ButtonSettings_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border.Background>
+                            <ImageBrush ImageSource="/EchoMessenger;component/Images/user.png" Stretch="UniformToFill">
+                                <ImageBrush.RelativeTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.8" ScaleY="0.8"/>
+                                    </TransformGroup>
+                                </ImageBrush.RelativeTransform>
+                            </ImageBrush>
+                        </Border.Background>
                     </Border>
 
-                    <Border MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" Width="40" Height="40" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
-                        <Border Width="30" Height="30" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Border.Background>
-                                <ImageBrush ImageSource="/EchoMessenger;component/Images/search.png" Stretch="UniformToFill"/>
-                            </Border.Background>
-                        </Border>
+                    <Border MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Border.Background>
+                            <ImageBrush ImageSource="/EchoMessenger;component/Images/search.png" Stretch="UniformToFill" TileMode="None">
+                                <ImageBrush.RelativeTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform CenterY="0.4" CenterX="0.4" ScaleX="0.8" ScaleY="0.8"/>
+                                    </TransformGroup>
+                                </ImageBrush.RelativeTransform>
+                            </ImageBrush>
+                        </Border.Background>
                     </Border>
                 </StackPanel>
 

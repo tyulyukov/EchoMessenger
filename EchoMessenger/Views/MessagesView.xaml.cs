@@ -4,6 +4,7 @@ using EchoMessenger.Helpers.Server;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace EchoMessenger
         private bool loaded = false;
         private DateTime? lastMessageSentAt = null;
         private DateTime? firstMessageSentAt = null;
-        private Dictionary<String, Chat> openedChats;
+        private Dictionary<String, KeyValuePair<Chat, Border>> openedChats;
 
         public MessagesView(MessengerWindow owner, UserInfo user)
         {
@@ -40,13 +41,16 @@ namespace EchoMessenger
             Owner = owner;
             currentUser = user;
 
-            openedChats = new Dictionary<String, Chat>();
+            openedChats = new Dictionary<string, KeyValuePair<Chat, Border>>();
         }
 
         public void OpenChat(Chat? chat)
         {
             if (chat == null)
                 return;
+
+            var icon = openedChats.First(o => o.Value.Key == chat).Value.Value;
+            Owner.SelectButton(icon);
 
             if (currentChat == chat)
                 return;
@@ -69,7 +73,7 @@ namespace EchoMessenger
 
             if (openedChats.ContainsKey(userId))
             {
-                chat = openedChats[userId];
+                chat = openedChats[userId].Key;
             }
             else
             {
@@ -101,8 +105,8 @@ namespace EchoMessenger
                             return;
 
                         var targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
-                        Owner.AddUserIcon(targetUser, chat);
-                        openedChats.Add(userId, chat);
+                        var icon = Owner.AddUserIcon(targetUser, chat, true);
+                        openedChats.Add(userId, new KeyValuePair<Chat, Border>(chat, icon));
                     }
                     else if (chatResponse.StatusCode == (HttpStatusCode)401)
                     {
@@ -122,10 +126,10 @@ namespace EchoMessenger
             OpenChat(chat);
         }
 
-        public void LoadChat(String userId, Chat chat)
+        public void LoadChat(String userId, Chat chat, Border icon)
         {
             if (!openedChats.ContainsKey(userId))
-                openedChats.Add(userId, chat);
+                openedChats.Add(userId, new KeyValuePair<Chat, Border>(chat, icon));
         }
 
         public void UpdateUser(UserInfo user)
@@ -235,7 +239,7 @@ namespace EchoMessenger
         private void MessagesScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             bool isVisible = MessagesScroll.VerticalOffset + 50 < MessagesScroll.ScrollableHeight;
-            ButtonGoBottom.ChangeVisibility(isVisible, TimeSpan.FromMilliseconds(150));
+            ButtonGoBottom.ChangeVisibilityWithOpacity(isVisible, TimeSpan.FromMilliseconds(150));
 
             if (MessagesScroll.VerticalOffset == 0 && !isLoadingMessages)
                 LoadOlderMessages();

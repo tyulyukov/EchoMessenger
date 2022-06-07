@@ -154,9 +154,9 @@ namespace EchoMessenger.Helpers
             line.Y1 = 0;
             line.X2 = 0;
             line.Y2 = 30;
-            line.Margin = new Thickness(-9, 5, 0, 5);
+            line.Margin = new Thickness(-11, 5, 0, 5);
             line.Stroke = new SolidColorBrush(Colors.White);
-            line.StrokeThickness = 3;
+            line.StrokeThickness = 4;
 
             return line;
         }

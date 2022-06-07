@@ -14,7 +14,7 @@ namespace EchoMessenger.Helpers
             progressBar.BeginAnimation(ProgressBar.ValueProperty, animation);
         }
 
-        public static void ChangeVisibility(this UIElement element, bool visible, TimeSpan duration)
+        public static void ChangeVisibilityWithOpacity(this UIElement element, bool visible, TimeSpan duration)
         {
             double opacity;
 
@@ -23,8 +23,24 @@ namespace EchoMessenger.Helpers
             else
                 opacity = 0;
 
-            DoubleAnimation animation = new DoubleAnimation(opacity, TimeSpan.FromMilliseconds(150));
+            DoubleAnimation animation = new DoubleAnimation(opacity, duration);
             element.BeginAnimation(UIElement.OpacityProperty, animation);
+        }
+
+        public static void ChangeVisibility(this UIElement element, bool visible, TimeSpan duration)
+        {
+            var animation = new DoubleAnimation
+            {
+                From = visible ? 0 : 1,
+                To = visible ? 1 : 0,
+                Duration = new Duration(duration)
+            };
+
+            var storyboard = new Storyboard();
+            storyboard.Children.Add(animation);
+            Storyboard.SetTarget(animation, element);
+            Storyboard.SetTargetProperty(animation, new PropertyPath(UIElement.OpacityProperty));
+            storyboard.Begin();
         }
 
         public static void ShowSmoothly(this UIElement element, TimeSpan duration)

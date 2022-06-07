@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Shapes;
 
 namespace EchoMessenger
 {
@@ -29,6 +30,10 @@ namespace EchoMessenger
         private SynchronizationContext uiSync;
         private bool isLoading;
 
+        private Border? activeButton;
+        private Line selectionLine;
+        private TimeSpan selectionDuration = TimeSpan.FromMilliseconds(250);
+
         public MessengerWindow(UserInfo user)
         {
             InitializeComponent();
@@ -41,6 +46,9 @@ namespace EchoMessenger
             MessagesView = new MessagesView(this, currentUser);
             SettingsView = new SettingsView(this, currentUser);
             SearchView = new SearchView(this);
+
+            activeButton = null;
+            selectionLine = UIElementsFactory.CreateSelectionLine();
         }
 
         public async void UpdateUser(UserInfo user)
@@ -98,9 +106,8 @@ namespace EchoMessenger
                     foreach (var chat in chats.OrderBy(c => c.GetLastSentAt()))
                     {
                         var targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
-                        MessagesView.LoadChat(targetUser._id, chat);
-
-                        AddUserIcon(targetUser, chat);
+                        var icon = AddUserIcon(targetUser, chat);
+                        MessagesView.LoadChat(targetUser._id, chat, icon);
                     }
                 }
                 else if (response.StatusCode == (HttpStatusCode)401)
@@ -125,32 +132,80 @@ namespace EchoMessenger
             }, null);
         }
 
-        public void AddUserIcon(UserInfo targetUser, Chat chat)
+        public void SelectButton(Border button)
         {
             uiSync.Post((s) => {
-                var icon = UIElementsFactory.CreateUserIcon(targetUser.avatarUrl);
+                selectionLine.Opacity = 0;
 
-                icon.MouseLeftButtonUp += (s, e) =>
+                if (activeButton != null)
+                    activeButton.Child = null;
+
+                activeButton = button;
+                activeButton.Child = selectionLine;
+
+                selectionLine.ChangeVisibility(true, selectionDuration);
+            }, null);
+        }
+
+        public Border AddUserIcon(UserInfo targetUser, Chat chat, bool select = false)
+        {
+            Border? icon = null;
+
+            uiSync.Send((s) => {
+                icon = UIElementsFactory.CreateUserIcon(targetUser.avatarUrl);
+
+                if (select)
+                    SelectButton(icon);
+
+                icon.MouseLeftButtonUp += (sender, e) =>
                 {
                     _ = Task.Run(() =>
                     {
+                        SelectButton((Border)sender);
+
                         OpenTab(MessagesView);
                         MessagesView.OpenChat(chat);
                     });
                 };
 
                 ChatsMenu.Children.Insert(0, icon);
+
             }, null);
+
+            return icon;
+        }
+
+        public void PushUserIcon(Border icon)
+        {
+            uiSync.Post((s) => {
+                ChatsMenu.Children.Remove(icon);
+                ChatsMenu.Children.Insert(0, icon);
+                icon.ChangeVisibility(true, selectionDuration);
+            }, null);
+        } 
+
+        public void SetUserIconBadge(int count)
+        {
+            String countRepresentation = count.ToString();
+
+            if (count >= 100)
+                countRepresentation = "99+";
+
+            // Add a badge to chat icon
         }
 
         private void ButtonSettings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            SelectButton((Border)sender);
+
             SettingsView.Open();
             OpenTab(SettingsView);
         }
 
         private void ButtonSearch_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            SelectButton((Border)sender);
+
             OpenTab(SearchView);
         }
     }
