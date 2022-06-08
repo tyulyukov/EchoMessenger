@@ -40,13 +40,20 @@
             <StackPanel VerticalAlignment="Center" Grid.Column="1" Orientation="Vertical">
                 <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="14" FontFamily="Segoe UI Semibold">Username</TextBlock>
                 <DockPanel>
-                    <Button Click="ButtonSaveUsername_Click" DockPanel.Dock="Right" x:Name="ButtonSaveUsername" Foreground="White" Background="#1A8FFF"  Margin="5,5,10,10" Width="150" MinWidth="75" FontSize="15" Height="35" FontFamily="Segoe UI Semibold" Content="Save">
-                        <Button.Resources>
-                            <Style TargetType="{x:Type Border}">
-                                <Setter Property="CornerRadius" Value="12"/>
+                    <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="ButtonSaveUsername_Click" DockPanel.Dock="Right" x:Name="ButtonSaveUsername" Margin="5,5,10,10" Width="150" MinWidth="75"  Height="35" CornerRadius="12">
+                        <Border.Style>
+                            <Style>
+                                <Setter Property="Border.Background" Value="#1A8FFF"/>
+                                <Style.Triggers>
+                                    <Trigger Property="Border.IsMouseOver" Value="True">
+                                        <Setter Property="Border.Background" Value="#FF56A1E9" />
+                                    </Trigger>
+                                </Style.Triggers>
                             </Style>
-                        </Button.Resources>
-                    </Button>
+                        </Border.Style>
+
+                        <Label HorizontalContentAlignment="Center" FontFamily="Segoe UI Semibold" FontSize="15" Foreground="White">Save</Label>
+                    </Border>
                     <TextBox CharacterCasing="Lower" x:Name="UsernameBox" Template="{StaticResource TextBoxBaseControlTemplate}" Margin="10,5,5,10" Height="35" Foreground="White" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"></TextBox>
                 </DockPanel>
             </StackPanel>
@@ -61,21 +68,35 @@
             <TextBlock Foreground="White" Margin="15,0,10,0" FontSize="14" FontFamily="Segoe UI Semibold">New password</TextBlock>
             <PasswordBox x:Name="NewPasswordBox" Template="{StaticResource PasswordBoxBaseControlTemplate}" Margin="10,5,5,5" Width="400" MaxWidth="750" Height="35" Foreground="White" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"/>
 
-            <Button Click="ButtonSavePassword_Click" x:Name="ButtonSavePassword" HorizontalAlignment="Left" Foreground="White" Background="#1A8FFF"  Margin="10" MinWidth="75" Width="200" FontSize="15" Height="35" FontFamily="Segoe UI Semibold" Content="Save">
-                <Button.Resources>
-                    <Style TargetType="{x:Type Border}">
-                        <Setter Property="CornerRadius" Value="12"/>
+            <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="ButtonSavePassword_Click" x:Name="ButtonSavePassword" HorizontalAlignment="Left" Margin="10" MinWidth="75" Width="200" Height="35" CornerRadius="12">
+                <Border.Style>
+                    <Style>
+                        <Setter Property="Border.Background" Value="#1A8FFF"/>
+                        <Style.Triggers>
+                            <Trigger Property="Border.IsMouseOver" Value="True">
+                                <Setter Property="Border.Background" Value="#FF56A1E9" />
+                            </Trigger>
+                        </Style.Triggers>
                     </Style>
-                </Button.Resources>
-            </Button>
+                </Border.Style>
+
+                <Label HorizontalContentAlignment="Center" FontFamily="Segoe UI Semibold" FontSize="15" Foreground="White">Save</Label>
+            </Border>
         </StackPanel>
 
-        <Button Click="LogOutButton_Click" x:Name="LogOutButton" HorizontalAlignment="Left" Foreground="White" Background="#FFD61E1E" Margin="15" MinWidth="75" Width="200" FontSize="15" Height="35" FontFamily="Segoe UI Semibold" Content="Log Out">
-            <Button.Resources>
-                <Style TargetType="{x:Type Border}">
-                    <Setter Property="CornerRadius" Value="12"/>
+        <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="LogOutButton_Click" x:Name="LogOutButton" HorizontalAlignment="Left" Margin="15" MinWidth="75" Width="200" Height="35" CornerRadius="12">
+            <Border.Style>
+                <Style>
+                    <Setter Property="Border.Background" Value="#FFD61E1E"/>
+                    <Style.Triggers>
+                        <Trigger Property="Border.IsMouseOver" Value="True">
+                            <Setter Property="Border.Background" Value="#FFDD4545" />
+                        </Trigger>
+                    </Style.Triggers>
                 </Style>
-            </Button.Resources>
-        </Button>
+            </Border.Style>
+
+            <Label HorizontalContentAlignment="Center" FontFamily="Segoe UI Semibold" FontSize="15" Foreground="White">Log Out</Label>
+        </Border>
     </StackPanel>
 </UserControl>

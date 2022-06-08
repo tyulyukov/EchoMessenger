@@ -58,6 +58,12 @@ namespace EchoMessenger.Views.Settings
             {
                 _ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
 
+                if (username == currentUser.username)
+                {
+                    MessageBox.Show("Username must be different");
+                    return;
+                }
+
                 if (String.IsNullOrWhiteSpace(username))
                 {
                     MessageBox.Show("Username must not be empty");

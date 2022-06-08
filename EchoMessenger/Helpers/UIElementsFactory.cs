@@ -79,16 +79,14 @@ namespace EchoMessenger.Helpers
         {
             var border = new Border();
             border.BorderBrush = new SolidColorBrush(Colors.White);
-            border.BorderThickness = new Thickness(1);
-            border.Margin = new Thickness(10, 10, 10, 0);
-            border.HorizontalAlignment = HorizontalAlignment.Left;
-            border.CornerRadius = new CornerRadius(30);
+            border.BorderThickness = new Thickness(0, 1, 0, 0);
             border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
+            border.Padding = new Thickness(10, 0, 10, 0);
 
             var grid = new Grid();
 
             var avatarColumn = new ColumnDefinition();
-            avatarColumn.Width = new GridLength(75);
+            avatarColumn.Width = new GridLength(60);
 
             var usernameColumn = new ColumnDefinition();
 
@@ -99,8 +97,8 @@ namespace EchoMessenger.Helpers
             avatarBorder.BorderBrush = new SolidColorBrush(Colors.Gray);
             avatarBorder.BorderThickness = new Thickness(1);
             avatarBorder.CornerRadius = new CornerRadius(100);
-            avatarBorder.Width = avatarBorder.Height = 50;
-            avatarBorder.Margin = new Thickness(10);
+            avatarBorder.Width = avatarBorder.Height = 35;
+            avatarBorder.Margin = new Thickness(5);
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
@@ -112,9 +110,9 @@ namespace EchoMessenger.Helpers
             usernameTextBlock.MinWidth = 400;
             usernameTextBlock.VerticalAlignment = VerticalAlignment.Center;
             usernameTextBlock.Foreground = new SolidColorBrush(Colors.White);
-            usernameTextBlock.Margin = new Thickness(10);
-            usernameTextBlock.FontSize = 14d;
-            usernameTextBlock.FontFamily = new FontFamily("Segoe UI Semibold");
+            usernameTextBlock.Margin = new Thickness(0);
+            usernameTextBlock.FontSize = 14;
+            usernameTextBlock.FontFamily = new FontFamily("Segoe UI");
             usernameTextBlock.Text = username;
 
             Grid.SetColumn(avatarBorder, 0);

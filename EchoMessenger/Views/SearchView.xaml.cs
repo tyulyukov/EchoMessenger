@@ -4,6 +4,7 @@ using EchoMessenger.Helpers.Server;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -92,6 +93,13 @@ namespace EchoMessenger.Views
                                     });
                                 };
 
+                                if (user == users.First())
+                                    userCard.BorderThickness = new Thickness(userCard.BorderThickness.Left, 0, userCard.BorderThickness.Right, userCard.BorderThickness.Bottom);
+
+                                if (user == users.Last())
+                                    userCard.BorderThickness = new Thickness(userCard.BorderThickness.Left, userCard.BorderThickness.Top, userCard.BorderThickness.Right, 1);
+
+                                userCard.ChangeVisibility(true, TimeSpan.FromMilliseconds(150));
                                 UsersStackPanel.Children.Add(userCard);
                             }
                         }
