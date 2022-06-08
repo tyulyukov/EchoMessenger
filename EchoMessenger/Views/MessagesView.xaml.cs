@@ -49,7 +49,8 @@ namespace EchoMessenger
             if (chat == null)
                 return;
 
-            var icon = openedChats.First(o => o.Value.Key == chat).Value.Value;
+            var chatByUserId = openedChats.FirstOrDefault(o => o.Value.Key == chat);
+            var icon = chatByUserId.Value.Value;
             Owner.SelectButton(icon);
 
             if (currentChat == chat)
@@ -57,10 +58,12 @@ namespace EchoMessenger
 
             uiSync.Post((s) =>
             {
+                TargetUserName.ChangeVisibility(false, TimeSpan.FromMilliseconds(150));
                 MessagesStackPanel.Children.Clear();
                 currentChat = chat;
 
                 TargetUserName.Content = chat.sender.username == currentUser.username ? chat.receiver.username : chat.sender.username;
+                TargetUserName.ChangeVisibility(true, TimeSpan.FromMilliseconds(150));
 
                 LoadOlderMessages();
                 MessagesScroll.ScrollToBottom();
@@ -130,6 +133,11 @@ namespace EchoMessenger
         {
             if (!openedChats.ContainsKey(userId))
                 openedChats.Add(userId, new KeyValuePair<Chat, Border>(chat, icon));
+        }
+
+        public void ClearLoadedChats()
+        {
+            openedChats.Clear();
         }
 
         public void UpdateUser(UserInfo user)

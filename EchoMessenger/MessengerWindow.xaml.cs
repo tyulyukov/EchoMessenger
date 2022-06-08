@@ -80,6 +80,7 @@ namespace EchoMessenger
 
             try
             {
+                MessagesView.ClearLoadedChats();
                 ChatsMenu.Children.Clear();
                 var response = await Database.GetLastChats();
 
@@ -134,6 +135,9 @@ namespace EchoMessenger
 
         public void SelectButton(Border button)
         {
+            if (activeButton == button)
+                return;
+
             uiSync.Post((s) => {
                 selectionLine.Opacity = 0;
 
@@ -161,8 +165,6 @@ namespace EchoMessenger
                 {
                     _ = Task.Run(() =>
                     {
-                        SelectButton((Border)sender);
-
                         OpenTab(MessagesView);
                         MessagesView.OpenChat(chat);
                     });
