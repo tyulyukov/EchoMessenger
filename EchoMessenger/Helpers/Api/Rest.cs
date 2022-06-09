@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EchoMessenger.Helpers
+namespace EchoMessenger.Helpers.Api
 {
     public class Rest
     {

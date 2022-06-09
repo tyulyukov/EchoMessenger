@@ -28,7 +28,6 @@ namespace EchoMessenger
         private UserInfo currentUser;
         private double prevHeight = 0;
         private bool isLoadingMessages = false;
-        private bool loaded = false;
         private DateTime? lastMessageSentAt = null;
         private DateTime? firstMessageSentAt = null;
         private Dictionary<String, KeyValuePair<Chat, Border>> openedChats;
@@ -211,29 +210,31 @@ namespace EchoMessenger
 
         private async void SendMessageHandle()
         {
-            /*if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
+            if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
                 return;
 
-            var message = new Message(Database.User.Object, MessageTextBox.Text.Trim());
+            var content = MessageTextBox.Text;
             MessageTextBox.Text = String.Empty;
 
-            if (!await Database.SendMessage(currentChat, message))
+            // Socket send message
+
+            /*if ())
             {
                 MessageBox.Show("Something went wrong...");
                 return;
             }
 
-            var messageBorder = UIElementsFactory.CreateOwnMessage(message.Text, message.SentAt);
+            var messageBorder = UIElementsFactory.CreateOwnMessage(message.content, message.sentAt);
 
-            if ((firstMessageSentAt?.Year == message.SentAt.Year && firstMessageSentAt?.DayOfYear < message.SentAt.DayOfYear) || firstMessageSentAt?.Year < message.SentAt.Year)
-                MessagesStackPanel.Children.Add(UIElementsFactory.CreateDateCard(message.SentAt));
-            else if (firstMessageSentAt?.AddMinutes(10) < message.SentAt)
+            if ((firstMessageSentAt?.Year == message.sentAt.Year && firstMessageSentAt?.DayOfYear < message.sentAt.DayOfYear) || firstMessageSentAt?.Year < message.sentAt.Year)
+                MessagesStackPanel.Children.Add(UIElementsFactory.CreateDateCard(message.sentAt));
+            else if (firstMessageSentAt?.AddMinutes(10) < message.sentAt)
                 messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top + 5, messageBorder.Margin.Right, messageBorder.Margin.Bottom);
-            else if (firstMessageSentAt?.AddHours(1) < message.SentAt)
+            else if (firstMessageSentAt?.AddHours(1) < message.sentAt)
                 messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top + 10, messageBorder.Margin.Right, messageBorder.Margin.Bottom);
 
 
-            firstMessageSentAt = message.SentAt;
+            firstMessageSentAt = message.sentAt;
 
             MessagesStackPanel.Children.Add(messageBorder);
             MessagesScroll.ScrollToBottom();*/
@@ -247,24 +248,10 @@ namespace EchoMessenger
         private void MessagesScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             bool isVisible = MessagesScroll.VerticalOffset + 50 < MessagesScroll.ScrollableHeight;
-            ButtonGoBottom.ChangeVisibilityWithOpacity(isVisible, TimeSpan.FromMilliseconds(150));
+            ButtonGoBottom.ChangeOpacity(isVisible, TimeSpan.FromMilliseconds(150));
 
             if (MessagesScroll.VerticalOffset == 0 && !isLoadingMessages)
                 LoadOlderMessages();
-        }
-
-        private void UserControl_LayoutUpdated(object sender, EventArgs e)
-        {
-            if ((ActualHeight > 0 || ActualWidth > 0) && !loaded)
-            {
-                TargetUserName.ShowSmoothly(TimeSpan.FromMilliseconds(150));
-
-                loaded = true;
-            }
-            else if (ActualHeight == 0 && ActualWidth == 0)
-            {
-                loaded = false;
-            }
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)

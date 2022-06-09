@@ -3,44 +3,19 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using XamlFlair;
 
 namespace EchoMessenger.Helpers
 {
-    public static class Extensions
+    public static class Animation
     {
+        public static readonly AnimationSettings FadeInAndSlideFromLeft = (AnimationSettings)Application.Current.FindResource("FadeInAndSlideFromLeft");
+        public static readonly TimeSpan Duration = TimeSpan.FromMilliseconds(150);
+
         public static void SetPercent(this ProgressBar progressBar, double percentage, TimeSpan duration)
         {
             DoubleAnimation animation = new DoubleAnimation(percentage, duration);
             progressBar.BeginAnimation(ProgressBar.ValueProperty, animation);
-        }
-
-        public static void ChangeVisibilityWithOpacity(this UIElement element, bool visible, TimeSpan duration)
-        {
-            double opacity;
-
-            if (visible)
-                opacity = 0.9;
-            else
-                opacity = 0;
-
-            DoubleAnimation animation = new DoubleAnimation(opacity, duration);
-            element.BeginAnimation(UIElement.OpacityProperty, animation);
-        }
-
-        public static void ChangeVisibility(this UIElement element, bool visible, TimeSpan duration)
-        {
-            var animation = new DoubleAnimation
-            {
-                From = visible ? 0 : 1,
-                To = visible ? 1 : 0,
-                Duration = new Duration(duration)
-            };
-
-            var storyboard = new Storyboard();
-            storyboard.Children.Add(animation);
-            Storyboard.SetTarget(animation, element);
-            Storyboard.SetTargetProperty(animation, new PropertyPath(UIElement.OpacityProperty));
-            storyboard.Begin();
         }
 
         public static void ShowSmoothly(this UIElement element, TimeSpan duration)
@@ -80,6 +55,30 @@ namespace EchoMessenger.Helpers
             Storyboard.SetTarget(opacityAnimation, element);
 
             storyboard.Begin();
+        }
+
+        public static void SetSlideFromLeftOnLoad(this UIElement element)
+        {
+            Animations.SetPrimary(element, FadeInAndSlideFromLeft);
+        }
+
+        public static void ChangeOpacity(this UIElement element, bool visible, TimeSpan? duration = null)
+        {
+            double opacity = visible ? 0.9 : 0;
+            TimeSpan durationAnimation = (TimeSpan)(duration == null ? Duration : duration);
+
+            DoubleAnimation animation = new DoubleAnimation(opacity, durationAnimation);
+            element.BeginAnimation(UIElement.OpacityProperty, animation);
+        }
+
+        public static void ChangeVisibility(this UIElement element, bool visible, TimeSpan? duration = null)
+        {
+            double toOpacity = visible ? 1 : 0;
+            double fromOpacity = visible ? 0 : 1;
+            TimeSpan durationAnimation = (TimeSpan)(duration == null ? Duration : duration);
+
+            DoubleAnimation animation = new DoubleAnimation(fromOpacity, toOpacity, durationAnimation);
+            element.BeginAnimation(UIElement.OpacityProperty, animation);
         }
     }
 }

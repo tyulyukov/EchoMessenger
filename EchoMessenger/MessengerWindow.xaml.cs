@@ -72,6 +72,13 @@ namespace EchoMessenger
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadChats();
+            Messages.Configure();
+            await Messages.Connect();
+        }
+
+        private async void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+            await Messages.Disconnect();
         }
 
         private async Task LoadChats()
@@ -171,7 +178,7 @@ namespace EchoMessenger
                 };
 
                 ChatsMenu.Children.Insert(0, icon);
-
+                icon.SetSlideFromLeftOnLoad();
             }, null);
 
             return icon;

@@ -46,7 +46,12 @@ namespace EchoMessenger.Views
                 if (String.IsNullOrWhiteSpace(query))
                 {
                     _ = Task.Run(EndFillingProgressBar);
-                    UsersStackPanel.Children.Clear();
+                    foreach (Border control in UsersStackPanel.Children)
+                        control.ChangeVisibility(false);
+
+                    if (UsersStackPanel.Children.Count != 0)
+                        await Task.Delay(150).ContinueWith((task) => { uiSync?.Send(state => { UsersStackPanel.Children.Clear(); }, null); }); 
+
                     return;
                 }
 
@@ -99,7 +104,7 @@ namespace EchoMessenger.Views
                                 if (user == users.Last())
                                     userCard.BorderThickness = new Thickness(userCard.BorderThickness.Left, userCard.BorderThickness.Top, userCard.BorderThickness.Right, 1);
 
-                                userCard.ChangeVisibility(true, TimeSpan.FromMilliseconds(150));
+                                userCard.SetSlideFromLeftOnLoad();
                                 UsersStackPanel.Children.Add(userCard);
                             }
                         }

@@ -3,14 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:EchoMessenger" xmlns:custom="clr-namespace:LoadingSpinnerControl;assembly=LoadingSpinnerControl"
+        xmlns:local="clr-namespace:EchoMessenger"
+        xmlns:custom="clr-namespace:LoadingSpinnerControl;assembly=LoadingSpinnerControl"
+        xmlns:xf="clr-namespace:XamlFlair;assembly=XamlFlair.WPF"
         mc:Ignorable="d"
         Title="Echo" 
         Height="450" Width="800"
         MinWidth="350" MinHeight="200"
         WindowStyle="SingleBorderWindow" WindowStartupLocation="CenterScreen"
-        Loaded="Window_Loaded">
-    
+        Loaded="Window_Loaded"
+        Unloaded="Window_Unloaded">
     <Grid x:Name="MainGrid" SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="60"/>
@@ -20,24 +22,24 @@
         <ScrollViewer x:Name="MenuScrollViewer" Grid.Column="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Background="#FF1C1D26">
                 <StackPanel Name="SpecialMenu" Margin="10 10 10 10">
-                    <Border MouseLeftButtonUp="ButtonSettings_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" MouseLeftButtonUp="ButtonSettings_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Border.Background>
                             <ImageBrush ImageSource="/EchoMessenger;component/Images/user.png" Stretch="UniformToFill">
                                 <ImageBrush.RelativeTransform>
                                     <TransformGroup>
-                                        <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.8" ScaleY="0.8"/>
+                                        <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.6" ScaleY="0.6"/>
                                     </TransformGroup>
                                 </ImageBrush.RelativeTransform>
                             </ImageBrush>
                         </Border.Background>
                     </Border>
 
-                    <Border MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Border.Background>
-                            <ImageBrush ImageSource="/EchoMessenger;component/Images/search.png" Stretch="UniformToFill" TileMode="None">
+                            <ImageBrush ImageSource="/EchoMessenger;component/Images/search.png" Stretch="UniformToFill">
                                 <ImageBrush.RelativeTransform>
                                     <TransformGroup>
-                                        <ScaleTransform CenterY="0.4" CenterX="0.4" ScaleX="0.8" ScaleY="0.8"/>
+                                        <ScaleTransform CenterY="0.45" CenterX="0.45" ScaleX="0.6" ScaleY="0.6"/>
                                     </TransformGroup>
                                 </ImageBrush.RelativeTransform>
                             </ImageBrush>
@@ -45,9 +47,9 @@
                     </Border>
                 </StackPanel>
 
-                <Border Margin="15 0" Background="DimGray" Height="1"/>
+                <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" Margin="15 0" Background="DimGray" Height="1"/>
 
-                <StackPanel x:Name="ChatsMenu" Margin="10 10 10 10"/>
+                <StackPanel xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" x:Name="ChatsMenu" Margin="10 10 10 10"/>
 
                 <custom:LoadingSpinner x:Name="LoadingSpinner" IsLoading="True" Diameter="25" Color="White" Cap="Round" Thickness="2" StrokeGap="0.75">
                     <custom:LoadingSpinner.Triggers>
@@ -70,7 +72,7 @@
 
         <Grid Grid.Column="1" x:Name="OpenedTab">
             <Grid Background="#FF131419">
-                <Border Background="#FF242430" Width="200" Height="25" CornerRadius="15">
+                <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" Background="#FF242430" Width="200" Height="25" CornerRadius="15">
                     <Border.Effect>
                         <DropShadowEffect/>
                     </Border.Effect>

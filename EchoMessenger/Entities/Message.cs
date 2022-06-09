@@ -13,5 +13,6 @@ namespace EchoMessenger.Entities
         public List<Attachment> attachments { get; set; }
         public DateTime sentAt { get; set; }
         public Message repliedOn { get; set; }
+        public Chat chat { get; set; }
     }
 }
