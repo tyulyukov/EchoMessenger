@@ -12,6 +12,9 @@ namespace EchoMessenger.Helpers.Server
         public static EventHandler<int>? OnReconnected;
         public static EventHandler? OnConnected;
         public static EventHandler<String>? OnError;
+        public static Action<SocketIOResponse>? OnUsersOnlineReceived;
+        public static Action<SocketIOResponse>? OnUserConnected;
+        public static Action<SocketIOResponse>? OnUserDisconnected;
 
         private static SocketIO? client;
 
@@ -33,6 +36,16 @@ namespace EchoMessenger.Helpers.Server
                 builder.Error(OnError);
 
             client = builder.Build();
+
+            if (OnUsersOnlineReceived != null)
+                client.On("users online", OnUsersOnlineReceived);
+
+            if (OnUserConnected != null)
+                client.On("user connected", OnUserConnected);
+
+            if (OnUsersOnlineReceived != null)
+                client.On("user disconnected", OnUserDisconnected);
+
             return true;
         }
 

@@ -20,7 +20,7 @@
         </Grid.ColumnDefinitions>
 
         <ScrollViewer x:Name="MenuScrollViewer" Grid.Column="0" VerticalScrollBarVisibility="Auto">
-            <StackPanel Background="#FF1C1D26">
+            <StackPanel Background="#FF131522">
                 <StackPanel Name="SpecialMenu" Margin="10 10 10 10">
                     <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" MouseLeftButtonUp="ButtonSettings_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Border.Background>
@@ -32,6 +32,7 @@
                                 </ImageBrush.RelativeTransform>
                             </ImageBrush>
                         </Border.Background>
+                        <Grid></Grid>
                     </Border>
 
                     <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -44,6 +45,7 @@
                                 </ImageBrush.RelativeTransform>
                             </ImageBrush>
                         </Border.Background>
+                        <Grid></Grid>
                     </Border>
                 </StackPanel>
 
@@ -51,7 +53,7 @@
 
                 <StackPanel xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" x:Name="ChatsMenu" Margin="10 10 10 10"/>
 
-                <custom:LoadingSpinner x:Name="LoadingSpinner" IsLoading="True" Diameter="25" Color="White" Cap="Round" Thickness="2" StrokeGap="0.75">
+                <custom:LoadingSpinner x:Name="LoadingSpinner" Visibility="Collapsed" IsLoading="True" Diameter="25" Color="White" Cap="Round" Thickness="2" StrokeGap="0.75">
                     <custom:LoadingSpinner.Triggers>
                         <EventTrigger RoutedEvent="Loaded">
                             <BeginStoryboard>
@@ -67,12 +69,24 @@
                         </EventTrigger>
                     </custom:LoadingSpinner.Triggers>
                 </custom:LoadingSpinner>
+
+                <Border x:Name="ButtonRetry" MouseLeftButtonUp="ButtonRetry_MouseLeftButtonUp" Width="40" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Border.Background>
+                        <ImageBrush ImageSource="/EchoMessenger;component/Images/refresh.png" Stretch="UniformToFill">
+                            <ImageBrush.RelativeTransform>
+                                <TransformGroup>
+                                    <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.7" ScaleY="0.7"/>
+                                </TransformGroup>
+                            </ImageBrush.RelativeTransform>
+                        </ImageBrush>
+                    </Border.Background>
+                </Border>
             </StackPanel>
         </ScrollViewer>
 
         <Grid Grid.Column="1" x:Name="OpenedTab">
-            <Grid Background="#FF131419">
-                <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" Background="#FF242430" Width="200" Height="25" CornerRadius="15">
+            <Grid Background="#FF0C0D11">
+                <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" Background="#FF131522" Width="200" Height="25" CornerRadius="15">
                     <Border.Effect>
                         <DropShadowEffect/>
                     </Border.Effect>

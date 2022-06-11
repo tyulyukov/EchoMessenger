@@ -5,14 +5,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Background="#FF131419">
+    <Grid Background="#FF212231">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="3"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Border Padding="150 0" Background="#FF242430" Grid.Row="0">
+        <Border Padding="150 0" Background="#FF212231" Grid.Row="0">
             <DockPanel>
                 <Border DockPanel.Dock="Right" x:Name="ButtonSearch" MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" BorderThickness="0" Width="30" Height="30" Margin="10" Background="Transparent">
                     <Image Source="/EchoMessenger;component/Images/search.png" />
@@ -27,11 +27,11 @@
                 </TextBox>
             </DockPanel>
         </Border>
-        
-        <ProgressBar x:Name="SearchProgressBar" Grid.Row="1" Background="#FF242430" Foreground="White" BorderBrush="#FF242430"></ProgressBar>
+
+        <ProgressBar x:Name="SearchProgressBar" Grid.Row="1" Background="#FF212231" Foreground="White" BorderBrush="#FF212231"></ProgressBar>
 
         <ScrollViewer Grid.Row="2" x:Name="UsersScroll" VerticalScrollBarVisibility="Auto">
-            <StackPanel x:Name="UsersStackPanel" Orientation="Vertical" Background="#FF131419"></StackPanel>
+            <StackPanel x:Name="UsersStackPanel" Orientation="Vertical" Background="#FF0C0D11"></StackPanel>
         </ScrollViewer>
     </Grid>
 </UserControl>

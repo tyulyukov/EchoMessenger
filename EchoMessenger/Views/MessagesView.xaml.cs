@@ -11,26 +11,27 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace EchoMessenger
 {
-    /// <summary>
-    /// Interaction logic for MessagesView.xaml
-    /// </summary>
     public partial class MessagesView : UserControl
     {
         public const int LoadingMessagesCount = 15;
         public MessengerWindow Owner;
 
+        public readonly Dictionary<String, KeyValuePair<Chat, Border>> OpenedChats;
+        public readonly List<String> OnlineChats;
+
         private bool isLoading = false;
         private SynchronizationContext uiSync;
         private Chat currentChat;
         private UserInfo currentUser;
+        private UserInfo targetUser;
         private double prevHeight = 0;
         private bool isLoadingMessages = false;
         private DateTime? lastMessageSentAt = null;
         private DateTime? firstMessageSentAt = null;
-        private Dictionary<String, KeyValuePair<Chat, Border>> openedChats;
 
         public MessagesView(MessengerWindow owner, UserInfo user)
         {
@@ -40,7 +41,8 @@ namespace EchoMessenger
             Owner = owner;
             currentUser = user;
 
-            openedChats = new Dictionary<string, KeyValuePair<Chat, Border>>();
+            OpenedChats = new Dictionary<string, KeyValuePair<Chat, Border>>();
+            OnlineChats = new List<String>();
         }
 
         public void OpenChat(Chat? chat)
@@ -48,7 +50,7 @@ namespace EchoMessenger
             if (chat == null)
                 return;
 
-            var chatByUserId = openedChats.FirstOrDefault(o => o.Value.Key == chat);
+            var chatByUserId = OpenedChats.FirstOrDefault(o => o.Value.Key == chat);
             var icon = chatByUserId.Value.Value;
             Owner.SelectButton(icon);
 
@@ -57,12 +59,22 @@ namespace EchoMessenger
 
             uiSync.Post((s) =>
             {
-                TargetUserName.ChangeVisibility(false, TimeSpan.FromMilliseconds(150));
                 MessagesStackPanel.Children.Clear();
                 currentChat = chat;
 
-                TargetUserName.Content = chat.sender.username == currentUser.username ? chat.receiver.username : chat.sender.username;
+                targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
+                TargetUserName.Content = targetUser.username;
                 TargetUserName.ChangeVisibility(true, TimeSpan.FromMilliseconds(150));
+
+                TargetUserOnlineStatus.ChangeVisibility(false, TimeSpan.FromMilliseconds(150));
+                TargetUserOnlineStatusIcon.ChangeVisibility(false, TimeSpan.FromMilliseconds(150));
+                SetChatOnlineStatus();
+                TargetUserOnlineStatus.ChangeVisibility(true, TimeSpan.FromMilliseconds(150));
+                TargetUserOnlineStatusIcon.ChangeVisibility(true, TimeSpan.FromMilliseconds(150));
+
+                MessagesStackPanel.Children.Add(UIElementsFactory.CreateDateCard(DateTime.Now));
+                MessagesStackPanel.Children.Add(UIElementsFactory.CreateForeignMessage("hey how r u", DateTime.Now));
+                MessagesStackPanel.Children.Add(UIElementsFactory.CreateOwnMessage("hey im good, thx for asking, u?", DateTime.Now));
 
                 LoadOlderMessages();
                 MessagesScroll.ScrollToBottom();
@@ -73,9 +85,9 @@ namespace EchoMessenger
         {
             Chat? chat = null;
 
-            if (openedChats.ContainsKey(userId))
+            if (OpenedChats.ContainsKey(userId))
             {
-                chat = openedChats[userId].Key;
+                chat = OpenedChats[userId].Key;
             }
             else
             {
@@ -105,10 +117,11 @@ namespace EchoMessenger
 
                         if (chat == null)
                             return;
-
-                        var targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
-                        var icon = Owner.AddUserIcon(targetUser, chat, true);
-                        openedChats.Add(userId, new KeyValuePair<Chat, Border>(chat, icon));
+                        
+                        targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
+                        var icon = Owner.AddUserIcon(targetUser, chat, OnlineChats.Contains(userId), true);
+                        
+                        LoadChat(userId, chat, icon);
                     }
                     else if (chatResponse.StatusCode == (HttpStatusCode)401)
                     {
@@ -130,13 +143,13 @@ namespace EchoMessenger
 
         public void LoadChat(String userId, Chat chat, Border icon)
         {
-            if (!openedChats.ContainsKey(userId))
-                openedChats.Add(userId, new KeyValuePair<Chat, Border>(chat, icon));
+            if (!OpenedChats.ContainsKey(userId))
+                OpenedChats.Add(userId, new KeyValuePair<Chat, Border>(chat, icon));
         }
 
         public void ClearLoadedChats()
         {
-            openedChats.Clear();
+            OpenedChats.Clear();
         }
 
         public void UpdateUser(UserInfo user)
@@ -148,6 +161,39 @@ namespace EchoMessenger
         {
             LoadingBorder.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
             isLoading = visible;
+        }
+
+        public void SetOnlineStatus(String userId, bool isOnline)
+        {
+            if (!OnlineChats.Contains(userId) && isOnline)
+                OnlineChats.Add(userId);
+            else if (OnlineChats.Contains(userId) && !isOnline)
+                OnlineChats.Remove(userId);
+
+            if (targetUser?._id == userId)
+                SetChatOnlineStatus();
+
+            if (OpenedChats.ContainsKey(userId))
+                Owner.SetOnlineStatus(OpenedChats[userId].Value, isOnline);
+        }
+
+        private void SetChatOnlineStatus()
+        {
+            uiSync.Post((s) =>
+            {
+                if (OnlineChats.Contains(targetUser._id))
+                {
+                    TargetUserOnlineStatus.Content = "online";
+                    TargetUserOnlineStatus.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088");
+                    TargetUserOnlineStatusIcon.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088");
+                }
+                else
+                {
+                    TargetUserOnlineStatus.Content = "offline";
+                    TargetUserOnlineStatus.Foreground = new SolidColorBrush(Colors.Gray);
+                    TargetUserOnlineStatusIcon.Background = new SolidColorBrush(Colors.Gray);
+                }
+            }, null);
         }
 
         private void LoadOlderMessages()

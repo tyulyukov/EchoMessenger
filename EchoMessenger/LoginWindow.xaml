@@ -32,7 +32,7 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid Background="#FF131419">
+    <Grid Background="#FF0C0D11">
         <StackPanel>
             <Border Margin="0 40" Width="100" Height="100" CornerRadius="50" Background="#1A8FFF">
                 <Image Margin="20" Source="/EchoMessenger;component/Images/echo.png" Stretch="Fill"/>

@@ -13,6 +13,7 @@
     <None Remove="Images\echo.png" />
     <None Remove="Images\image.png" />
     <None Remove="Images\loading spinner.gif" />
+    <None Remove="Images\refresh.png" />
     <None Remove="Images\search.png" />
     <None Remove="Images\send.png" />
     <None Remove="Images\user.png" />
@@ -36,6 +37,7 @@
     <Resource Include="Images\attachment.png" />
     <Resource Include="Images\echo.png" />
     <Resource Include="Images\image.png" />
+    <Resource Include="Images\refresh.png" />
     <Resource Include="Images\search.png" />
     <Resource Include="Images\send.png" />
     <Resource Include="Images\user.png" />

@@ -17,6 +17,7 @@
             <ImageBrush x:Key="EchoImage" ImageSource="/EchoMessenger;component/Images/echo.png"/>
             <ImageBrush x:Key="Image" ImageSource="/EchoMessenger;component/Images/image.png"/>
             <ImageBrush x:Key="ArrowDownImage" ImageSource="/EchoMessenger;component/Images/arrow down.png"/>
+            <ImageBrush x:Key="RefreshImage" ImageSource="/EchoMessenger;component/Images/refresh.png"/>
 
             <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
                 <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -165,6 +166,11 @@
                                   Kind="FadeFrom,TranslateXFrom"
                                   Opacity="0"
                                   OffsetX="{StaticResource NegativeOffset}" />
+
+            <xf:AnimationSettings x:Key="FadeInAndSlideFromRight"
+                                  Kind="FadeFrom,TranslateXFrom"
+                                  Opacity="0"
+                                  OffsetX="100" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

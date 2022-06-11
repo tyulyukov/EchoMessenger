@@ -13,13 +13,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Shapes;
 
 namespace EchoMessenger
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MessengerWindow : Window
     {
         public readonly MessagesView MessagesView;
@@ -71,18 +69,54 @@ namespace EchoMessenger
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            await LoadChats();
+            if (Messages.OnUsersOnlineReceived == null)
+                Messages.OnUsersOnlineReceived += OnlineChatsReceived;
+            if (Messages.OnUserConnected == null)
+                Messages.OnUserConnected += OnUserOnline;
+            if (Messages.OnUserDisconnected == null)
+                Messages.OnUserDisconnected += OnUserOffline;
+
             Messages.Configure();
             await Messages.Connect();
+
+            await LoadChats();
         }
 
         private async void Window_Unloaded(object sender, RoutedEventArgs e)
         {
+            if (Messages.OnUsersOnlineReceived != null)
+                Messages.OnUsersOnlineReceived -= OnlineChatsReceived;
+            if (Messages.OnUserConnected != null)
+                Messages.OnUserConnected -= OnUserOnline;
+            if (Messages.OnUserDisconnected != null)
+                Messages.OnUserDisconnected -= OnUserOffline;
+
             await Messages.Disconnect();
+        }
+
+        private void OnlineChatsReceived(SocketIOClient.SocketIOResponse response)
+        {
+            var users = response.GetValue<IEnumerable<String>>();
+
+            foreach (var userId in users)
+                MessagesView.SetOnlineStatus(userId, true);
+        }
+
+        private void OnUserOnline(SocketIOClient.SocketIOResponse response)
+        {
+            var userId = response.GetValue<String>();
+            MessagesView.SetOnlineStatus(userId, true);
+        }
+
+        private void OnUserOffline(SocketIOClient.SocketIOResponse response)
+        {
+            var userId = response.GetValue<String>();
+            MessagesView.SetOnlineStatus(userId, false);
         }
 
         private async Task LoadChats()
         {
+            ButtonRetry.Visibility = Visibility.Collapsed;
             ShowLoading(true);
 
             try
@@ -91,30 +125,26 @@ namespace EchoMessenger
                 ChatsMenu.Children.Clear();
                 var response = await Database.GetLastChats();
 
-                if (response == null || response.StatusCode == (HttpStatusCode)0)
+                if (response == null || response.StatusCode == (HttpStatusCode)0 || response.StatusCode == (HttpStatusCode)500)
                 {
-                    MessageBox.Show(this, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                else if (response.StatusCode == (HttpStatusCode)500)
-                {
-                    MessageBox.Show(this, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    throw new Exception();
                 }
                 else if (response.StatusCode == (HttpStatusCode)200)
                 {
                     if (String.IsNullOrEmpty(response.Content))
-                        return;
+                        throw new Exception();
 
                     var result = JArray.Parse(response.Content);
 
                     var chats = result?.ToObject<IEnumerable<Chat>>();
 
                     if (chats == null)
-                        return;
+                        throw new Exception();
 
                     foreach (var chat in chats.OrderBy(c => c.GetLastSentAt()))
                     {
                         var targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
-                        var icon = AddUserIcon(targetUser, chat);
+                        var icon = AddUserIcon(targetUser, chat, MessagesView.OnlineChats.Contains(targetUser._id));
                         MessagesView.LoadChat(targetUser._id, chat, icon);
                     }
                 }
@@ -125,6 +155,10 @@ namespace EchoMessenger
                     new LoginWindow().Show();
                     Close();
                 }
+            }
+            catch
+            {
+                ButtonRetry.Visibility = Visibility.Visible;
             }
             finally
             {
@@ -148,22 +182,37 @@ namespace EchoMessenger
             uiSync.Post((s) => {
                 selectionLine.Opacity = 0;
 
+                Grid grid;
+
                 if (activeButton != null)
-                    activeButton.Child = null;
+                {
+                    grid = (Grid)activeButton.Child;
+
+                    if (grid == null)
+                        return;
+
+                    grid.Children.Remove(selectionLine);
+                }
 
                 activeButton = button;
-                activeButton.Child = selectionLine;
+
+                grid = (Grid)activeButton.Child;
+
+                if (grid == null)
+                    return;
+
+                grid.Children.Add(selectionLine);
 
                 selectionLine.ChangeVisibility(true, selectionDuration);
             }, null);
         }
 
-        public Border AddUserIcon(UserInfo targetUser, Chat chat, bool select = false)
+        public Border AddUserIcon(UserInfo targetUser, Chat chat, bool isOnline, bool select = false)
         {
             Border? icon = null;
 
             uiSync.Send((s) => {
-                icon = UIElementsFactory.CreateUserIcon(targetUser.avatarUrl);
+                icon = UIElementsFactory.CreateUserIcon(targetUser.avatarUrl, isOnline);
 
                 if (select)
                     SelectButton(icon);
@@ -203,6 +252,31 @@ namespace EchoMessenger
             // Add a badge to chat icon
         }
 
+        public void SetOnlineStatus(Border border, bool isOnline)
+        {
+            uiSync.Send((s) =>
+            {
+                var grid = (Grid)border.Child;
+
+                if (grid == null)
+                    return;
+
+                foreach (var uiElement in grid.Children)
+                {
+                    if (uiElement is OnlineStatusIcon)
+                    {
+                        var onlineStatus = uiElement as OnlineStatusIcon;
+
+                        if (onlineStatus == null)
+                            return;
+
+                        var brush = isOnline ? (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088") : new SolidColorBrush(Colors.Gray);
+                        onlineStatus.Background = brush;
+                    }
+                }
+                
+            }, null);
+        }
         private void ButtonSettings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             SelectButton((Border)sender);
@@ -216,6 +290,11 @@ namespace EchoMessenger
             SelectButton((Border)sender);
 
             OpenTab(SearchView);
+        }
+
+        private async void ButtonRetry_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            await LoadChats();
         }
     }
 }

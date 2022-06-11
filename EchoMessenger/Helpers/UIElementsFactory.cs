@@ -127,7 +127,7 @@ namespace EchoMessenger.Helpers
             return border;
         }
 
-        public static Border CreateUserIcon(String avatarUrl)
+        public static Border CreateUserIcon(String avatarUrl, bool isOnline)
         {
             var border = new Border();
             border.Width = 40;
@@ -143,6 +143,14 @@ namespace EchoMessenger.Helpers
             bitmap.EndInit();
             border.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
 
+            var grid = new Grid();
+
+            var onlineStatusIcon = new OnlineStatusIcon(isOnline);
+
+            grid.Children.Add(onlineStatusIcon);
+
+            border.Child = grid;
+
             return border;
         }
 
@@ -154,7 +162,7 @@ namespace EchoMessenger.Helpers
             line.X2 = 0;
             line.Y2 = 30;
             line.Margin = new Thickness(-11, 5, 0, 5);
-            line.Stroke = new SolidColorBrush(Colors.White);
+            line.Stroke = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088"); 
             line.StrokeThickness = 4;
 
             return line;
@@ -181,6 +189,18 @@ namespace EchoMessenger.Helpers
             border.Child = label;
 
             return border;
+        }
+    }
+
+    public class OnlineStatusIcon : Border
+    {
+        public OnlineStatusIcon(bool isOnline) : base()
+        {
+            Width = Height = 10;
+            Background = isOnline ? (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088") : new SolidColorBrush(Colors.Gray);
+            HorizontalAlignment = HorizontalAlignment.Right;
+            VerticalAlignment = VerticalAlignment.Bottom;
+            CornerRadius = new CornerRadius(100);
         }
     }
 }
