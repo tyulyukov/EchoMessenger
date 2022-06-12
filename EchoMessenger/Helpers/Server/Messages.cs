@@ -15,6 +15,9 @@ namespace EchoMessenger.Helpers.Server
         public static Action<SocketIOResponse>? OnUsersOnlineReceived;
         public static Action<SocketIOResponse>? OnUserConnected;
         public static Action<SocketIOResponse>? OnUserDisconnected;
+        public static Action<SocketIOResponse>? OnChatCreated;
+        public static Action<SocketIOResponse>? OnMessageSent;
+        public static Action<SocketIOResponse>? OnMessageSendFailed;
 
         private static SocketIO? client;
 
@@ -46,6 +49,15 @@ namespace EchoMessenger.Helpers.Server
             if (OnUsersOnlineReceived != null)
                 client.On("user disconnected", OnUserDisconnected);
 
+            if (OnChatCreated != null)
+                client.On("chat created", OnChatCreated);
+
+            if (OnMessageSent != null)
+                client.On("message sent", OnMessageSent);
+
+            if (OnMessageSendFailed != null)
+                client.On("send message failed", OnMessageSendFailed);
+
             return true;
         }
 
@@ -59,6 +71,12 @@ namespace EchoMessenger.Helpers.Server
         {
             if (client != null)
                 await client.DisconnectAsync();
+        }
+
+        public static async Task SendMessage(String messageId, String chatId, String content)
+        {
+            if (client != null)
+                await client.EmitAsync("send message", messageId, chatId, content);
         }
     }
 }

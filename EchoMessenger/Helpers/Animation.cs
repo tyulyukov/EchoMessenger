@@ -80,5 +80,22 @@ namespace EchoMessenger.Helpers
             DoubleAnimation animation = new DoubleAnimation(fromOpacity, toOpacity, durationAnimation);
             element.BeginAnimation(UIElement.OpacityProperty, animation);
         }
+
+        public static void StartLoading(this LoadingSpinnerControl.LoadingSpinner spinner)
+        {
+            Storyboard storyboard = new Storyboard();
+            storyboard.RepeatBehavior = RepeatBehavior.Forever;
+
+            DoubleAnimation opacityAnimation = new DoubleAnimation();
+            opacityAnimation.From = 0;
+            opacityAnimation.To = 1;
+            opacityAnimation.SpeedRatio = 0.35;
+            opacityAnimation.AutoReverse = true;
+
+            Storyboard.SetTargetProperty(opacityAnimation, new PropertyPath(LoadingSpinnerControl.LoadingSpinner.StrokeGapProperty));
+            Storyboard.SetTarget(opacityAnimation, spinner);
+
+            storyboard.Begin();
+        }
     }
 }

@@ -6,75 +6,12 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using XamlFlair;
+using LoadingSpinnerControl;
 
 namespace EchoMessenger.Helpers
 {
     public static class UIElementsFactory
     {
-        public static Border CreateOwnMessage(String text, DateTime dateTime)
-        {
-            var border = CreateDefaultMessageBorder(text, dateTime);
-            border.HorizontalAlignment = HorizontalAlignment.Right;
-            border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#283EFF");
-            
-            return border;
-        }
-
-        public static Border CreateForeignMessage(String text, DateTime dateTime)
-        {
-            var border = CreateDefaultMessageBorder(text, dateTime);
-            border.HorizontalAlignment = HorizontalAlignment.Left;
-            border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
-
-            return border;
-        }
-
-        private static Border CreateDefaultMessageBorder(String text, DateTime time)
-        {
-            var border = new Border();
-            border.MinHeight = 40;
-            border.BorderBrush = new SolidColorBrush(Colors.White);
-            border.BorderThickness = new Thickness(1);
-            border.Margin = new Thickness(0, 3, 0, 0);
-            border.CornerRadius = new CornerRadius(20);
-
-            var grid = new Grid();
-
-            var messageColumn = new ColumnDefinition();
-            messageColumn.MinWidth = 30;
-            messageColumn.MaxWidth = 500;
-
-            var timeColumn = new ColumnDefinition();
-
-            grid.ColumnDefinitions.Add(messageColumn);
-            grid.ColumnDefinitions.Add(timeColumn);
-
-            var textBlock = new TextBlock();
-            textBlock.Text = text;
-            textBlock.TextWrapping = TextWrapping.Wrap;
-            textBlock.VerticalAlignment = VerticalAlignment.Center;
-            textBlock.Foreground = new SolidColorBrush(Colors.White);
-            textBlock.FontSize = 14;
-            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            textBlock.Margin = new Thickness(7.5);
-
-            var timeTextBlock = new TextBlock();
-            timeTextBlock.Text = time.ToString("HH:mm");
-            timeTextBlock.Foreground = new SolidColorBrush(Colors.LightGray);
-            timeTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
-            timeTextBlock.Margin = new Thickness(0, 0, 10, 5);
-
-            Grid.SetColumn(textBlock, 0);
-            grid.Children.Add(textBlock);
-
-            Grid.SetColumn(timeTextBlock, 1);
-            grid.Children.Add(timeTextBlock);
-
-            border.Child = grid;
-
-            return border;
-        }
 
         public static Border CreateUsersCard(String avatarUrl, String username)
         {
@@ -146,8 +83,11 @@ namespace EchoMessenger.Helpers
             var grid = new Grid();
 
             var onlineStatusIcon = new OnlineStatusIcon(isOnline);
-
             grid.Children.Add(onlineStatusIcon);
+
+            var notificationsBadge = new NotificationBadge("0");
+            notificationsBadge.Visibility = Visibility.Collapsed;
+            grid.Children.Add(notificationsBadge);
 
             border.Child = grid;
 
@@ -192,6 +132,95 @@ namespace EchoMessenger.Helpers
         }
     }
 
+    public class MessageBorder : Border
+    {
+        public TextBlock MessageTextBlock;
+        public TextBlock TimeTextBlock;
+        public LoadingSpinner LoadingSpinner;
+
+        public MessageBorder(String text, bool isOwn)
+        {
+            MinHeight = 40;
+            BorderBrush = new SolidColorBrush(Colors.White);
+            BorderThickness = new Thickness(1);
+            Margin = new Thickness(0, 3, 0, 0);
+            CornerRadius = new CornerRadius(20);
+
+            if (isOwn)
+            {
+                HorizontalAlignment = HorizontalAlignment.Right;
+                Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#283EFF");
+            }
+            else
+            {
+                HorizontalAlignment = HorizontalAlignment.Left;
+                Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
+            }
+
+            var grid = new Grid();
+
+            var messageColumn = new ColumnDefinition();
+            messageColumn.MinWidth = 30;
+            messageColumn.MaxWidth = 500;
+
+            var timeColumn = new ColumnDefinition();
+
+            grid.ColumnDefinitions.Add(messageColumn);
+            grid.ColumnDefinitions.Add(timeColumn);
+
+            MessageTextBlock = new TextBlock();
+            MessageTextBlock.Text = text;
+            MessageTextBlock.TextWrapping = TextWrapping.Wrap;
+            MessageTextBlock.VerticalAlignment = VerticalAlignment.Center;
+            MessageTextBlock.Foreground = new SolidColorBrush(Colors.White);
+            MessageTextBlock.FontSize = 14;
+            MessageTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            MessageTextBlock.Margin = new Thickness(7.5);
+
+            Grid.SetColumn(MessageTextBlock, 0);
+            grid.Children.Add(MessageTextBlock);
+
+            TimeTextBlock = new TextBlock();
+            TimeTextBlock.Visibility = Visibility.Collapsed;
+            TimeTextBlock.Foreground = new SolidColorBrush(Colors.LightGray);
+            TimeTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
+            TimeTextBlock.Margin = new Thickness(0, 0, 10, 5);
+
+            Grid.SetColumn(TimeTextBlock, 1);
+            grid.Children.Add(TimeTextBlock);
+
+            LoadingSpinner = new LoadingSpinner();
+            LoadingSpinner.Diameter = 10;
+            LoadingSpinner.StrokeGap = 0.75;
+            LoadingSpinner.Cap = PenLineCap.Round;
+            LoadingSpinner.IsLoading = true;
+            LoadingSpinner.VerticalAlignment = VerticalAlignment.Bottom;
+            LoadingSpinner.Margin = new Thickness(0, 0, 10, 5);
+            LoadingSpinner.Color = new SolidColorBrush(Colors.White);
+            LoadingSpinner.StartLoading();
+
+            Grid.SetColumn(LoadingSpinner, 1);
+            grid.Children.Add(LoadingSpinner);
+
+            Child = grid;
+        }
+
+        public void SetLoaded(DateTime sentAt)
+        {
+            LoadingSpinner.IsLoading = false;
+
+            TimeTextBlock.Text = sentAt.ToString("HH:mm");
+            TimeTextBlock.Visibility = Visibility.Visible;
+        }
+
+        public void SetFailedLoading()
+        {
+            LoadingSpinner.IsLoading = false;
+
+            Background = new SolidColorBrush(Colors.Red);
+        }
+    }
+
     public class OnlineStatusIcon : Border
     {
         public OnlineStatusIcon(bool isOnline) : base()
@@ -201,6 +230,34 @@ namespace EchoMessenger.Helpers
             HorizontalAlignment = HorizontalAlignment.Right;
             VerticalAlignment = VerticalAlignment.Bottom;
             CornerRadius = new CornerRadius(100);
+            BorderBrush = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF131522");
+            BorderThickness = new Thickness(2);
+        }
+    }
+
+    public class NotificationBadge : Border
+    {
+        public NotificationBadge(String count) : base()
+        {
+            MinWidth = 21;
+            Background = new SolidColorBrush(Colors.Red);
+            HorizontalAlignment = HorizontalAlignment.Right;
+            VerticalAlignment = VerticalAlignment.Top;
+            CornerRadius = new CornerRadius(10);
+            BorderBrush = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF131522");
+            BorderThickness = new Thickness(3);
+            Margin = new Thickness(0, -5, -10, 0);
+
+            var textBlock = new TextBlock();
+            textBlock.Text = count;
+            textBlock.VerticalAlignment = VerticalAlignment.Center;
+            textBlock.Foreground = new SolidColorBrush(Colors.White);
+            textBlock.FontSize = 10;
+            textBlock.FontFamily = new FontFamily("Segoe UI Semibold");
+            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            textBlock.Margin = new Thickness(3, 1, 3, 1);
+
+            Child = textBlock;
         }
     }
 }

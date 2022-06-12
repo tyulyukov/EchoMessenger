@@ -69,12 +69,19 @@ namespace EchoMessenger
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Messages.OnUsersOnlineReceived == null)
-                Messages.OnUsersOnlineReceived += OnlineChatsReceived;
-            if (Messages.OnUserConnected == null)
-                Messages.OnUserConnected += OnUserOnline;
-            if (Messages.OnUserDisconnected == null)
-                Messages.OnUserDisconnected += OnUserOffline;
+            Messages.OnUsersOnlineReceived += OnlineChatsReceived;
+            Messages.OnUserConnected += OnUserOnline;
+            Messages.OnUserDisconnected += OnUserOffline;
+            Messages.OnError += SocketError;
+            Messages.OnChatCreated += OnChatCreated;
+            Messages.OnMessageSent += response =>
+            {
+                MessageBox.Show("sent");
+            };
+            Messages.OnMessageSendFailed += response =>
+            {
+                MessageBox.Show("sent failed");
+            };
 
             Messages.Configure();
             await Messages.Connect();
@@ -84,12 +91,11 @@ namespace EchoMessenger
 
         private async void Window_Unloaded(object sender, RoutedEventArgs e)
         {
-            if (Messages.OnUsersOnlineReceived != null)
-                Messages.OnUsersOnlineReceived -= OnlineChatsReceived;
-            if (Messages.OnUserConnected != null)
-                Messages.OnUserConnected -= OnUserOnline;
-            if (Messages.OnUserDisconnected != null)
-                Messages.OnUserDisconnected -= OnUserOffline;
+            Messages.OnUsersOnlineReceived -= OnlineChatsReceived;
+            Messages.OnUserConnected -= OnUserOnline;
+            Messages.OnUserDisconnected -= OnUserOffline;
+            Messages.OnError -= SocketError;
+            Messages.OnChatCreated -= OnChatCreated;
 
             await Messages.Disconnect();
         }
@@ -112,6 +118,37 @@ namespace EchoMessenger
         {
             var userId = response.GetValue<String>();
             MessagesView.SetOnlineStatus(userId, false);
+        }
+
+        private void SocketError(object? sender, String arg)
+        {
+            if (arg == "401")
+            {
+                uiSync.Post((s) =>
+                {
+                    RegistryManager.ForgetJwt();
+                    Hide();
+                    new LoginWindow().Show();
+                    Close();
+                }, null);
+            }
+            else if (arg == "500")
+            {
+                MessageBox.Show(Owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                MessageBox.Show(Owner, arg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OnChatCreated(SocketIOClient.SocketIOResponse response)
+        {
+            var chat = response.GetValue<Chat>();
+
+            var targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
+            var icon = AddUserIcon(targetUser, chat, MessagesView.OnlineChats.Contains(targetUser._id));
+            MessagesView.LoadChat(targetUser._id, chat, icon);
         }
 
         private async Task LoadChats()
@@ -242,14 +279,89 @@ namespace EchoMessenger
             }, null);
         } 
 
-        public void SetUserIconBadge(int count)
+        public void SetNotificationsIcon(Border icon, int count)
         {
-            String countRepresentation = count.ToString();
+            uiSync.Send((s) =>
+            {
+                if (count < 0)
+                    return;
 
-            if (count >= 100)
-                countRepresentation = "99+";
+                var grid = icon.Child as Grid;
 
-            // Add a badge to chat icon
+                if (grid == null)
+                    return;
+
+                foreach (var uiElement in grid.Children)
+                {
+                    if (uiElement is NotificationBadge)
+                    {
+                        var notificationBadge = uiElement as NotificationBadge;
+
+                        if (notificationBadge == null)
+                            return;
+
+                        var textBlock = notificationBadge.Child as TextBlock;
+
+                        if (textBlock == null)
+                            return;
+
+                        if (count == 0)
+                        {
+                            notificationBadge.Visibility = Visibility.Collapsed;
+                            textBlock.Text = "0";
+                            return;
+                        }
+
+                        String countRepresentation = count.ToString();
+
+                        if (count >= 100)
+                            countRepresentation = "99+";
+
+                        textBlock.Text = countRepresentation;
+                        notificationBadge.Visibility = Visibility.Visible;
+                    }
+                }
+            }, null);
+        }
+
+        public void AddNotificationsIcon(Border icon)
+        {
+            uiSync.Send((s) =>
+            {
+                var grid = icon.Child as Grid;
+
+                if (grid == null)
+                    return;
+
+                foreach (var uiElement in grid.Children)
+                {
+                    if (uiElement is NotificationBadge)
+                    {
+                        var notificationBadge = uiElement as NotificationBadge;
+
+                        if (notificationBadge == null)
+                            return;
+
+                        var textBlock = notificationBadge.Child as TextBlock;
+
+                        if (textBlock == null)
+                            return;
+
+                        String countRepresentation;
+
+                        int count = Convert.ToInt32(textBlock.Text);
+                        count++;
+
+                        if (count >= 100)
+                            countRepresentation = "99+";
+                        else
+                            countRepresentation = count.ToString();
+
+                        textBlock.Text = countRepresentation;
+                        notificationBadge.Visibility = Visibility.Visible;
+                    }
+                }
+            }, null);
         }
 
         public void SetOnlineStatus(Border border, bool isOnline)

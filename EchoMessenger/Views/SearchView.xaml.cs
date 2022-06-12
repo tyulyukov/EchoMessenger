@@ -131,7 +131,7 @@ namespace EchoMessenger.Views
 
         private void ButtonSearch_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            SearchTextBox_TextChanged(SearchTextBox, (TextChangedEventArgs)EventArgs.Empty);
+            SearchTextBox_TextChanged(SearchTextBox, new TextChangedEventArgs(e.RoutedEvent, UndoAction.None));
         }
 
         private void StartFillingProgressBar()

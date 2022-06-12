@@ -72,9 +72,9 @@ namespace EchoMessenger
                 TargetUserOnlineStatus.ChangeVisibility(true, TimeSpan.FromMilliseconds(150));
                 TargetUserOnlineStatusIcon.ChangeVisibility(true, TimeSpan.FromMilliseconds(150));
 
-                MessagesStackPanel.Children.Add(UIElementsFactory.CreateDateCard(DateTime.Now));
+                /*MessagesStackPanel.Children.Add(UIElementsFactory.CreateDateCard(DateTime.Now));
                 MessagesStackPanel.Children.Add(UIElementsFactory.CreateForeignMessage("hey how r u", DateTime.Now));
-                MessagesStackPanel.Children.Add(UIElementsFactory.CreateOwnMessage("hey im good, thx for asking, u?", DateTime.Now));
+                MessagesStackPanel.Children.Add(UIElementsFactory.CreateOwnMessage("hey im good, thx for asking, u?", DateTime.Now));*/
 
                 LoadOlderMessages();
                 MessagesScroll.ScrollToBottom();
@@ -259,31 +259,26 @@ namespace EchoMessenger
             if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
                 return;
 
+            var sentAt = DateTime.Now;
+            var messageId = Guid.NewGuid().ToString();
             var content = MessageTextBox.Text;
             MessageTextBox.Text = String.Empty;
 
-            // Socket send message
+            await Messages.SendMessage(messageId, currentChat._id, content);
 
-            /*if ())
-            {
-                MessageBox.Show("Something went wrong...");
-                return;
-            }
+            var messageBorder = new MessageBorder(content, true);
 
-            var messageBorder = UIElementsFactory.CreateOwnMessage(message.content, message.sentAt);
-
-            if ((firstMessageSentAt?.Year == message.sentAt.Year && firstMessageSentAt?.DayOfYear < message.sentAt.DayOfYear) || firstMessageSentAt?.Year < message.sentAt.Year)
-                MessagesStackPanel.Children.Add(UIElementsFactory.CreateDateCard(message.sentAt));
-            else if (firstMessageSentAt?.AddMinutes(10) < message.sentAt)
+            if ((firstMessageSentAt?.Year == sentAt.Year && firstMessageSentAt?.DayOfYear < sentAt.DayOfYear) || firstMessageSentAt?.Year < sentAt.Year)
+                MessagesStackPanel.Children.Add(UIElementsFactory.CreateDateCard(sentAt));
+            else if (firstMessageSentAt?.AddMinutes(10) < sentAt)
                 messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top + 5, messageBorder.Margin.Right, messageBorder.Margin.Bottom);
-            else if (firstMessageSentAt?.AddHours(1) < message.sentAt)
+            else if (firstMessageSentAt?.AddHours(1) < sentAt)
                 messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top + 10, messageBorder.Margin.Right, messageBorder.Margin.Bottom);
 
-
-            firstMessageSentAt = message.sentAt;
+            firstMessageSentAt = sentAt;
 
             MessagesStackPanel.Children.Add(messageBorder);
-            MessagesScroll.ScrollToBottom();*/
+            MessagesScroll.ScrollToBottom();
         }
 
         private void ButtonGoBottom_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
