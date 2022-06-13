@@ -5,6 +5,7 @@ using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,32 +16,40 @@ namespace EchoMessenger.Views.Settings
 {
     public partial class MyAccountView : UserControl
     {
+        private SynchronizationContext uiSync;
         private MessengerWindow owner;
         private UserInfo currentUser;
 
         public MyAccountView(MessengerWindow owner, UserInfo user)
         {
             InitializeComponent();
+            uiSync = SynchronizationContext.Current;
+
             this.owner = owner;
 
-            currentUser = user;
-
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(Database.HostUrl(currentUser.avatarUrl), UriKind.Absolute);
-            bitmap.EndInit();
-
-            Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+            UpdateUser(user);
         }
 
         public void Open()
         {
-            UsernameBox.Text = currentUser.username;
+            UpdateUser(currentUser);
         }
 
         public void UpdateUser(UserInfo user)
         {
             currentUser = user;
+
+            uiSync.Send(s =>
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(Database.HostUrl(currentUser.avatarUrl), UriKind.Absolute);
+                bitmap.EndInit();
+
+                Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+
+                UsernameBox.Text = currentUser.username;
+            }, null);
         }
 
         private void LogOutButton_Click(object sender, RoutedEventArgs e)

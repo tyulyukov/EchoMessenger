@@ -18,6 +18,7 @@ namespace EchoMessenger.Helpers.Server
         public static Action<SocketIOResponse>? OnChatCreated;
         public static Action<SocketIOResponse>? OnMessageSent;
         public static Action<SocketIOResponse>? OnMessageSendFailed;
+        public static Action<SocketIOResponse>? OnUserUpdated;
 
         private static SocketIO? client;
 
@@ -57,6 +58,9 @@ namespace EchoMessenger.Helpers.Server
 
             if (OnMessageSendFailed != null)
                 client.On("send message failed", OnMessageSendFailed);
+
+            if (OnUserUpdated != null)
+                client.On("user updated", OnUserUpdated);
 
             return true;
         }

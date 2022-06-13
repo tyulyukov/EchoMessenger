@@ -10,6 +10,7 @@ namespace EchoMessenger.Helpers
     public static class Animation
     {
         public static readonly AnimationSettings FadeInAndSlideFromLeft = (AnimationSettings)Application.Current.FindResource("FadeInAndSlideFromLeft");
+        public static readonly AnimationSettings FadeInAndSlideFromBottom = (AnimationSettings)Application.Current.FindResource("FadeInAndSlideFromBottom");
         public static readonly TimeSpan Duration = TimeSpan.FromMilliseconds(150);
 
         public static void SetPercent(this ProgressBar progressBar, double percentage, TimeSpan duration)
@@ -60,6 +61,11 @@ namespace EchoMessenger.Helpers
         public static void SetSlideFromLeftOnLoad(this UIElement element)
         {
             Animations.SetPrimary(element, FadeInAndSlideFromLeft);
+        }
+
+        public static void SetSlideFromBottomOnLoad(this UIElement element)
+        {
+            Animations.SetPrimary(element, FadeInAndSlideFromBottom);
         }
 
         public static void ChangeOpacity(this UIElement element, bool visible, TimeSpan? duration = null)

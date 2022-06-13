@@ -5,21 +5,18 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using LoadingSpinnerControl;
 
 namespace EchoMessenger.Helpers
 {
-    public static class UIElementsFactory
+    public class SearchResultUserCard : Border
     {
-
-        public static Border CreateUsersCard(String avatarUrl, String username)
+        public SearchResultUserCard(String avatarUrl, String username) : base()
         {
-            var border = new Border();
-            border.BorderBrush = new SolidColorBrush(Colors.White);
-            border.BorderThickness = new Thickness(0, 1, 0, 0);
-            border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
-            border.Padding = new Thickness(10, 0, 10, 0);
+            BorderBrush = new SolidColorBrush(Colors.White);
+            BorderThickness = new Thickness(0, 1, 0, 0);
+            Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
+            Padding = new Thickness(10, 0, 10, 0);
 
             var grid = new Grid();
 
@@ -59,63 +56,29 @@ namespace EchoMessenger.Helpers
             Grid.SetColumn(usernameTextBlock, 1);
             grid.Children.Add(usernameTextBlock);
 
-            border.Child = grid;
-
-            return border;
+            Child = grid;
         }
 
-        public static Border CreateUserIcon(String avatarUrl, bool isOnline)
+        public void SetFirst()
         {
-            var border = new Border();
-            border.Width = 40;
-            border.Height = 40;
-            border.Margin = new Thickness(0, 0, 0, 10);
-            border.CornerRadius = new CornerRadius(100);
-            border.BorderBrush = new SolidColorBrush(Colors.Gray);
-            border.BorderThickness = new Thickness(1);
-
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(Database.HostUrl(avatarUrl), UriKind.Absolute);
-            bitmap.EndInit();
-            border.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
-
-            var grid = new Grid();
-
-            var onlineStatusIcon = new OnlineStatusIcon(isOnline);
-            grid.Children.Add(onlineStatusIcon);
-
-            var notificationsBadge = new NotificationBadge("0");
-            notificationsBadge.Visibility = Visibility.Collapsed;
-            grid.Children.Add(notificationsBadge);
-
-            border.Child = grid;
-
-            return border;
+            BorderThickness = new Thickness(BorderThickness.Left, 0, BorderThickness.Right, BorderThickness.Bottom);
         }
 
-        public static Line CreateSelectionLine()
+        public void SetLast()
         {
-            Line line = new Line();
-            line.X1 = 0;
-            line.Y1 = 0;
-            line.X2 = 0;
-            line.Y2 = 30;
-            line.Margin = new Thickness(-11, 5, 0, 5);
-            line.Stroke = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088"); 
-            line.StrokeThickness = 4;
-
-            return line;
+            BorderThickness = new Thickness(BorderThickness.Left, BorderThickness.Top, BorderThickness.Right, 1);
         }
+    }
 
-        public static Border CreateDateCard(DateTime date)
+    public class DateCard : Border
+    {
+        public DateCard(DateTime date) : base()
         {
-            Border border = new Border();
-            border.HorizontalAlignment = HorizontalAlignment.Center;
-            border.CornerRadius = new CornerRadius(10);
-            border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF242430");
-            border.Margin = new Thickness(0, 10, 0, 0);
-            border.Effect = new DropShadowEffect();
+            HorizontalAlignment = HorizontalAlignment.Center;
+            CornerRadius = new CornerRadius(10);
+            Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF242430");
+            Margin = new Thickness(0, 10, 0, 0);
+            Effect = new DropShadowEffect();
 
             Label label = new Label();
             label.Foreground = new SolidColorBrush(Colors.White);
@@ -126,14 +89,14 @@ namespace EchoMessenger.Helpers
             else
                 label.Content = date.ToLongDateString();
 
-            border.Child = label;
-
-            return border;
+            Child = label;
         }
     }
 
     public class MessageBorder : Border
     {
+        public Entities.Message Message;
+
         public TextBlock MessageTextBlock;
         public TextBlock TimeTextBlock;
         public LoadingSpinner LoadingSpinner;
@@ -205,11 +168,12 @@ namespace EchoMessenger.Helpers
             Child = grid;
         }
 
-        public void SetLoaded(DateTime sentAt)
+        public void SetLoaded(Entities.Message message)
         {
             LoadingSpinner.IsLoading = false;
 
-            TimeTextBlock.Text = sentAt.ToString("HH:mm");
+            Message = message;
+            TimeTextBlock.Text = message.sentAt.ToString("HH:mm");
             TimeTextBlock.Visibility = Visibility.Visible;
         }
 
@@ -221,22 +185,78 @@ namespace EchoMessenger.Helpers
         }
     }
 
+    public class UserIcon : Border
+    {
+        public OnlineStatusIcon OnlineStatusIcon { get; set; }
+        public NotificationBadge NotificationBadge { get; set; }
+
+        public UserIcon(String avatarUrl, bool isOnline) : base()
+        {
+            Width = 40;
+            Height = 40;
+            Margin = new Thickness(0, 0, 0, 10);
+            CornerRadius = new CornerRadius(100);
+            BorderBrush = new SolidColorBrush(Colors.Gray);
+            BorderThickness = new Thickness(1);
+
+            UpdateAvatar(avatarUrl);
+
+            var grid = new Grid();
+
+            this.OnlineStatusIcon = new OnlineStatusIcon(isOnline);
+            grid.Children.Add(OnlineStatusIcon);
+
+            this.NotificationBadge = new NotificationBadge("0");
+            NotificationBadge.Visibility = Visibility.Collapsed;
+            grid.Children.Add(NotificationBadge);
+
+            Child = grid;
+        }
+
+        public void UpdateAvatar(String avatarUrl)
+        {
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(Database.HostUrl(avatarUrl), UriKind.Absolute);
+            bitmap.EndInit();
+            Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
+        }
+    }
+
     public class OnlineStatusIcon : Border
     {
         public OnlineStatusIcon(bool isOnline) : base()
         {
             Width = Height = 10;
-            Background = isOnline ? (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088") : new SolidColorBrush(Colors.Gray);
             HorizontalAlignment = HorizontalAlignment.Right;
             VerticalAlignment = VerticalAlignment.Bottom;
             CornerRadius = new CornerRadius(100);
             BorderBrush = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF131522");
             BorderThickness = new Thickness(2);
+
+            if (isOnline)
+                SetOnline();
+            else
+                SetOffline();
+        }
+
+        public void SetOnline()
+        {
+            var brush = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088");
+            Background = brush;
+        }
+
+        public void SetOffline()
+        {
+            var brush = new SolidColorBrush(Colors.Gray);
+            Background = brush;
         }
     }
 
     public class NotificationBadge : Border
     {
+        public TextBlock NotificationTextBlock { get; set; }
+
         public NotificationBadge(String count) : base()
         {
             MinWidth = 21;
@@ -248,16 +268,28 @@ namespace EchoMessenger.Helpers
             BorderThickness = new Thickness(3);
             Margin = new Thickness(0, -5, -10, 0);
 
-            var textBlock = new TextBlock();
-            textBlock.Text = count;
-            textBlock.VerticalAlignment = VerticalAlignment.Center;
-            textBlock.Foreground = new SolidColorBrush(Colors.White);
-            textBlock.FontSize = 10;
-            textBlock.FontFamily = new FontFamily("Segoe UI Semibold");
-            textBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            textBlock.Margin = new Thickness(3, 1, 3, 1);
+            NotificationTextBlock = new TextBlock();
+            NotificationTextBlock.Text = count;
+            NotificationTextBlock.VerticalAlignment = VerticalAlignment.Center;
+            NotificationTextBlock.Foreground = new SolidColorBrush(Colors.White);
+            NotificationTextBlock.FontSize = 10;
+            NotificationTextBlock.FontFamily = new FontFamily("Segoe UI Semibold");
+            NotificationTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
+            NotificationTextBlock.Margin = new Thickness(3, 1, 3, 1);
 
-            Child = textBlock;
+            Child = NotificationTextBlock;
+        }
+    }
+
+    public class SelectionLine : Border
+    {
+        public SelectionLine() : base()
+        {
+            Height = 30;
+            Width = 2;
+            Margin = new Thickness(-11, 5, 0, 5);
+            HorizontalAlignment = HorizontalAlignment.Left;
+            Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088");
         }
     }
 }

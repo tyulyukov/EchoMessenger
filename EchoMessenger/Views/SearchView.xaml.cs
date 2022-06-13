@@ -14,9 +14,6 @@ using System.Windows.Input;
 
 namespace EchoMessenger.Views
 {
-    /// <summary>
-    /// Interaction logic for SearchView.xaml
-    /// </summary>
     public partial class SearchView : UserControl
     {
         private bool isSearching = false;
@@ -87,22 +84,21 @@ namespace EchoMessenger.Views
 
                             foreach (var user in users)
                             {
-                                var userCard = UIElementsFactory.CreateUsersCard(user.avatarUrl, user.username);
+                                var userCard = new SearchResultUserCard(user.avatarUrl, user.username);
 
                                 userCard.MouseLeftButtonUp += (s, e) =>
                                 {
                                     _ = Task.Run(async () =>
                                     {
-                                        owner.OpenTab(owner.MessagesView);
-                                        await owner.MessagesView.OpenChat(user._id);
+                                        await owner.OpenChat(user._id);
                                     });
                                 };
 
                                 if (user == users.First())
-                                    userCard.BorderThickness = new Thickness(userCard.BorderThickness.Left, 0, userCard.BorderThickness.Right, userCard.BorderThickness.Bottom);
+                                    userCard.SetFirst();
 
                                 if (user == users.Last())
-                                    userCard.BorderThickness = new Thickness(userCard.BorderThickness.Left, userCard.BorderThickness.Top, userCard.BorderThickness.Right, 1);
+                                    userCard.SetLast();
 
                                 userCard.SetSlideFromLeftOnLoad();
                                 UsersStackPanel.Children.Add(userCard);

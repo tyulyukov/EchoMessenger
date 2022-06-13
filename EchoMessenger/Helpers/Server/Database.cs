@@ -64,5 +64,10 @@ namespace EchoMessenger.Helpers.Server
         {
             return await rest.Get("chats");
         }
+
+        public static async Task<RestResponse?> LoadMessages(String chatId, int from, int count)
+        {
+            return await rest.Get("chats/" + chatId + "/messages?from=" + from + "&count=" + count);
+        }
     }
 }

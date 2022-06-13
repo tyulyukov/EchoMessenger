@@ -171,6 +171,11 @@
                                   Kind="FadeFrom,TranslateXFrom"
                                   Opacity="0"
                                   OffsetX="100" />
+
+            <xf:AnimationSettings x:Key="FadeInAndSlideFromBottom"
+                                  Kind="FadeFrom,TranslateYFrom"
+                                  Opacity="0"
+                                  OffsetY="100" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

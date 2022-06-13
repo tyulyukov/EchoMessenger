@@ -14,22 +14,27 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 
 namespace EchoMessenger
 {
     public partial class MessengerWindow : Window
     {
-        public readonly MessagesView MessagesView;
+        public readonly Dictionary<String, MessagesView> MessagesViews;
         public readonly SettingsView SettingsView;
         public readonly SearchView SearchView;
+
+        private UserControl? openedTab;
+        
+        private readonly Dictionary<String, KeyValuePair<Chat, UserIcon>> OpenedChats;
+        private readonly List<String> OnlineChats;
+        private UserIcon? firstIcon;
 
         private UserInfo currentUser;
         private SynchronizationContext uiSync;
         private bool isLoading;
 
-        private Border? activeButton;
-        private Line selectionLine;
+        private Border? selectedButton;
+        private SelectionLine selectionLine;
         private TimeSpan selectionDuration = TimeSpan.FromMilliseconds(250);
 
         public MessengerWindow(UserInfo user)
@@ -41,30 +46,165 @@ namespace EchoMessenger
             
             isLoading = false;
 
-            MessagesView = new MessagesView(this, currentUser);
+            MessagesViews = new Dictionary<String, MessagesView>();
             SettingsView = new SettingsView(this, currentUser);
             SearchView = new SearchView(this);
 
-            activeButton = null;
-            selectionLine = UIElementsFactory.CreateSelectionLine();
+            selectedButton = null;
+            selectionLine = new SelectionLine();
+
+            OpenedChats = new Dictionary<string, KeyValuePair<Chat, UserIcon>>();
+            OnlineChats = new List<String>();
         }
 
-        public async void UpdateUser(UserInfo user)
+        public void UpdateUser(UserInfo user)
         {
             if (user == null)
                 return;
 
+            user.createdAt = user.createdAt.ToLocalTime();
+
             currentUser = user;
-            MessagesView.UpdateUser(user);
+            
             SettingsView.UpdateUser(user);
 
-            await LoadChats();
+            if (openedTab is MessagesView messageView)
+            {
+                messageView.UpdateUser(user);
+            }
+
+            uiSync.Send(async s =>
+            {
+                await LoadChats();
+            }, null);
         }
 
         public void ShowLoading(bool visible)
         {
             LoadingSpinner.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
             isLoading = visible;
+        }
+
+        public bool OpenTab(UserControl tab)
+        {
+            if (openedTab == tab)
+                return false;
+
+            uiSync.Post((s) => {
+                OpenedTab.Children.Clear();
+                OpenedTab.Children.Add(tab);
+
+                openedTab = tab;
+            }, null);
+
+            return true;
+        }
+
+        public void SelectButton(Border button)
+        {
+            if (selectedButton == button)
+                return;
+
+            uiSync.Post((s) => {
+                selectionLine.Opacity = 0;
+
+                Grid grid;
+
+                if (selectedButton != null)
+                {
+                    grid = (Grid)selectedButton.Child;
+
+                    if (grid == null)
+                        return;
+
+                    grid.Children.Remove(selectionLine);
+                }
+
+                selectedButton = button;
+
+                if (selectedButton is UserIcon icon)
+                    SetNotificationsToIcon(icon, 0);
+
+                grid = (Grid)selectedButton.Child;
+
+                if (grid == null)
+                    return;
+
+                grid.Children.Add(selectionLine);
+
+                selectionLine.ChangeVisibility(true, selectionDuration);
+            }, null);
+        }
+
+        public async Task OpenChat(String userId)
+        {
+            Chat? chat = null;
+
+            if (OpenedChats.ContainsKey(userId))
+            {
+                chat = OpenedChats[userId].Key;
+            }
+            else
+            {
+                try
+                {
+                    uiSync.Post((s) => { ShowLoading(true); }, null);  // MOVE TO SEARCH
+                    var chatResponse = await Database.CreateChat(userId);
+
+                    if (chatResponse == null || chatResponse.StatusCode == (HttpStatusCode)0)
+                    {
+                        MessageBox.Show(this, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else if (chatResponse.StatusCode == (HttpStatusCode)500)
+                    {
+                        MessageBox.Show(this, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    else if (chatResponse.StatusCode == (HttpStatusCode)201)
+                    {
+                        if (chatResponse.Content == null)
+                            return;
+
+                        var result = JObject.Parse(chatResponse.Content);
+
+                        chat = result?.ToObject<Chat>();
+
+                        if (chat == null)
+                            return;
+
+                        chat.createdAt = chat.createdAt.ToLocalTime();
+
+                        var targetUser = chat.sender._id == currentUser._id ? chat.receiver : chat.sender;
+                        var icon = AddUserIcon(targetUser, chat, OnlineChats.Contains(targetUser._id), true);
+
+                        LoadChat(userId, chat, icon, OnlineChats.Contains(targetUser._id));
+                    }
+                    else if (chatResponse.StatusCode == (HttpStatusCode)401)
+                    {
+                        RegistryManager.ForgetJwt();
+                        Hide();
+                        new LoginWindow().Show();
+                        Close();
+                        return;
+                    }
+                }
+                finally
+                {
+                    uiSync.Post((s) => { ShowLoading(false); }, null);  // MOVE TO SEARCH
+                }
+            }
+
+            if (chat == null)
+                return;
+
+            if (OpenTab(MessagesViews[chat._id]))
+            {
+                MessagesViews[chat._id].Open();
+                var chatByUserId = OpenedChats.FirstOrDefault(o => o.Value.Key == chat);
+                var icon = chatByUserId.Value.Value;
+                SelectButton(icon);
+            }
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -74,18 +214,13 @@ namespace EchoMessenger
             Messages.OnUserDisconnected += OnUserOffline;
             Messages.OnError += SocketError;
             Messages.OnChatCreated += OnChatCreated;
-            Messages.OnMessageSent += response =>
-            {
-                MessageBox.Show("sent");
-            };
-            Messages.OnMessageSendFailed += response =>
-            {
-                MessageBox.Show("sent failed");
-            };
-
+            Messages.OnMessageSent += MessageSent;
+            Messages.OnMessageSendFailed += MessageSentFailed;
+            Messages.OnUserUpdated += UserUpdated;
+            
             Messages.Configure();
             await Messages.Connect();
-
+            
             await LoadChats();
         }
 
@@ -96,6 +231,9 @@ namespace EchoMessenger
             Messages.OnUserDisconnected -= OnUserOffline;
             Messages.OnError -= SocketError;
             Messages.OnChatCreated -= OnChatCreated;
+            Messages.OnMessageSent -= MessageSent;
+            Messages.OnMessageSendFailed -= MessageSentFailed;
+            Messages.OnUserUpdated -= UserUpdated;
 
             await Messages.Disconnect();
         }
@@ -105,19 +243,19 @@ namespace EchoMessenger
             var users = response.GetValue<IEnumerable<String>>();
 
             foreach (var userId in users)
-                MessagesView.SetOnlineStatus(userId, true);
+                SetOnlineStatus(userId, true);
         }
 
         private void OnUserOnline(SocketIOClient.SocketIOResponse response)
         {
             var userId = response.GetValue<String>();
-            MessagesView.SetOnlineStatus(userId, true);
+            SetOnlineStatus(userId, true);
         }
 
         private void OnUserOffline(SocketIOClient.SocketIOResponse response)
         {
             var userId = response.GetValue<String>();
-            MessagesView.SetOnlineStatus(userId, false);
+            SetOnlineStatus(userId, false);
         }
 
         private void SocketError(object? sender, String arg)
@@ -146,9 +284,64 @@ namespace EchoMessenger
         {
             var chat = response.GetValue<Chat>();
 
-            var targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
-            var icon = AddUserIcon(targetUser, chat, MessagesView.OnlineChats.Contains(targetUser._id));
-            MessagesView.LoadChat(targetUser._id, chat, icon);
+            chat.createdAt = chat.createdAt.ToLocalTime();
+
+            var targetUser = chat.sender._id == currentUser._id ? chat.receiver : chat.sender;
+            var icon = AddUserIcon(targetUser, chat, OnlineChats.Contains(targetUser._id));
+            LoadChat(targetUser._id, chat, icon, OnlineChats.Contains(targetUser._id));
+        }
+
+        private void MessageSent(SocketIOClient.SocketIOResponse response)
+        {
+            var message = response.GetValue<Message>();
+            message.sentAt = message.sentAt.ToLocalTime();
+            foreach (var edit in message.edits)
+            {
+                edit.date = edit.date.ToLocalTime();
+            }
+
+            if (MessagesViews.TryGetValue(message.chat._id, out var messageView))
+            {
+                var targetUser = message.chat.sender._id == currentUser._id ? message.chat.receiver : message.chat.sender;
+                var icon = OpenedChats[targetUser._id].Value;
+
+                PushUserIcon(icon);
+
+                if (openedTab != messageView && message.sender.username != currentUser.username)
+                    AddNotificationsToIcon(icon);
+
+                messageView.AddMessage(message);
+            }
+        }
+
+        private void MessageSentFailed(SocketIOClient.SocketIOResponse response)
+        {
+            var messageId = response.GetValue<String>();
+
+            foreach (var view in MessagesViews.Values)
+            {
+                view.FailLoadingMessage(messageId);
+            }
+        }
+
+        private void UserUpdated(SocketIOClient.SocketIOResponse response)
+        {
+            var user = response.GetValue<UserInfo>();
+            user.createdAt = user.createdAt.ToLocalTime();
+
+            if (user._id == currentUser._id)
+            {
+                UpdateUser(user);
+            }
+            else if (OpenedChats.TryGetValue(user._id, out var chat))
+            {
+                uiSync.Send((s) =>
+                {
+                    chat.Value.UpdateAvatar(user.avatarUrl);
+                }, null);
+
+                MessagesViews[chat.Key._id].UpdateTargetUser(user);
+            }
         }
 
         private async Task LoadChats()
@@ -158,7 +351,8 @@ namespace EchoMessenger
 
             try
             {
-                MessagesView.ClearLoadedChats();
+                MessagesViews.Clear();
+                OpenedChats.Clear();
                 ChatsMenu.Children.Clear();
                 var response = await Database.GetLastChats();
 
@@ -178,11 +372,17 @@ namespace EchoMessenger
                     if (chats == null)
                         throw new Exception();
 
-                    foreach (var chat in chats.OrderBy(c => c.GetLastSentAt()))
+                    chats = chats.OrderBy(c => c.GetLastSentAt());
+                    foreach (var chat in chats)
                     {
-                        var targetUser = chat.sender.username == currentUser.username ? chat.receiver : chat.sender;
-                        var icon = AddUserIcon(targetUser, chat, MessagesView.OnlineChats.Contains(targetUser._id));
-                        MessagesView.LoadChat(targetUser._id, chat, icon);
+                        chat.createdAt = chat.createdAt.ToLocalTime();
+
+                        var targetUser = chat.sender._id == currentUser._id ? chat.receiver : chat.sender;
+                        var icon = AddUserIcon(targetUser, chat, OnlineChats.Contains(targetUser._id));
+                        LoadChat(targetUser._id, chat, icon, OnlineChats.Contains(targetUser._id));
+
+                        if (chat == chats.Last())
+                            firstIcon = icon;
                     }
                 }
                 else if (response.StatusCode == (HttpStatusCode)401)
@@ -203,53 +403,12 @@ namespace EchoMessenger
             }
         }
 
-        public void OpenTab(UserControl tab)
+        private UserIcon AddUserIcon(UserInfo targetUser, Chat chat, bool isOnline, bool select = false)
         {
-            uiSync.Post((s) => {
-                OpenedTab.Children.Clear();
-                OpenedTab.Children.Add(tab);
-            }, null);
-        }
-
-        public void SelectButton(Border button)
-        {
-            if (activeButton == button)
-                return;
-
-            uiSync.Post((s) => {
-                selectionLine.Opacity = 0;
-
-                Grid grid;
-
-                if (activeButton != null)
-                {
-                    grid = (Grid)activeButton.Child;
-
-                    if (grid == null)
-                        return;
-
-                    grid.Children.Remove(selectionLine);
-                }
-
-                activeButton = button;
-
-                grid = (Grid)activeButton.Child;
-
-                if (grid == null)
-                    return;
-
-                grid.Children.Add(selectionLine);
-
-                selectionLine.ChangeVisibility(true, selectionDuration);
-            }, null);
-        }
-
-        public Border AddUserIcon(UserInfo targetUser, Chat chat, bool isOnline, bool select = false)
-        {
-            Border? icon = null;
+            UserIcon? icon = null;
 
             uiSync.Send((s) => {
-                icon = UIElementsFactory.CreateUserIcon(targetUser.avatarUrl, isOnline);
+                icon = new UserIcon(targetUser.avatarUrl, isOnline);
 
                 if (select)
                     SelectButton(icon);
@@ -258,8 +417,13 @@ namespace EchoMessenger
                 {
                     _ = Task.Run(() =>
                     {
-                        OpenTab(MessagesView);
-                        MessagesView.OpenChat(chat);
+                        if (OpenTab(MessagesViews[chat._id]))
+                        {
+                            MessagesViews[chat._id].Open();
+                            var chatByUserId = OpenedChats.FirstOrDefault(o => o.Value.Key == chat);
+                            var icon = chatByUserId.Value.Value;
+                            SelectButton(icon);
+                        }
                     });
                 };
 
@@ -270,125 +434,96 @@ namespace EchoMessenger
             return icon;
         }
 
-        public void PushUserIcon(Border icon)
+        private void LoadChat(String userId, Chat chat, UserIcon icon, bool isOnline)
         {
+            uiSync.Send((s) =>
+            {
+                if (!MessagesViews.ContainsKey(chat._id))
+                    MessagesViews.Add(chat._id, new MessagesView(this, currentUser, chat, isOnline));
+
+                if (!OpenedChats.ContainsKey(userId))
+                    OpenedChats.Add(userId, new KeyValuePair<Chat, UserIcon>(chat, icon));
+            }, null);
+        }
+
+        private void PushUserIcon(UserIcon icon)
+        {
+            if (firstIcon != null && firstIcon == icon)
+                return;
+
             uiSync.Post((s) => {
                 ChatsMenu.Children.Remove(icon);
                 ChatsMenu.Children.Insert(0, icon);
+                firstIcon = icon;
                 icon.ChangeVisibility(true, selectionDuration);
             }, null);
         } 
 
-        public void SetNotificationsIcon(Border icon, int count)
+        private void SetNotificationsToIcon(UserIcon icon, int count)
         {
             uiSync.Send((s) =>
             {
                 if (count < 0)
                     return;
 
-                var grid = icon.Child as Grid;
-
-                if (grid == null)
-                    return;
-
-                foreach (var uiElement in grid.Children)
+                if (count == 0)
                 {
-                    if (uiElement is NotificationBadge)
-                    {
-                        var notificationBadge = uiElement as NotificationBadge;
-
-                        if (notificationBadge == null)
-                            return;
-
-                        var textBlock = notificationBadge.Child as TextBlock;
-
-                        if (textBlock == null)
-                            return;
-
-                        if (count == 0)
-                        {
-                            notificationBadge.Visibility = Visibility.Collapsed;
-                            textBlock.Text = "0";
-                            return;
-                        }
-
-                        String countRepresentation = count.ToString();
-
-                        if (count >= 100)
-                            countRepresentation = "99+";
-
-                        textBlock.Text = countRepresentation;
-                        notificationBadge.Visibility = Visibility.Visible;
-                    }
+                    icon.NotificationBadge.Visibility = Visibility.Collapsed;
+                    icon.NotificationBadge.NotificationTextBlock.Text = "0";
+                    return;
                 }
+
+                String countRepresentation = count.ToString();
+
+                if (count >= 100)
+                    countRepresentation = "99+";
+
+                icon.NotificationBadge.NotificationTextBlock.Text = countRepresentation;
+                icon.NotificationBadge.Visibility = Visibility.Visible;
             }, null);
         }
 
-        public void AddNotificationsIcon(Border icon)
+        private void AddNotificationsToIcon(UserIcon icon)
         {
             uiSync.Send((s) =>
             {
-                var grid = icon.Child as Grid;
+                String countRepresentation;
 
-                if (grid == null)
-                    return;
+                int count = Convert.ToInt32(icon.NotificationBadge.NotificationTextBlock.Text);
+                count++;
 
-                foreach (var uiElement in grid.Children)
-                {
-                    if (uiElement is NotificationBadge)
-                    {
-                        var notificationBadge = uiElement as NotificationBadge;
+                if (count >= 100)
+                    countRepresentation = "99+";
+                else
+                    countRepresentation = count.ToString();
 
-                        if (notificationBadge == null)
-                            return;
-
-                        var textBlock = notificationBadge.Child as TextBlock;
-
-                        if (textBlock == null)
-                            return;
-
-                        String countRepresentation;
-
-                        int count = Convert.ToInt32(textBlock.Text);
-                        count++;
-
-                        if (count >= 100)
-                            countRepresentation = "99+";
-                        else
-                            countRepresentation = count.ToString();
-
-                        textBlock.Text = countRepresentation;
-                        notificationBadge.Visibility = Visibility.Visible;
-                    }
-                }
+                icon.NotificationBadge.NotificationTextBlock.Text = countRepresentation;
+                icon.NotificationBadge.Visibility = Visibility.Visible;
             }, null);
         }
 
-        public void SetOnlineStatus(Border border, bool isOnline)
+        private void SetOnlineStatus(String userId, bool isOnline)
         {
-            uiSync.Send((s) =>
+            if (!OnlineChats.Contains(userId) && isOnline)
+                OnlineChats.Add(userId);
+            else if (OnlineChats.Contains(userId) && !isOnline)
+                OnlineChats.Remove(userId);
+
+            if (OpenedChats.TryGetValue(userId, out var chat))
             {
-                var grid = (Grid)border.Child;
-
-                if (grid == null)
-                    return;
-
-                foreach (var uiElement in grid.Children)
+                uiSync.Send((s) =>
                 {
-                    if (uiElement is OnlineStatusIcon)
-                    {
-                        var onlineStatus = uiElement as OnlineStatusIcon;
+                    if (isOnline)
+                        chat.Value.OnlineStatusIcon.SetOnline();
+                    else
+                        chat.Value.OnlineStatusIcon.SetOffline();
 
-                        if (onlineStatus == null)
-                            return;
-
-                        var brush = isOnline ? (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088") : new SolidColorBrush(Colors.Gray);
-                        onlineStatus.Background = brush;
-                    }
-                }
-                
-            }, null);
+                    if (MessagesViews.TryGetValue(chat.Key._id, out var view))
+                        view.SetOnlineStatus(isOnline);
+                }, null);
+            }
         }
+
         private void ButtonSettings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             SelectButton((Border)sender);
