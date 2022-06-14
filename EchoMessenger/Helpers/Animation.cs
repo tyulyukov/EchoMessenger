@@ -11,6 +11,7 @@ namespace EchoMessenger.Helpers
     {
         public static readonly AnimationSettings FadeInAndSlideFromLeft = (AnimationSettings)Application.Current.FindResource("FadeInAndSlideFromLeft");
         public static readonly AnimationSettings FadeInAndSlideFromBottom = (AnimationSettings)Application.Current.FindResource("FadeInAndSlideFromBottom");
+        public static readonly Style SelectableBorderStyle = (Style)Application.Current.FindResource("SelectableBorder");
         public static readonly TimeSpan Duration = TimeSpan.FromMilliseconds(150);
 
         public static void SetPercent(this ProgressBar progressBar, double percentage, TimeSpan duration)
@@ -102,6 +103,14 @@ namespace EchoMessenger.Helpers
             Storyboard.SetTarget(opacityAnimation, spinner);
 
             storyboard.Begin();
+        }
+
+        public static Border ConvertToSelectable(this Border border)
+        {
+            Border selectableBorder = new Border();
+            selectableBorder.Style = SelectableBorderStyle;
+            selectableBorder.Child = border;
+            return selectableBorder;
         }
     }
 }

@@ -14,7 +14,7 @@
 
         <Border Padding="150 0" Background="#FF212231" Grid.Row="0">
             <DockPanel>
-                <Border DockPanel.Dock="Right" x:Name="ButtonSearch" MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" BorderThickness="0" Width="30" Height="30" Margin="10" Background="Transparent">
+                <Border Style="{StaticResource SelectableBorder}" DockPanel.Dock="Right" x:Name="ButtonSearch" MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" BorderThickness="0" Width="30" Height="30" Margin="10" Background="Transparent">
                     <Image Source="/EchoMessenger;component/Images/search.png" />
                 </Border>
 

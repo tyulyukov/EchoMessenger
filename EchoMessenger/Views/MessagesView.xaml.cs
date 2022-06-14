@@ -20,6 +20,8 @@ namespace EchoMessenger
 
         private MessengerWindow owner;
         private SynchronizationContext uiSync;
+        private TypeAssistant userTyping;
+
         private bool isLoading = false;
 
         private Dictionary<String, MessageBorder> messages;
@@ -33,11 +35,13 @@ namespace EchoMessenger
         private bool isLoadingMessages = false;
         private DateTime? lastMessageSentAt = null;
         private DateTime? firstMessageSentAt = null;
+        private DateTime? lastTyping = null;
 
         public MessagesView(MessengerWindow owner, UserInfo user, Chat chat, bool isOnline)
         {
             InitializeComponent();
             uiSync = SynchronizationContext.Current;
+            userTyping = new TypeAssistant(3100);
 
             this.owner = owner;
             currentUser = user;
@@ -137,6 +141,25 @@ namespace EchoMessenger
                     messageBorder.SetFailedLoading();
                 }, null);
             }
+        }
+
+        public void UserTyping()
+        {
+            SetUserTyping(true);
+
+            userTyping.TextChanged();
+        }
+
+        private void SetUserTyping(bool isTyping)
+        {
+            uiSync.Send(s =>
+            {
+                TargetUserTypingIndicator.Visibility = isTyping ? Visibility.Visible : Visibility.Collapsed;
+                TargetUserTypingLabel.Visibility = isTyping ? Visibility.Visible : Visibility.Collapsed;
+
+                TargetUserOnlineStatusIcon.Visibility = !isTyping ? Visibility.Visible : Visibility.Collapsed;
+                TargetUserOnlineStatus.Visibility = !isTyping ? Visibility.Visible : Visibility.Collapsed;
+            }, null);
         }
 
         private async void LoadOlderMessages()
@@ -254,7 +277,7 @@ namespace EchoMessenger
 
             var sentAt = DateTime.Now;
             var messageId = Guid.NewGuid().ToString();
-            var content = MessageTextBox.Text;
+            var content = MessageTextBox.Text.Trim();
             MessageTextBox.Text = String.Empty;
 
             await Messages.SendMessage(messageId, currentChat._id, content);
@@ -284,7 +307,7 @@ namespace EchoMessenger
             MessagesScroll.ScrollToBottom();
         }
 
-        private void ButtonGoBottom_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ButtonGoBottom_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             MessagesScroll.ScrollToBottom();
         }
@@ -303,9 +326,15 @@ namespace EchoMessenger
             var placeholder = MessageTextBox.Text;
             bool isTextChanged = false;
 
-            TextChangedEventHandler textChanged = (s, e) =>
+            TextChangedEventHandler textChanged = async (s, e) =>
             {
                 isTextChanged = !String.IsNullOrEmpty(MessageTextBox.Text);
+
+                if (lastTyping == null || lastTyping?.AddMilliseconds(3000) < DateTime.Now)
+                {
+                    lastTyping = DateTime.Now;
+                    await Messages.SendTyping(targetUser._id);
+                }
             };
 
             MessageTextBox.GotFocus += (s, e) =>
@@ -344,13 +373,15 @@ namespace EchoMessenger
                 }
             };
 
+            userTyping.Idled += (s, e) =>
+            {
+                SetUserTyping(false);
+            };
+
             uiSync.Post((s) =>
             {
                 targetUser = currentChat.sender.username == currentUser.username ? currentChat.receiver : currentChat.sender;
                 TargetUserName.Content = targetUser.username;
-
-                //LoadOlderMessages();
-                MessagesScroll.ScrollToBottom();
             }, null);
         }
     }

@@ -22,30 +22,34 @@
         <ScrollViewer x:Name="MenuScrollViewer" Grid.Column="0" VerticalScrollBarVisibility="Auto">
             <StackPanel Background="#FF131522">
                 <StackPanel Name="SpecialMenu" Margin="10 10 10 10">
-                    <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" MouseLeftButtonUp="ButtonSettings_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Border.Background>
-                            <ImageBrush ImageSource="/EchoMessenger;component/Images/user.png" Stretch="UniformToFill">
-                                <ImageBrush.RelativeTransform>
-                                    <TransformGroup>
-                                        <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.6" ScaleY="0.6"/>
-                                    </TransformGroup>
-                                </ImageBrush.RelativeTransform>
-                            </ImageBrush>
-                        </Border.Background>
-                        <Grid></Grid>
+                    <Border Style="{StaticResource SelectableBorder}">
+                        <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" MouseLeftButtonUp="ButtonSettings_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border.Background>
+                                <ImageBrush ImageSource="/EchoMessenger;component/Images/user.png" Stretch="UniformToFill">
+                                    <ImageBrush.RelativeTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform CenterY="0.5" CenterX="0.5" ScaleX="0.6" ScaleY="0.6"/>
+                                        </TransformGroup>
+                                    </ImageBrush.RelativeTransform>
+                                </ImageBrush>
+                            </Border.Background>
+                            <Grid></Grid>
+                        </Border>
                     </Border>
 
-                    <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Border.Background>
-                            <ImageBrush ImageSource="/EchoMessenger;component/Images/search.png" Stretch="UniformToFill">
-                                <ImageBrush.RelativeTransform>
-                                    <TransformGroup>
-                                        <ScaleTransform CenterY="0.45" CenterX="0.45" ScaleX="0.6" ScaleY="0.6"/>
-                                    </TransformGroup>
-                                </ImageBrush.RelativeTransform>
-                            </ImageBrush>
-                        </Border.Background>
-                        <Grid></Grid>
+                    <Border Style="{StaticResource SelectableBorder}">
+                        <Border xf:Animations.Primary="{StaticResource FadeInAndSlideFromLeft}" Style="{StaticResource SelectableBorder}" MouseLeftButtonUp="ButtonSearch_MouseLeftButtonUp" Width="40" Height="40" Margin="0 0 0 10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border.Background>
+                                <ImageBrush ImageSource="/EchoMessenger;component/Images/search.png" Stretch="UniformToFill">
+                                    <ImageBrush.RelativeTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform CenterY="0.45" CenterX="0.45" ScaleX="0.6" ScaleY="0.6"/>
+                                        </TransformGroup>
+                                    </ImageBrush.RelativeTransform>
+                                </ImageBrush>
+                            </Border.Background>
+                            <Grid></Grid>
+                        </Border>
                     </Border>
                 </StackPanel>
 

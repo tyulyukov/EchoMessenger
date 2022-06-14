@@ -217,6 +217,7 @@ namespace EchoMessenger
             Messages.OnMessageSent += MessageSent;
             Messages.OnMessageSendFailed += MessageSentFailed;
             Messages.OnUserUpdated += UserUpdated;
+            Messages.OnUserTyping += UserTyping;
             
             Messages.Configure();
             await Messages.Connect();
@@ -234,6 +235,7 @@ namespace EchoMessenger
             Messages.OnMessageSent -= MessageSent;
             Messages.OnMessageSendFailed -= MessageSentFailed;
             Messages.OnUserUpdated -= UserUpdated;
+            Messages.OnUserTyping -= UserTyping;
 
             await Messages.Disconnect();
         }
@@ -344,6 +346,14 @@ namespace EchoMessenger
             }
         }
 
+        private void UserTyping(SocketIOClient.SocketIOResponse response)
+        {
+            var userId = response.GetValue<String>();
+
+            if (OpenedChats.TryGetValue(userId, out var chat))
+                MessagesViews[chat.Key._id].UserTyping();
+        }
+
         private async Task LoadChats()
         {
             ButtonRetry.Visibility = Visibility.Collapsed;
@@ -427,8 +437,8 @@ namespace EchoMessenger
                     });
                 };
 
-                ChatsMenu.Children.Insert(0, icon);
                 icon.SetSlideFromLeftOnLoad();
+                ChatsMenu.Children.Insert(0, icon.ConvertToSelectable());
             }, null);
 
             return icon;
@@ -452,8 +462,9 @@ namespace EchoMessenger
                 return;
 
             uiSync.Post((s) => {
-                ChatsMenu.Children.Remove(icon);
-                ChatsMenu.Children.Insert(0, icon);
+                icon.Parent.RemoveChild(icon);
+                ChatsMenu.Children.Remove((UIElement)icon.Parent);
+                ChatsMenu.Children.Insert(0, icon.ConvertToSelectable());
                 firstIcon = icon;
                 icon.ChangeVisibility(true, selectionDuration);
             }, null);
