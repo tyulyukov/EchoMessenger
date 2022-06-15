@@ -38,6 +38,8 @@
             </Border>
 
             <StackPanel VerticalAlignment="Center" Grid.Column="1" Orientation="Vertical">
+                <TextBlock x:Name="UsernameErrorAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="Red" Margin="15,0,5,0" FontSize="14">Error</TextBlock>
+                <TextBlock x:Name="UsernameSuccessAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="#FF49F449" Margin="15,0,5,0" FontSize="14">Success</TextBlock>
                 <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="14" FontFamily="Segoe UI Semibold">Username</TextBlock>
                 <DockPanel>
                     <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="ButtonSaveUsername_Click" DockPanel.Dock="Right" x:Name="ButtonSaveUsername" Margin="5,5,10,10" Width="150" MinWidth="75"  Height="35" CornerRadius="12">
@@ -61,6 +63,9 @@
 
         <StackPanel Margin="5" Orientation="Vertical">
             <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="25" FontFamily="Segoe UI Semibold">Password</TextBlock>
+
+            <TextBlock x:Name="PasswordErrorAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="Red" Margin="15,0,5,0" FontSize="14">Error</TextBlock>
+            <TextBlock x:Name="PasswordSuccessAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="#FF49F449" Margin="15,0,5,0" FontSize="14">Success</TextBlock>
 
             <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="14" FontFamily="Segoe UI Semibold">Old password</TextBlock>
             <PasswordBox x:Name="OldPasswordBox" Template="{StaticResource PasswordBoxBaseControlTemplate}" Margin="10,5,5,5" Width="400" MaxWidth="750" Height="35" Foreground="White" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"/>

@@ -10,9 +10,6 @@ using System.Windows.Input;
 
 namespace EchoMessenger
 {
-    /// <summary>
-    /// Interaction logic for LoginWindow.xaml
-    /// </summary>
     public partial class LoginWindow : Window
     {
         public LoginWindow()
@@ -22,36 +19,53 @@ namespace EchoMessenger
 
         public async void Login(String username, String password)
         {
+            ErrorAlertTextBlock.Visibility = Visibility.Collapsed;
+
             if (String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password))
+            {
+                ErrorAlertTextBlock.Text = "Fields must be not empty";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
                 return;
+            }
 
             var response = await Database.LoginAsync(username, password);
 
             if (response == null || response.StatusCode == (HttpStatusCode)0)
             {
-                MessageBox.Show(this, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                ErrorAlertTextBlock.Text = "Can`t establish connection";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
             }
-
-            if (response.StatusCode == (HttpStatusCode)500)
+            else if (response.StatusCode == (HttpStatusCode)500)
             {
-                MessageBox.Show(this, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorAlertTextBlock.Text = "Oops... Something went wrong";
             }
             else if (response.StatusCode == (HttpStatusCode)200)
             {
                 if (response.Content == null)
+                {
+                    ErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                    ErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
+                }
 
                 var result = JObject.Parse(response.Content);
 
                 if (result == null)
+                {
+                    ErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                    ErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
+                }
 
                 var jwt = result["token"];
                 var user = result["user"];
 
                 if (jwt == null || user == null)
+                {
+                    ErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                    ErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
+                }
 
                 RegistryManager.RememberJwt(jwt.ToString());
 
@@ -61,7 +75,8 @@ namespace EchoMessenger
             }
             else if (response.StatusCode == (HttpStatusCode)400)
             {
-                MessageBox.Show(this, "Incorrect username or password", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ErrorAlertTextBlock.Text = "Incorrect username or password";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
             }
         }
 

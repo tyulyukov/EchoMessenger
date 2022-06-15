@@ -1,5 +1,4 @@
-﻿using EchoMessenger.Entities;
-using EchoMessenger.Helpers;
+﻿using EchoMessenger.Helpers;
 using EchoMessenger.Helpers.Server;
 using System;
 using System.Net;
@@ -9,9 +8,6 @@ using System.Windows.Input;
 
 namespace EchoMessenger
 {
-    /// <summary>
-    /// Interaction logic for RegistrationWindow.xaml
-    /// </summary>
     public partial class RegistrationWindow : Window
     {
         public RegistrationWindow()
@@ -28,21 +24,29 @@ namespace EchoMessenger
 
         private async void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
+            ErrorAlertTextBlock.Visibility = Visibility.Collapsed;
+
             var username = UsernameBox.Text;
             var password = PasswordBox.Password;
 
             if (String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password))
+            {
+                ErrorAlertTextBlock.Text = "Fields must be not empty";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
                 return;
+            }
 
             if (!LogInManager.ValidateUsername(username))
             {
-                MessageBox.Show(this, "Username must contain at least 5 symbols and less than 20 symbols. Username must have only latin letters or/and digits. Allowed special symbols: . - _", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ErrorAlertTextBlock.Text = "Username must contain at least 5 symbols and less than 20 symbols. Username must have only latin letters or/and digits. Allowed special symbols: . - _";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
                 return;
             }
 
             if (!LogInManager.ValidatePassword(password))
             {
-                MessageBox.Show(this, "Password must contain at least 8 symbols. It must have letters and digits", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ErrorAlertTextBlock.Text = "Password must contain at least 8 symbols. It must have letters and digits";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
                 return;
             }
 
@@ -50,13 +54,13 @@ namespace EchoMessenger
 
             if (response == null || response.StatusCode == (HttpStatusCode)0)
             {
-                MessageBox.Show(this, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                ErrorAlertTextBlock.Text = "Can`t establish connection";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
             }
-
-            if (response.StatusCode == (HttpStatusCode)500)
+            else if (response.StatusCode == (HttpStatusCode)500)
             {
-                MessageBox.Show(this, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
             }
             else if (response.StatusCode == (HttpStatusCode)201)
             {
@@ -67,7 +71,8 @@ namespace EchoMessenger
             }
             else if (response.StatusCode == (HttpStatusCode)405)
             {
-                MessageBox.Show(this, "This username is not free", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                ErrorAlertTextBlock.Text = "This username is not free";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
             }
            
         }

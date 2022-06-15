@@ -32,6 +32,14 @@ namespace EchoMessenger.Views.Settings
 
         public void Open()
         {
+            uiSync.Send(s =>
+            {
+                UsernameSuccessAlertTextBlock.Visibility = Visibility.Collapsed;
+                UsernameErrorAlertTextBlock.Visibility = Visibility.Collapsed;
+                PasswordSuccessAlertTextBlock.Visibility = Visibility.Collapsed;
+                PasswordErrorAlertTextBlock.Visibility = Visibility.Collapsed;
+            },null);
+
             UpdateUser(currentUser);
         }
 
@@ -61,6 +69,9 @@ namespace EchoMessenger.Views.Settings
 
         private async void ButtonSaveUsername_Click(object sender, RoutedEventArgs e)
         {
+            UsernameSuccessAlertTextBlock.Visibility = Visibility.Collapsed;
+            UsernameErrorAlertTextBlock.Visibility = Visibility.Collapsed;
+
             String username = UsernameBox.Text;
 
             try
@@ -69,19 +80,24 @@ namespace EchoMessenger.Views.Settings
 
                 if (username == currentUser.username)
                 {
-                    MessageBox.Show("Username must be different");
+                    UsernameBox.Text = currentUser.username;
+                    UsernameErrorAlertTextBlock.Text = "Username must be different";
+                    UsernameErrorAlertTextBlock.Visibility= Visibility.Visible;
                     return;
                 }
 
                 if (String.IsNullOrWhiteSpace(username))
                 {
-                    MessageBox.Show("Username must not be empty");
+                    UsernameBox.Text = currentUser.username;
+                    UsernameErrorAlertTextBlock.Text = "Username must not be empty";
+                    UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
 
                 if (!LogInManager.ValidateUsername(username))
                 {
-                    MessageBox.Show(owner, "Username must contain at least 5 symbols and less than 20 symbols. Username must have only latin letters or/and digits. Allowed special symbols: . - _", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    UsernameErrorAlertTextBlock.Text = "Username must contain at least 5 symbols and less than 20 symbols. Username must have only latin letters or/and digits. Allowed special symbols: . - _";
+                    UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
 
@@ -89,17 +105,26 @@ namespace EchoMessenger.Views.Settings
 
                 if (response == null || response.StatusCode == (HttpStatusCode)0)
                 {
-                    MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    UsernameErrorAlertTextBlock.Text = "Can`t establish connection";
+                    UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
                 else if (response.StatusCode == (HttpStatusCode)500)
                 {
-                    MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    UsernameErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                    UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
+                    return;
+                }
+                else if (response.StatusCode == (HttpStatusCode)405)
+                {
+                    UsernameErrorAlertTextBlock.Text = "This username is already busy";
+                    UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
                 else if (response.StatusCode == (HttpStatusCode)200)
                 {
-                    MessageBox.Show(owner, $"Username is changed successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    UsernameSuccessAlertTextBlock.Text = "Username is changed successfully";
+                    UsernameSuccessAlertTextBlock.Visibility = Visibility.Visible;
 
                     UsernameBox.Text = username;
 
@@ -123,6 +148,9 @@ namespace EchoMessenger.Views.Settings
 
         private async void ButtonSavePassword_Click(object sender, RoutedEventArgs e)
         {
+            PasswordSuccessAlertTextBlock.Visibility = Visibility.Collapsed;
+            PasswordErrorAlertTextBlock.Visibility = Visibility.Collapsed;
+
             String oldPassword = OldPasswordBox.Password;
             String newPassword = NewPasswordBox.Password;
 
@@ -132,19 +160,22 @@ namespace EchoMessenger.Views.Settings
 
                 if (String.IsNullOrWhiteSpace(oldPassword) || String.IsNullOrWhiteSpace(newPassword))
                 {
-                    MessageBox.Show(owner, "Fields must not be empty", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    PasswordErrorAlertTextBlock.Text = "Fields must not be empty";
+                    PasswordErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
 
                 if (oldPassword == newPassword)
                 {
-                    MessageBox.Show(owner, "New password must be different", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    PasswordErrorAlertTextBlock.Text = "New password must be different";
+                    PasswordErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
 
                 if (!LogInManager.ValidatePassword(newPassword))
                 {
-                    MessageBox.Show(owner, "Password must contain at least 8 symbols. It must have letters and digits", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    PasswordErrorAlertTextBlock.Text = "Password must contain at least 8 symbols. It must have letters and digits";
+                    PasswordErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
 
@@ -152,22 +183,26 @@ namespace EchoMessenger.Views.Settings
 
                 if (response == null || response.StatusCode == (HttpStatusCode)0)
                 {
-                    MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    PasswordErrorAlertTextBlock.Text = "Can`t establish connection";
+                    PasswordErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
                 else if (response.StatusCode == (HttpStatusCode)500)
                 {
-                    MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    PasswordErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                    PasswordErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
                 else if (response.StatusCode == (HttpStatusCode)406)
                 {
-                    MessageBox.Show(owner, "Old password is incorrect", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    PasswordErrorAlertTextBlock.Text = "Old password is incorrect";
+                    PasswordErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
                 }
                 else if (response.StatusCode == (HttpStatusCode)200)
                 {
-                    MessageBox.Show(owner, $"Password is changed successfully", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    PasswordSuccessAlertTextBlock.Text = "Password is changed successfully";
+                    PasswordSuccessAlertTextBlock.Visibility = Visibility.Visible;
 
                     OldPasswordBox.Password = String.Empty;
                     NewPasswordBox.Password = String.Empty;
@@ -199,6 +234,9 @@ namespace EchoMessenger.Views.Settings
 
         private async void AvatarOverlay_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            UsernameSuccessAlertTextBlock.Visibility = Visibility.Collapsed;
+            UsernameErrorAlertTextBlock.Visibility = Visibility.Collapsed;
+
             String avatarUrl = String.Empty;
             String originalAvatarUrl = String.Empty;
 
@@ -217,20 +255,33 @@ namespace EchoMessenger.Views.Settings
 
                     if (response == null || response.StatusCode == (HttpStatusCode)0)
                     {
-                        MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        UsernameErrorAlertTextBlock.Text = "Can`t establish connection";
+                        UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                         return;
                     }
                     else if (response.StatusCode == (HttpStatusCode)500)
                     {
-                        MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        UsernameErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                        UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                         return;
                     }
                     else if (response.StatusCode == (HttpStatusCode)200)
                     {
                         if (response.Content == null)
+                        {
+                            UsernameErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                            UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                             return;
+                        }
 
                         var result = JObject.Parse(response.Content);
+
+                        if (result == null)
+                        {
+                            UsernameErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                            UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
+                            return;
+                        }
 
                         avatarUrl = result["avatarUrl"].ToString();
                         originalAvatarUrl = result["originalAvatarUrl"].ToString();
@@ -247,7 +298,8 @@ namespace EchoMessenger.Views.Settings
                     if (String.IsNullOrWhiteSpace(avatarUrl) || String.IsNullOrWhiteSpace(originalAvatarUrl))
                     {
                         owner?.SettingsView.EndFillingProgressBar();
-                        MessageBox.Show("Something went wrong...");
+                        UsernameErrorAlertTextBlock.Text = "Something went wrong...";
+                        UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                         return;
                     }
 
@@ -255,18 +307,31 @@ namespace EchoMessenger.Views.Settings
 
                     if (changeResponse == null || changeResponse.StatusCode == (HttpStatusCode)0)
                     {
-                        MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        UsernameErrorAlertTextBlock.Text = "Can`t establish connection";
+                        UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                         return;
                     }
                     else if (changeResponse.StatusCode == (HttpStatusCode)500)
                     {
-                        MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        UsernameErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                        UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                         return;
                     }
                     else if (changeResponse.StatusCode == (HttpStatusCode)200)
                     {
                         if (changeResponse.Content == null)
+                        {
+                            UsernameErrorAlertTextBlock.Text = "Oops... Something went wrong";
+                            UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                             return;
+                        }
+
+                        UsernameSuccessAlertTextBlock.Text = "Avatar changed successfully!";
+                        UsernameSuccessAlertTextBlock.Visibility = Visibility.Visible;
+
+                        currentUser.avatarUrl = avatarUrl;
+                        currentUser.originalAvatarUrl = originalAvatarUrl;
+                        owner.UpdateUser(currentUser);
 
                         var bitmap = new BitmapImage();
                         bitmap.BeginInit();

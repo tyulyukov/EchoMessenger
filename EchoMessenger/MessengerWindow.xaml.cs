@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 
 namespace EchoMessenger
 {
@@ -72,11 +71,6 @@ namespace EchoMessenger
             {
                 messageView.UpdateUser(user);
             }
-
-            uiSync.Send(async s =>
-            {
-                await LoadChats();
-            }, null);
         }
 
         public void ShowLoading(bool visible)
@@ -102,6 +96,9 @@ namespace EchoMessenger
 
         public void SelectButton(Border button)
         {
+            if (button == null)
+                return;
+
             if (selectedButton == button)
                 return;
 

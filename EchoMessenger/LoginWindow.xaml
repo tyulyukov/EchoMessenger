@@ -39,7 +39,8 @@
             </Border>
 
             <TextBlock Foreground="White" HorizontalAlignment="Center" FontSize="35" FontWeight="Normal" FontFamily="Segoe UI Semibold">Welcome back!</TextBlock>
-            <TextBlock Foreground="White"  Margin="0,0,0,5" HorizontalAlignment="Center" FontSize="18">Login to your account</TextBlock>
+            <TextBlock Foreground="White" Margin="0,0,0,5" HorizontalAlignment="Center" FontSize="18">Login to your account</TextBlock>
+            <TextBlock x:Name="ErrorAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="Red" Margin="5,0,5,5" HorizontalAlignment="Center" FontSize="14">Error</TextBlock>
 
             <TextBlock Foreground="White" Margin="55,10,0,0" FontSize="14" FontFamily="Segoe UI Semibold">Username</TextBlock>
             <TextBox x:Name="UsernameBox" Template="{StaticResource TextBoxBaseControlTemplate}" Margin="50,5,50,0" Height="35" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"></TextBox>
