@@ -1,6 +1,7 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
 using EchoMessenger.Helpers.Server;
+using EchoMessenger.Helpers.UI;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
@@ -58,15 +58,10 @@ namespace EchoMessenger.Views
                 {
                     var response = await Database.SearchUsers(query);
 
-                    if (response == null || response.StatusCode == (HttpStatusCode)0)
-                    {
-                        MessageBox.Show(owner, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else if (response.StatusCode == (HttpStatusCode)500)
-                    {
-                        MessageBox.Show(owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else if (response.StatusCode == (HttpStatusCode)200)
+                    if (response == null)
+                        return;
+
+                    if (response.StatusCode == (HttpStatusCode)200)
                     {
                         if (response.Content == null)
                             return;

@@ -10,14 +10,15 @@ namespace EchoMessenger.Entities
         public UserInfo sender { get; set; }
         public UserInfo receiver { get; set; }
         public DateTime createdAt { get; set; }
+        public DateTime createdAtLocal => createdAt.ToLocalTime();
         public List<Message> messages { get; set; }
 
         public DateTime GetLastSentAt()
         {
             if (messages == null || messages.Count == 0)
-                return createdAt;
+                return createdAtLocal;
 
-            return messages.OrderBy(m => m.sentAt).Last().sentAt;
+            return messages.OrderBy(m => m.sentAtLocal).Last().sentAtLocal;
         }
     }
 }

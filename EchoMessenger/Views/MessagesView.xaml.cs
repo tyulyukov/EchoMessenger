@@ -1,6 +1,7 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
 using EchoMessenger.Helpers.Server;
+using EchoMessenger.Helpers.UI;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -47,6 +48,8 @@ namespace EchoMessenger
             currentUser = user;
             currentChat = chat;
 
+            targetUser = currentChat.sender._id == currentUser._id ? currentChat.receiver : currentChat.sender;
+
             messages = new Dictionary<String, MessageBorder>();
 
             SetOnlineStatus(isOnline);
@@ -73,11 +76,24 @@ namespace EchoMessenger
             isLoading = visible;
         }
 
-        public void SetOnlineStatus(bool isOnline)
+        public void SetOnlineStatus(bool isOnline, DateTime? lastTimeOnline = null)
         {
             uiSync.Post((s) =>
             {
-                TargetUserOnlineStatus.Content = isOnline ? "online" : "offline";
+                if (isOnline)
+                {
+                    TargetUserOnlineStatus.Content = "online";
+                }
+                else
+                {
+                    var onlineDate = lastTimeOnline == null ? targetUser.lastOnlineAtLocal : lastTimeOnline;
+
+                    if (onlineDate?.Date != DateTime.Today)
+                        TargetUserOnlineStatus.Content = $"last online { onlineDate?.ToLongDateString() }";
+                    else
+                        TargetUserOnlineStatus.Content = $"last online at { onlineDate?.ToShortTimeString() }";
+                }
+
                 TargetUserOnlineStatus.Foreground = isOnline ? (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088") : new SolidColorBrush(Colors.Gray);
                 TargetUserOnlineStatusIcon.Background = isOnline ? (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088") : new SolidColorBrush(Colors.Gray);
             }, null);
@@ -98,14 +114,14 @@ namespace EchoMessenger
 
                 messages.Add(message._id, messageBorder);
 
-                if (firstMessageSentAt == null || (firstMessageSentAt?.Year == message.sentAt.Year && firstMessageSentAt?.DayOfYear < message.sentAt.DayOfYear) || firstMessageSentAt?.Year < message.sentAt.Year)
-                    MessagesStackPanel.Children.Add(new DateCard(message.sentAt));
-                else if (firstMessageSentAt?.AddMinutes(10) < message.sentAt)
+                if (firstMessageSentAt == null || firstMessageSentAt?.Date != DateTime.Today)
+                    MessagesStackPanel.Children.Add(new DateCard(message.sentAtLocal));
+                else if (firstMessageSentAt?.AddMinutes(10) < message.sentAtLocal)
                     messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top + 5, messageBorder.Margin.Right, messageBorder.Margin.Bottom);
-                else if (firstMessageSentAt?.AddHours(1) < message.sentAt)
+                else if (firstMessageSentAt?.AddHours(1) < message.sentAtLocal)
                     messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top + 10, messageBorder.Margin.Right, messageBorder.Margin.Bottom);
 
-                firstMessageSentAt = message.sentAt;
+                firstMessageSentAt = message.sentAtLocal;
 
                 messageBorder.SetSlideFromBottomOnLoad();
                 MessagesStackPanel.Children.Add(messageBorder);
@@ -199,38 +215,33 @@ namespace EchoMessenger
 
                     foreach (var message in messages)
                     {
-                        message.sentAt = message.sentAt.ToLocalTime();
-                        foreach (var edit in message.edits)
-                        {
-                            edit.date = edit.date.ToLocalTime();
-                        }
 
                         if (firstMessageSentAt == null)
-                            firstMessageSentAt = message.sentAt;
+                            firstMessageSentAt = message.sentAtLocal;
 
                         MessageBorder messageBorder = new MessageBorder(message.content, message.sender._id == currentUser._id);
                         messageBorder.SetLoaded(message);
 
                         this.messages.Add(message._id, messageBorder);
 
-                        if ((lastMessageSentAt?.Year == message.sentAt.Year && lastMessageSentAt?.DayOfYear > message.sentAt.DayOfYear) || lastMessageSentAt?.Year > message.sentAt.Year)
+                        if ((lastMessageSentAt?.Year == message.sentAtLocal.Year && lastMessageSentAt?.DayOfYear > message.sentAtLocal.DayOfYear) || lastMessageSentAt?.Year > message.sentAtLocal.Year)
                         {
                             var dateCard = new DateCard((DateTime)lastMessageSentAt);
                             dateCard.SetSlideFromBottomOnLoad();
                             MessagesStackPanel.Children.Insert(0, dateCard);
                         }
-                        else if (lastMessageSentAt > message.sentAt.AddHours(1))
+                        else if (lastMessageSentAt > message.sentAtLocal.AddHours(1))
                         {
                             messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top, messageBorder.Margin.Right, messageBorder.Margin.Bottom + 10);
                         }
-                        else if (lastMessageSentAt > message.sentAt.AddMinutes(10))
+                        else if (lastMessageSentAt > message.sentAtLocal.AddMinutes(10))
                         {
                             messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top, messageBorder.Margin.Right, messageBorder.Margin.Bottom + 5);
                         }
 
                         messageBorder.SetSlideFromBottomOnLoad();
                         MessagesStackPanel.Children.Insert(0, messageBorder);
-                        lastMessageSentAt = message.sentAt;
+                        lastMessageSentAt = message.sentAtLocal;
                     }
 
                     if (messages.Count() < LoadingMessagesCount)
@@ -380,7 +391,6 @@ namespace EchoMessenger
 
             uiSync.Post((s) =>
             {
-                targetUser = currentChat.sender.username == currentUser.username ? currentChat.receiver : currentChat.sender;
                 TargetUserName.Content = targetUser.username;
             }, null);
         }

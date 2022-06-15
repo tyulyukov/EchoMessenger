@@ -1,6 +1,7 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
 using EchoMessenger.Helpers.Server;
+using EchoMessenger.Helpers.UI;
 using EchoMessenger.Views;
 using EchoMessenger.Views.Settings;
 using Newtonsoft.Json.Linq;
@@ -60,8 +61,6 @@ namespace EchoMessenger
         {
             if (user == null)
                 return;
-
-            user.createdAt = user.createdAt.ToLocalTime();
 
             currentUser = user;
             
@@ -145,20 +144,13 @@ namespace EchoMessenger
             {
                 try
                 {
-                    uiSync.Post((s) => { ShowLoading(true); }, null);  // MOVE TO SEARCH
+                    uiSync.Post((s) => { ShowLoading(true); }, null);
                     var chatResponse = await Database.CreateChat(userId);
 
-                    if (chatResponse == null || chatResponse.StatusCode == (HttpStatusCode)0)
-                    {
-                        MessageBox.Show(this, "Can`t establish connection", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (chatResponse == null)
                         return;
-                    }
-                    else if (chatResponse.StatusCode == (HttpStatusCode)500)
-                    {
-                        MessageBox.Show(this, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        return;
-                    }
-                    else if (chatResponse.StatusCode == (HttpStatusCode)201)
+
+                    if (chatResponse.StatusCode == (HttpStatusCode)201)
                     {
                         if (chatResponse.Content == null)
                             return;
@@ -169,8 +161,6 @@ namespace EchoMessenger
 
                         if (chat == null)
                             return;
-
-                        chat.createdAt = chat.createdAt.ToLocalTime();
 
                         var targetUser = chat.sender._id == currentUser._id ? chat.receiver : chat.sender;
                         var icon = AddUserIcon(targetUser, chat, OnlineChats.Contains(targetUser._id), true);
@@ -188,7 +178,7 @@ namespace EchoMessenger
                 }
                 finally
                 {
-                    uiSync.Post((s) => { ShowLoading(false); }, null);  // MOVE TO SEARCH
+                    uiSync.Post((s) => { ShowLoading(false); }, null);
                 }
             }
 
@@ -254,6 +244,7 @@ namespace EchoMessenger
         private void OnUserOffline(SocketIOClient.SocketIOResponse response)
         {
             var userId = response.GetValue<String>();
+
             SetOnlineStatus(userId, false);
         }
 
@@ -269,21 +260,11 @@ namespace EchoMessenger
                     Close();
                 }, null);
             }
-            else if (arg == "500")
-            {
-                MessageBox.Show(Owner, "Oops... Something went wrong", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            else
-            {
-                MessageBox.Show(Owner, arg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
 
         private void OnChatCreated(SocketIOClient.SocketIOResponse response)
         {
             var chat = response.GetValue<Chat>();
-
-            chat.createdAt = chat.createdAt.ToLocalTime();
 
             var targetUser = chat.sender._id == currentUser._id ? chat.receiver : chat.sender;
             var icon = AddUserIcon(targetUser, chat, OnlineChats.Contains(targetUser._id));
@@ -293,11 +274,6 @@ namespace EchoMessenger
         private void MessageSent(SocketIOClient.SocketIOResponse response)
         {
             var message = response.GetValue<Message>();
-            message.sentAt = message.sentAt.ToLocalTime();
-            foreach (var edit in message.edits)
-            {
-                edit.date = edit.date.ToLocalTime();
-            }
 
             if (MessagesViews.TryGetValue(message.chat._id, out var messageView))
             {
@@ -326,7 +302,6 @@ namespace EchoMessenger
         private void UserUpdated(SocketIOClient.SocketIOResponse response)
         {
             var user = response.GetValue<UserInfo>();
-            user.createdAt = user.createdAt.ToLocalTime();
 
             if (user._id == currentUser._id)
             {
@@ -382,8 +357,6 @@ namespace EchoMessenger
                     chats = chats.OrderBy(c => c.GetLastSentAt());
                     foreach (var chat in chats)
                     {
-                        chat.createdAt = chat.createdAt.ToLocalTime();
-
                         var targetUser = chat.sender._id == currentUser._id ? chat.receiver : chat.sender;
                         var icon = AddUserIcon(targetUser, chat, OnlineChats.Contains(targetUser._id));
                         LoadChat(targetUser._id, chat, icon, OnlineChats.Contains(targetUser._id));
@@ -527,7 +500,7 @@ namespace EchoMessenger
                         chat.Value.OnlineStatusIcon.SetOffline();
 
                     if (MessagesViews.TryGetValue(chat.Key._id, out var view))
-                        view.SetOnlineStatus(isOnline);
+                        view.SetOnlineStatus(isOnline, DateTime.Now);
                 }, null);
             }
         }

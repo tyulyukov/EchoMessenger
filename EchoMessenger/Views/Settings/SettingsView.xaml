@@ -47,11 +47,11 @@
 
         <ScrollViewer Grid.Column="1" Background="#FF131522">
             <StackPanel xf:Animations.Primary="{StaticResource FadeInAndSlideFromRight}" Orientation="Vertical">
-                <Border x:Name="MyAccountButtonTab" Style="{StaticResource BorderMouseOver}" MouseLeftButtonUp="ButtonTab_MouseLeftButtonUp" Margin="10,10,10,2" CornerRadius="5" Uid="0" BorderThickness="1">
+                <Border x:Name="MyAccountButtonTab" Style="{StaticResource BorderMouseOver}" MouseLeftButtonUp="ButtonTab_MouseLeftButtonUp" Margin="10,10,10,2" CornerRadius="5" Uid="My account" BorderThickness="1">
                     <TextBlock TextWrapping="NoWrap" VerticalAlignment="Center" Foreground="White" FontSize="12" FontFamily="Segoe UI Semibold" HorizontalAlignment="Center" Margin="2">My account</TextBlock>
                 </Border>
 
-                <Border Style="{StaticResource BorderMouseOver}" MouseLeftButtonUp="ButtonTab_MouseLeftButtonUp" Margin="10,2,10,2" CornerRadius="5" Background="Transparent" Uid="1" BorderThickness="1">
+                <Border Style="{StaticResource BorderMouseOver}" MouseLeftButtonUp="ButtonTab_MouseLeftButtonUp" Margin="10,2,10,2" CornerRadius="5" Background="Transparent" Uid="Something" BorderThickness="1">
                     <TextBlock TextWrapping="NoWrap" VerticalAlignment="Center" Foreground="White" FontSize="12" FontFamily="Segoe UI Semibold" HorizontalAlignment="Center" Margin="2">Something</TextBlock>
                 </Border>
             </StackPanel>

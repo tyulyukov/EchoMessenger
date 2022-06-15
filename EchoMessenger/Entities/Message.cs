@@ -12,6 +12,7 @@ namespace EchoMessenger.Entities
         public bool haveSeen { get; set; }
         public List<Attachment> attachments { get; set; }
         public DateTime sentAt { get; set; }
+        public DateTime sentAtLocal => sentAt.ToLocalTime();
         public Message repliedOn { get; set; }
         public Chat chat { get; set; }
     }

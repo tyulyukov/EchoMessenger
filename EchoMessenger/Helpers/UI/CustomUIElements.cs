@@ -7,7 +7,7 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using LoadingSpinnerControl;
 
-namespace EchoMessenger.Helpers
+namespace EchoMessenger.Helpers.UI
 {
     public class SearchResultUserCard : Border
     {
@@ -84,7 +84,7 @@ namespace EchoMessenger.Helpers
             label.Foreground = new SolidColorBrush(Colors.White);
             label.Margin = new Thickness(2);
 
-            if (date.ToLongDateString() == DateTime.Today.ToLongDateString())
+            if (date.Date == DateTime.Today)
                 label.Content = "Today";
             else
                 label.Content = date.ToLongDateString();
@@ -95,7 +95,7 @@ namespace EchoMessenger.Helpers
 
     public class MessageBorder : Border
     {
-        public Entities.Message Message;
+        public Entities.Message? Message;
 
         public TextBlock MessageTextBlock;
         public TextBlock TimeTextBlock;
@@ -173,7 +173,7 @@ namespace EchoMessenger.Helpers
             LoadingSpinner.IsLoading = false;
 
             Message = message;
-            TimeTextBlock.Text = message.sentAt.ToString("HH:mm");
+            TimeTextBlock.Text = message.sentAtLocal.ToString("HH:mm");
             TimeTextBlock.Visibility = Visibility.Visible;
         }
 

@@ -7,5 +7,6 @@ namespace EchoMessenger.Entities
         public String _id { get; set; }
         public String content { get; set; }
         public DateTime date { get; set; }
+        public DateTime dateLocal => date.ToLocalTime();
     }
 }

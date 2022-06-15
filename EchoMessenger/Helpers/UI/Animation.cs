@@ -5,7 +5,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using XamlFlair;
 
-namespace EchoMessenger.Helpers
+namespace EchoMessenger.Helpers.UI
 {
     public static class Animation
     {

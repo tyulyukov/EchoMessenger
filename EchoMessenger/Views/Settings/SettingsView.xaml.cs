@@ -1,5 +1,6 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
+using EchoMessenger.Helpers.UI;
 using System;
 using System.Threading;
 using System.Windows;
@@ -57,14 +58,14 @@ namespace EchoMessenger.Views.Settings
             if (lastButtonTab != null)
                 lastButtonTab.Background = new SolidColorBrush(Colors.Transparent);
 
-            var id = Convert.ToInt32(border.Uid);
+            var id = border.Uid.ToString();
 
             border.Background = new SolidColorBrush(Colors.DimGray);
             lastButtonTab = border;
 
             switch (id)
             {
-                case 0:
+                case "My account":
                     {
                         accountView.Open();
                         OpenTab(accountView);
@@ -119,7 +120,7 @@ namespace EchoMessenger.Views.Settings
         private void SetProgress(double progress, TimeSpan duration)
         {
             this.progress = progress;
-            uiSync?.Send(state => { SettingsProgressBar.SetPercent((double)state, duration); }, progress);
+            uiSync?.Send(state => { SettingsProgressBar.SetPercent(progress, duration); }, null);
         }
     }
 }

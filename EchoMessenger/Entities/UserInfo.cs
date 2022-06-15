@@ -10,5 +10,8 @@ namespace EchoMessenger.Entities
         public String avatarUrl { get; set; }
         public String originalAvatarUrl { get; set; }
         public DateTime createdAt { get; set; }
+        public DateTime createdAtLocal => createdAt.ToLocalTime();
+        public DateTime lastOnlineAt { get; set; }
+        public DateTime lastOnlineAtLocal => lastOnlineAt.ToLocalTime();
     }
 }
