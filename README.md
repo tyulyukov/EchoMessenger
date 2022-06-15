@@ -8,8 +8,8 @@ Messenger named ```Echo```, using WPF, based on WebSockets and Client-Server
 <img src="Screenshots/register.png" />
 </span>
 
-<img src="Screenshots/old messages.png" />
-<img src="Screenshots/chat fullscreen.png" />
-<img src="Screenshots/search tab.png" />
-<img src="Screenshots/settings tab.png" />
-
+<img src="Screenshots/chat.png" />
+<img src="Screenshots/chat2.png" />
+<img src="Screenshots/chat3.png" />
+<img src="Screenshots/search.png" />
+<img src="Screenshots/settings.png" />
