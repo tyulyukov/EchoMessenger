@@ -24,9 +24,12 @@ namespace EchoMessenger
         private TypeAssistant userTyping;
 
         private bool isLoading = false;
+        private bool isTyping = false;
 
         private Dictionary<String, MessageBorder> messages;
         private bool isAllMessagesLoaded = false;
+
+        private TypingIndicatorControl.TypingIndicator TypingIndicator;
 
         private Chat currentChat;
         private UserInfo currentUser;
@@ -53,6 +56,63 @@ namespace EchoMessenger
             messages = new Dictionary<String, MessageBorder>();
 
             SetOnlineStatus(isOnline);
+
+            var placeholder = MessageTextBox.Text;
+            bool isTextChanged = false;
+
+            TextChangedEventHandler textChanged = async (s, e) =>
+            {
+                isTextChanged = !String.IsNullOrEmpty(MessageTextBox.Text);
+
+                if (lastTyping == null || lastTyping?.AddMilliseconds(3000) < DateTime.Now)
+                {
+                    lastTyping = DateTime.Now;
+                    await Messages.SendTyping(targetUser._id);
+                }
+            };
+
+            MessageTextBox.GotFocus += (s, e) =>
+            {
+                if (MessageTextBox.Text == placeholder && !isTextChanged)
+                {
+                    SendMessageButton.IsEnabled = true;
+                    MessageTextBox.Text = String.Empty;
+                }
+
+                MessageTextBox.TextChanged += textChanged;
+            };
+
+            MessageTextBox.LostFocus += (s, e) =>
+            {
+                MessageTextBox.TextChanged -= textChanged;
+
+                if (String.IsNullOrEmpty(MessageTextBox.Text))
+                {
+                    SendMessageButton.IsEnabled = false;
+                    MessageTextBox.Text = placeholder;
+                }
+            };
+
+            MessageTextBox.KeyDown += (s, e) =>
+            {
+                if (e.Key == Key.Enter && Keyboard.IsKeyDown(Key.LeftShift))
+                {
+                    var index = MessageTextBox.CaretIndex;
+                    MessageTextBox.Text = MessageTextBox.Text.Insert(index, "\n");
+                    MessageTextBox.CaretIndex = index + 1;
+                }
+                else if (e.Key == Key.Enter)
+                {
+                    SendMessageHandle();
+                }
+            };
+
+            userTyping.Idled += (s, e) =>
+            {
+                SetUserTyping(false);
+            };
+
+            TargetUserName.Content = targetUser.username;
         }
 
         public void Open()
@@ -168,9 +228,11 @@ namespace EchoMessenger
 
         private void SetUserTyping(bool isTyping)
         {
+            this.isTyping = isTyping;
+
             uiSync.Send(s =>
             {
-                TargetUserTypingIndicator.Visibility = isTyping ? Visibility.Visible : Visibility.Collapsed;
+                TypingIndicator.Visibility = isTyping ? Visibility.Visible : Visibility.Collapsed;
                 TargetUserTypingLabel.Visibility = isTyping ? Visibility.Visible : Visibility.Collapsed;
 
                 TargetUserOnlineStatusIcon.Visibility = !isTyping ? Visibility.Visible : Visibility.Collapsed;
@@ -215,7 +277,6 @@ namespace EchoMessenger
 
                     foreach (var message in messages)
                     {
-
                         if (firstMessageSentAt == null)
                             firstMessageSentAt = message.sentAtLocal;
 
@@ -334,65 +395,23 @@ namespace EchoMessenger
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            var placeholder = MessageTextBox.Text;
-            bool isTextChanged = false;
+            if (TypingIndicator != null)
+                TypingIndicatorPlaceholder.RemoveChild(TypingIndicator);
 
-            TextChangedEventHandler textChanged = async (s, e) =>
+            TypingIndicator = new TypingIndicatorControl.TypingIndicator()
             {
-                isTextChanged = !String.IsNullOrEmpty(MessageTextBox.Text);
-
-                if (lastTyping == null || lastTyping?.AddMilliseconds(3000) < DateTime.Now)
-                {
-                    lastTyping = DateTime.Now;
-                    await Messages.SendTyping(targetUser._id);
-                }
+                Diameter = 4d,
+                Spacing = new Thickness(1.2d),
+                Margin = new Thickness(0, 3.5, 0, 0),
+                Color = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088"),
+                Visibility = isTyping ? Visibility.Visible : Visibility.Collapsed,
             };
+            TypingIndicatorPlaceholder.Child = TypingIndicator;
+        }
 
-            MessageTextBox.GotFocus += (s, e) =>
-            {
-                if (MessageTextBox.Text == placeholder && !isTextChanged)
-                {
-                    SendMessageButton.IsEnabled = true;
-                    MessageTextBox.Text = String.Empty;
-                }
-
-                MessageTextBox.TextChanged += textChanged;
-            };
-
-            MessageTextBox.LostFocus += (s, e) =>
-            {
-                MessageTextBox.TextChanged -= textChanged;
-
-                if (String.IsNullOrEmpty(MessageTextBox.Text))
-                {
-                    SendMessageButton.IsEnabled = false;
-                    MessageTextBox.Text = placeholder;
-                }
-            };
-
-            MessageTextBox.KeyDown += (s, e) =>
-            {
-                if (e.Key == Key.Enter && Keyboard.IsKeyDown(Key.LeftShift))
-                {
-                    var index = MessageTextBox.CaretIndex;
-                    MessageTextBox.Text = MessageTextBox.Text.Insert(index, "\n");
-                    MessageTextBox.CaretIndex = index + 1;
-                }
-                else if (e.Key == Key.Enter)
-                {
-                    SendMessageHandle();
-                }
-            };
-
-            userTyping.Idled += (s, e) =>
-            {
-                SetUserTyping(false);
-            };
-
-            uiSync.Post((s) =>
-            {
-                TargetUserName.Content = targetUser.username;
-            }, null);
+        private void UserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            TypingIndicatorPlaceholder.RemoveChild(TypingIndicator);
         }
     }
 }

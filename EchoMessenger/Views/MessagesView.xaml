@@ -7,7 +7,8 @@
              xmlns:custom="clr-namespace:LoadingSpinnerControl;assembly=LoadingSpinnerControl" xmlns:typingindicatorcontrol="clr-namespace:TypingIndicatorControl;assembly=TypingIndicatorControl"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-             Loaded="UserControl_Loaded">
+             Loaded="UserControl_Loaded"
+             Unloaded="UserControl_Unloaded">
     <Grid ShowGridLines="False">
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
@@ -39,7 +40,7 @@
             <StackPanel Orientation="Vertical">
                 <Label x:Name="TargetUserName" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Margin="10 0 0 0" MaxWidth="300" Foreground="White" FontSize="16">nickname</Label>
                 <StackPanel Margin="15,-7,0,0" Orientation="Horizontal">
-                    <typingindicatorcontrol:TypingIndicator x:Name="TargetUserTypingIndicator" Visibility="Collapsed" Color="#ff6088" Diameter="4" Spacing="1.2" Margin="0,3.5,0,0" />
+                    <Border x:Name="TypingIndicatorPlaceholder"/>
                     <Label x:Name="TargetUserTypingLabel" Visibility="Collapsed" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Left" MaxWidth="300" Foreground="#ff6088" FontSize="12">typing</Label>
                     <Border x:Name="TargetUserOnlineStatusIcon" CornerRadius="100" Width="5" Height="5" Margin="0,3.5,0,0" Background="Gray"></Border>
                     <Label x:Name="TargetUserOnlineStatus" VerticalContentAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Left" MaxWidth="300" Foreground="Gray" FontSize="12">offline</Label>
