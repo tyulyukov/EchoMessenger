@@ -6,18 +6,26 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>False</UseWindowsForms>
+    <ApplicationIcon>Images\favicon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Images\arrow down.png" />
     <None Remove="Images\attachment.png" />
+    <None Remove="Images\delete.png" />
     <None Remove="Images\echo.png" />
+    <None Remove="Images\edit.png" />
     <None Remove="Images\image.png" />
     <None Remove="Images\loading spinner.gif" />
     <None Remove="Images\refresh.png" />
+    <None Remove="Images\reply.png" />
     <None Remove="Images\search.png" />
     <None Remove="Images\send.png" />
     <None Remove="Images\user.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\favicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,9 +45,12 @@
   <ItemGroup>
     <Resource Include="Images\arrow down.png" />
     <Resource Include="Images\attachment.png" />
+    <Resource Include="Images\delete.png" />
     <Resource Include="Images\echo.png" />
+    <Resource Include="Images\edit.png" />
     <Resource Include="Images\image.png" />
     <Resource Include="Images\refresh.png" />
+    <Resource Include="Images\reply.png" />
     <Resource Include="Images\search.png" />
     <Resource Include="Images\send.png" />
     <Resource Include="Images\user.png" />

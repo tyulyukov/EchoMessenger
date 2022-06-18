@@ -10,14 +10,17 @@
                 <xf:XamlFlairResources />
             </ResourceDictionary.MergedDictionaries>
             
-            <ImageBrush x:Key="UserImage" ImageSource="/EchoMessenger;component/Images/user.png"/>
-            <ImageBrush x:Key="SearchImage" ImageSource="/EchoMessenger;component/Images/search.png"/>
-            <ImageBrush x:Key="AttachmentImage" ImageSource="/EchoMessenger;component/Images/attachment.png"/>
-            <ImageBrush x:Key="SendImage" ImageSource="/EchoMessenger;component/Images/send.png"/>
-            <ImageBrush x:Key="EchoImage" ImageSource="/EchoMessenger;component/Images/echo.png"/>
-            <ImageBrush x:Key="Image" ImageSource="/EchoMessenger;component/Images/image.png"/>
-            <ImageBrush x:Key="ArrowDownImage" ImageSource="/EchoMessenger;component/Images/arrow down.png"/>
-            <ImageBrush x:Key="RefreshImage" ImageSource="/EchoMessenger;component/Images/refresh.png"/>
+            <ImageBrush x:Key="UserImage" ImageSource="/EchoMessenger;component/Images/user.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="SearchImage" ImageSource="/EchoMessenger;component/Images/search.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="AttachmentImage" ImageSource="/EchoMessenger;component/Images/attachment.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="SendImage" ImageSource="/EchoMessenger;component/Images/send.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="EchoImage" ImageSource="/EchoMessenger;component/Images/echo.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="Image" ImageSource="/EchoMessenger;component/Images/image.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="ArrowDownImage" ImageSource="/EchoMessenger;component/Images/arrow down.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="RefreshImage" ImageSource="/EchoMessenger;component/Images/refresh.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="ReplyImage" ImageSource="/EchoMessenger;component/Images/reply.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="EditImage" ImageSource="/EchoMessenger;component/Images/edit.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="DeleteImage" ImageSource="/EchoMessenger;component/Images/delete.png" Stretch="UniformToFill"/>
 
             <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
                 <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -192,11 +195,11 @@
                                     <DoubleAnimation
                                         Duration="0:0:0.05"
                                         Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleX)"
-                                        To="0.87"/>
+                                        To="0.9"/>
                                     <DoubleAnimation
                                         Duration="0:0:0.05"
                                         Storyboard.TargetProperty="(RenderTransform).(ScaleTransform.ScaleY)"
-                                        To="0.87"/>
+                                        To="0.9"/>
                                 </Storyboard>
                             </BeginStoryboard>
                         </Trigger.EnterActions>

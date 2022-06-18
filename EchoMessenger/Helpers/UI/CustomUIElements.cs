@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using LoadingSpinnerControl;
+using System.Windows.Controls.Primitives;
 
 namespace EchoMessenger.Helpers.UI
 {
@@ -70,6 +71,50 @@ namespace EchoMessenger.Helpers.UI
         }
     }
 
+    public class TextBlockWithIcon : Border
+    {
+        public static readonly ImageBrush DeleteImage = Application.Current.FindResource("DeleteImage") as ImageBrush;
+        public static readonly ImageBrush ReplyImage = Application.Current.FindResource("ReplyImage") as ImageBrush;
+        public static readonly ImageBrush EditImage = Application.Current.FindResource("EditImage") as ImageBrush;
+
+        public TextBlockWithIcon(ImageBrush imageBrush, String text) : base()
+        {
+            Padding = new Thickness(5);
+
+            var grid = new Grid();
+
+            var avatarColumn = new ColumnDefinition();
+            avatarColumn.Width = new GridLength(50);
+
+            var usernameColumn = new ColumnDefinition();
+
+            grid.ColumnDefinitions.Add(avatarColumn);
+            grid.ColumnDefinitions.Add(usernameColumn);
+
+            var iconBorder = new Border();
+            iconBorder.Height = 17.5;
+            iconBorder.Width = 17.5;
+            iconBorder.Background = imageBrush;
+            iconBorder.Margin = new Thickness(5);
+
+            var textBlock = new TextBlock();
+            textBlock.Width = 75;
+            textBlock.VerticalAlignment = VerticalAlignment.Center;
+            textBlock.Foreground = new SolidColorBrush(Colors.White);
+            textBlock.FontSize = 14;
+            textBlock.FontFamily = new FontFamily("Segoe UI");
+            textBlock.Text = text;
+
+            Grid.SetColumn(iconBorder, 0);
+            grid.Children.Add(iconBorder);
+
+            Grid.SetColumn(textBlock, 1);
+            grid.Children.Add(textBlock);
+
+            Child = grid;
+        }
+    }
+
     public class DateCard : Border
     {
         public DateCard(DateTime date) : base()
@@ -95,6 +140,12 @@ namespace EchoMessenger.Helpers.UI
 
     public class MessageBorder : Border
     {
+        public static Action<Entities.Message>? OnEditButtonClick;
+        public static Action<Entities.Message>? OnDeleteButtonClick;
+        public static Action<Entities.Message>? OnReplyButtonClick;
+
+        public static Popup? OpenedPopup;
+
         public Entities.Message? Message;
 
         public TextBlock MessageTextBlock;
@@ -102,8 +153,13 @@ namespace EchoMessenger.Helpers.UI
         public LoadingSpinner LoadingSpinner;
         public CheckMarks? CheckMarks;
 
+        private Grid grid;
+        private bool isOwn;
+
         public MessageBorder(String text, bool isOwn)
         {
+            this.isOwn = isOwn;
+
             MinHeight = 40;
             BorderBrush = new SolidColorBrush(Colors.White);
             BorderThickness = new Thickness(1);
@@ -121,7 +177,7 @@ namespace EchoMessenger.Helpers.UI
                 Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
             }
 
-            var grid = new Grid();
+            grid = new Grid();
 
             var messageColumn = new ColumnDefinition();
             messageColumn.MinWidth = 30;
@@ -199,6 +255,49 @@ namespace EchoMessenger.Helpers.UI
                 if (message.haveSeen)
                     CheckMarks.SetHaveSeen();
             }
+
+            var messagePopup = new Popup();
+            messagePopup.AllowsTransparency = true;
+            messagePopup.IsOpen = false;
+            messagePopup.Placement = PlacementMode.Mouse;
+            messagePopup.PlacementTarget = this;
+            messagePopup.StaysOpen = false;
+            messagePopup.PopupAnimation = PopupAnimation.Scroll;
+
+            var popupBorder = new Border();
+
+            var buttonsStack = new StackPanel();
+            buttonsStack.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
+            buttonsStack.Orientation = Orientation.Vertical;
+
+            var replyButton = new TextBlockWithIcon(TextBlockWithIcon.ReplyImage, "Reply");
+            if (OnReplyButtonClick != null)
+                replyButton.MouseLeftButtonUp += (s, e) => OnReplyButtonClick.Invoke(Message);
+
+            buttonsStack.Children.Add(replyButton.ConvertToSelectable());
+
+            if (isOwn)
+            {
+                var editButton = new TextBlockWithIcon(TextBlockWithIcon.EditImage, "Edit");
+                if (OnEditButtonClick != null)
+                    editButton.MouseLeftButtonUp += (s, e) => OnEditButtonClick.Invoke(Message);
+
+                buttonsStack.Children.Add(editButton.ConvertToSelectable());
+
+                var deleteButton = new TextBlockWithIcon(TextBlockWithIcon.DeleteImage, "Delete");
+                if (OnDeleteButtonClick != null)
+                    deleteButton.MouseLeftButtonUp += (s, e) => OnDeleteButtonClick.Invoke(Message);
+
+                buttonsStack.Children.Add(deleteButton.ConvertToSelectable());
+            }
+
+            popupBorder.Child = buttonsStack;
+            messagePopup.Child = popupBorder;
+            grid.Children.Add(messagePopup);
+
+            MouseRightButtonUp += (s, e) => { messagePopup.IsOpen = true; };
+
+            messagePopup.Opened += (s, e) => OpenedPopup = messagePopup;
         }
 
         public void SetFailedLoading()
@@ -426,22 +525,11 @@ namespace EchoMessenger.Helpers.UI
     {
         public static void RemoveChild(this DependencyObject parent, UIElement child)
         {
-            var panel = parent as Panel;
-            if (panel != null)
-            {
+            if (parent is Panel panel)
                 panel.Children.Remove(child);
-                return;
-            }
-
-            var decorator = parent as Decorator;
-            if (decorator != null)
-            {
+            else if (parent is Decorator decorator)
                 if (decorator.Child == child)
-                {
                     decorator.Child = null;
-                }
-                return;
-            }
 
             var contentPresenter = parent as ContentPresenter;
             if (contentPresenter != null)
@@ -462,8 +550,6 @@ namespace EchoMessenger.Helpers.UI
                 }
                 return;
             }
-
-            // maybe more
         }
     }
 }

@@ -210,6 +210,8 @@ namespace EchoMessenger
             Messages.OnUserUpdated += UserUpdated;
             Messages.OnUserTyping += UserTyping;
             Messages.OnMessageRead += MessageHaveSeen;
+            Messages.OnMessageDeleted += MessageDeleted;
+            MessageBorder.OnDeleteButtonClick += DeleteMessage;
             
             Messages.Configure();
             await Messages.Connect();
@@ -229,6 +231,8 @@ namespace EchoMessenger
             Messages.OnUserUpdated -= UserUpdated;
             Messages.OnUserTyping -= UserTyping;
             Messages.OnMessageRead -= MessageHaveSeen;
+            Messages.OnMessageDeleted -= MessageDeleted;
+            MessageBorder.OnDeleteButtonClick -= DeleteMessage;
 
             await Messages.Disconnect();
         }
@@ -342,6 +346,36 @@ namespace EchoMessenger
 
             if (OpenedChats.TryGetValue(userId, out var chat))
                 MessagesViews[chat.Key._id].MessageRead(messageId);
+        }
+
+        private void MessageDeleted(SocketIOClient.SocketIOResponse response)
+        {
+            var userId = response.GetValue<String>();
+            var messageId = response.GetValue<String>(1);
+
+            if (OpenedChats.TryGetValue(userId, out var chat))
+            {
+                if (MessagesViews.TryGetValue(chat.Key._id, out var messagesView))
+                {
+                    messagesView.MessageDeleted(messageId);
+
+                    if (messagesView.IsUnreadMessage(messageId))
+                        uiSync.Send((s) =>
+                        {
+                            chat.Value.NotificationBadge.RemoveNotification();
+                        }, null);
+                }
+            }
+        }
+
+        private async void DeleteMessage(Message message)
+        {
+            var targetUser = message.chat.sender._id == currentUser._id ? message.chat.receiver : message.chat.sender;
+
+            if (OpenedChats.TryGetValue(targetUser._id, out var chat))
+                MessagesViews[chat.Key._id].MessageDeleted(message._id);
+
+            await Messages.DeleteMessage(message._id);
         }
 
         private async Task LoadChats()

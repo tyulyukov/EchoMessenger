@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -240,6 +241,24 @@ namespace EchoMessenger
                 }, null);
         }
 
+        public void MessageDeleted(String messageId)
+        {
+            if (messages.TryGetValue(messageId, out var messageBorder))
+                uiSync.Send(s =>
+                {
+                    var deletionTime = TimeSpan.FromMilliseconds(250);
+                    messageBorder.ChangeVisibility(false, deletionTime);
+                    Task.Delay(deletionTime).ContinueWith((t) => {
+                        uiSync.Send(s => 
+                        { 
+                            MessagesStackPanel.Children.Remove(messageBorder); 
+                        }, null); 
+                    });
+                }, null);
+        }
+
+        public bool IsUnreadMessage(String messageId) => unreadMessages.ContainsKey(messageId);
+
         private void SetUserTyping(bool isTyping)
         {
             this.isTyping = isTyping;
@@ -420,6 +439,9 @@ namespace EchoMessenger
 
         private void MessagesScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
+            if (MessageBorder.OpenedPopup != null)
+                MessageBorder.OpenedPopup.IsOpen = false;
+
             foreach (var message in unreadMessages)
             {
                 Rect bounds = message.Value.TransformToAncestor(MessagesScroll).TransformBounds(new Rect(0.0, 0.0, message.Value.ActualWidth, message.Value.ActualHeight));
