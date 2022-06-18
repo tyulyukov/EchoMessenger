@@ -100,6 +100,7 @@ namespace EchoMessenger.Helpers.UI
         public TextBlock MessageTextBlock;
         public TextBlock TimeTextBlock;
         public LoadingSpinner LoadingSpinner;
+        public CheckMarks? CheckMarks;
 
         public MessageBorder(String text, bool isOwn)
         {
@@ -128,8 +129,11 @@ namespace EchoMessenger.Helpers.UI
 
             var timeColumn = new ColumnDefinition();
 
+            var checkMarksColumn = new ColumnDefinition();
+
             grid.ColumnDefinitions.Add(messageColumn);
             grid.ColumnDefinitions.Add(timeColumn);
+            grid.ColumnDefinitions.Add(checkMarksColumn);
 
             MessageTextBlock = new TextBlock();
             MessageTextBlock.Text = text;
@@ -165,6 +169,18 @@ namespace EchoMessenger.Helpers.UI
             Grid.SetColumn(LoadingSpinner, 1);
             grid.Children.Add(LoadingSpinner);
 
+            if (isOwn)
+            {
+                TimeTextBlock.Margin = new Thickness(0, 0, 5, 5);
+                CheckMarks = new CheckMarks();
+                CheckMarks.Visibility = Visibility.Collapsed;
+                CheckMarks.VerticalAlignment = VerticalAlignment.Bottom;
+                CheckMarks.Margin = new Thickness(0, 0, 7, 7);
+
+                Grid.SetColumn(CheckMarks, 2);
+                grid.Children.Add(CheckMarks);
+            }
+            
             Child = grid;
         }
 
@@ -175,6 +191,14 @@ namespace EchoMessenger.Helpers.UI
             Message = message;
             TimeTextBlock.Text = message.sentAtLocal.ToString("HH:mm");
             TimeTextBlock.Visibility = Visibility.Visible;
+
+            if (CheckMarks != null)
+            {
+                CheckMarks.Visibility = Visibility.Visible;
+
+                if (message.haveSeen)
+                    CheckMarks.SetHaveSeen();
+            }
         }
 
         public void SetFailedLoading()
@@ -182,6 +206,81 @@ namespace EchoMessenger.Helpers.UI
             LoadingSpinner.IsLoading = false;
 
             Background = new SolidColorBrush(Colors.Red);
+        }
+    }
+
+    public class CheckMarks : StackPanel
+    {
+        public CheckMark FirstCheck;
+        public CheckMark SecondCheck;
+
+        public CheckMarks()
+        {
+            Orientation = Orientation.Horizontal;
+            Width = 15;
+            Height = 10;
+
+            FirstCheck = new CheckMark(true);
+            SecondCheck = new CheckMark(false);
+            SecondCheck.Visibility = Visibility.Collapsed;
+
+            Children.Add(FirstCheck);
+            Children.Add(SecondCheck);
+        }
+
+        public void SetHaveSeen()
+        {
+            SecondCheck.Visibility = Visibility.Visible;
+            SecondCheck.ChangeVisibility(true);
+        }
+    }
+
+    public class CheckMark : StackPanel
+    {
+        public CheckMark(bool isFirst)
+        {
+            Orientation = Orientation.Horizontal;
+
+            if (isFirst)
+            {
+                var firstBorder = new Border();
+                firstBorder.Background = new SolidColorBrush(Colors.White);
+                firstBorder.CornerRadius = new CornerRadius(1);
+                firstBorder.RenderTransformOrigin = new Point(0.5, 0.5);
+                firstBorder.Width = 1.5;
+                firstBorder.Height = 6;
+                firstBorder.VerticalAlignment = VerticalAlignment.Bottom;
+                firstBorder.Margin = new Thickness(1, 0, 1, 0);
+
+                var firstTransformGroup = new TransformGroup();
+                firstTransformGroup.Children.Add(new RotateTransform()
+                {
+                    Angle = -45
+                });
+
+                firstBorder.RenderTransform = firstTransformGroup;
+
+                Children.Add(firstBorder);
+            }
+
+            var secondBorder = new Border();
+            secondBorder.Background = new SolidColorBrush(Colors.White);
+            secondBorder.CornerRadius = new CornerRadius(1);
+            secondBorder.RenderTransformOrigin = new Point(0.5, 0.5);
+            secondBorder.Width = 1.5;
+            secondBorder.Height = 10;
+            secondBorder.VerticalAlignment = VerticalAlignment.Bottom;
+            secondBorder.Margin = new Thickness(2, 0, 0, 0);
+
+            var secondTransformGroup = new TransformGroup();
+            secondTransformGroup.Children.Add(new RotateTransform()
+            {
+                Angle = 45
+            });
+
+            secondBorder.RenderTransform = secondTransformGroup;
+
+            Children.Add(secondBorder);
         }
     }
 
@@ -206,7 +305,7 @@ namespace EchoMessenger.Helpers.UI
             this.OnlineStatusIcon = new OnlineStatusIcon(isOnline);
             grid.Children.Add(OnlineStatusIcon);
 
-            this.NotificationBadge = new NotificationBadge("0");
+            this.NotificationBadge = new NotificationBadge();
             NotificationBadge.Visibility = Visibility.Collapsed;
             grid.Children.Add(NotificationBadge);
 
@@ -255,9 +354,10 @@ namespace EchoMessenger.Helpers.UI
 
     public class NotificationBadge : Border
     {
-        public TextBlock NotificationTextBlock { get; set; }
+        public readonly TextBlock NotificationTextBlock;
+        public int NotificationsCount { get; private set; }
 
-        public NotificationBadge(String count) : base()
+        public NotificationBadge() : base()
         {
             MinWidth = 21;
             Background = new SolidColorBrush(Colors.Red);
@@ -269,7 +369,6 @@ namespace EchoMessenger.Helpers.UI
             Margin = new Thickness(0, -5, -10, 0);
 
             NotificationTextBlock = new TextBlock();
-            NotificationTextBlock.Text = count;
             NotificationTextBlock.VerticalAlignment = VerticalAlignment.Center;
             NotificationTextBlock.Foreground = new SolidColorBrush(Colors.White);
             NotificationTextBlock.FontSize = 10;
@@ -279,6 +378,36 @@ namespace EchoMessenger.Helpers.UI
 
             Child = NotificationTextBlock;
         }
+
+        public void SetNotifications(int count)
+        {
+            if (count < 0)
+                return;
+
+            NotificationsCount = count;
+            NotificationTextBlock.Text = GetRepresentationString(NotificationsCount);
+            Visibility = NotificationsCount != 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public void AddNotification()
+        {
+            NotificationsCount++;
+
+            NotificationTextBlock.Text = GetRepresentationString(NotificationsCount);
+            Visibility = Visibility.Visible;
+        }
+
+        public void RemoveNotification()
+        {
+            if (NotificationsCount == 0)
+                return;
+
+            NotificationsCount--;
+            NotificationTextBlock.Text = GetRepresentationString(NotificationsCount);
+            Visibility = NotificationsCount != 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private String GetRepresentationString(int count) => count >= 100 ? "99+" : count.ToString();
     }
 
     public class SelectionLine : Border

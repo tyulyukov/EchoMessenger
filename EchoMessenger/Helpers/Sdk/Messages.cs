@@ -20,6 +20,7 @@ namespace EchoMessenger.Helpers.Server
         public static Action<SocketIOResponse>? OnMessageSendFailed;
         public static Action<SocketIOResponse>? OnUserUpdated;
         public static Action<SocketIOResponse>? OnUserTyping;
+        public static Action<SocketIOResponse>? OnMessageRead;
 
         private static SocketIO? client;
 
@@ -66,6 +67,9 @@ namespace EchoMessenger.Helpers.Server
             if (OnUserTyping != null)
                 client.On("user typing", OnUserTyping);
 
+            if (OnMessageRead != null)
+                client.On("message read", OnMessageRead);
+
             return true;
         }
 
@@ -91,6 +95,12 @@ namespace EchoMessenger.Helpers.Server
         {
             if (client != null)
                 await client.EmitAsync("user typing", targetUserId);
+        }
+
+        public static async Task ReadMessage(String messageId)
+        {
+            if (client != null)
+                await client.EmitAsync("read message", messageId);
         }
     }
 }

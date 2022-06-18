@@ -19,21 +19,22 @@ namespace EchoMessenger
     {
         public const int LoadingMessagesCount = 15;
 
-        private MessengerWindow owner;
-        private SynchronizationContext uiSync;
-        private TypeAssistant userTyping;
+        private readonly MessengerWindow owner;
+        private readonly SynchronizationContext uiSync;
+        private readonly TypeAssistant userTyping;
+
+        private readonly Chat currentChat;
+        private UserInfo currentUser;
+        private UserInfo targetUser;
 
         private bool isLoading = false;
         private bool isTyping = false;
 
         private Dictionary<String, MessageBorder> messages;
+        private Dictionary<String, MessageBorder> unreadMessages;
         private bool isAllMessagesLoaded = false;
 
         private TypingIndicatorControl.TypingIndicator TypingIndicator;
-
-        private Chat currentChat;
-        private UserInfo currentUser;
-        private UserInfo targetUser;
 
         private double prevHeight = 0;
         private bool isLoadingMessages = false;
@@ -54,6 +55,7 @@ namespace EchoMessenger
             targetUser = currentChat.sender._id == currentUser._id ? currentChat.receiver : currentChat.sender;
 
             messages = new Dictionary<String, MessageBorder>();
+            unreadMessages = new Dictionary<String, MessageBorder>();
 
             SetOnlineStatus(isOnline);
 
@@ -169,10 +171,13 @@ namespace EchoMessenger
 
             uiSync.Send(s =>
             {
-                var messageBorder = new MessageBorder(message.content, message.sender.username == currentUser.username);
+                var messageBorder = new MessageBorder(message.content, message.sender._id == currentUser._id);
                 messageBorder.SetLoaded(message);
 
                 messages.Add(message._id, messageBorder);
+
+                if (message.sender._id != currentUser._id)
+                    unreadMessages.Add(message._id, messageBorder);
 
                 if (firstMessageSentAt == null || firstMessageSentAt?.Date != DateTime.Today)
                     MessagesStackPanel.Children.Add(new DateCard(message.sentAtLocal));
@@ -226,18 +231,35 @@ namespace EchoMessenger
             userTyping.TextChanged();
         }
 
+        public void MessageRead(String messageId)
+        {
+            if (messages.TryGetValue(messageId, out var messageBorder))
+                uiSync.Send(s =>
+                {
+                    messageBorder.CheckMarks?.SetHaveSeen();
+                }, null);
+        }
+
         private void SetUserTyping(bool isTyping)
         {
             this.isTyping = isTyping;
 
             uiSync.Send(s =>
             {
-                TypingIndicator.Visibility = isTyping ? Visibility.Visible : Visibility.Collapsed;
+                if (TypingIndicator != null)
+                    TypingIndicator.Visibility = isTyping ? Visibility.Visible : Visibility.Collapsed;
                 TargetUserTypingLabel.Visibility = isTyping ? Visibility.Visible : Visibility.Collapsed;
 
                 TargetUserOnlineStatusIcon.Visibility = !isTyping ? Visibility.Visible : Visibility.Collapsed;
                 TargetUserOnlineStatus.Visibility = !isTyping ? Visibility.Visible : Visibility.Collapsed;
             }, null);
+        }
+
+        private async void ReadMessage(String messageId)
+        {
+            owner.ReadMessage(targetUser._id);
+            unreadMessages.Remove(messageId);
+            await Messages.ReadMessage(messageId);
         }
 
         private async void LoadOlderMessages()
@@ -275,35 +297,7 @@ namespace EchoMessenger
                         return;
                     }
 
-                    foreach (var message in messages)
-                    {
-                        if (firstMessageSentAt == null)
-                            firstMessageSentAt = message.sentAtLocal;
-
-                        MessageBorder messageBorder = new MessageBorder(message.content, message.sender._id == currentUser._id);
-                        messageBorder.SetLoaded(message);
-
-                        this.messages.Add(message._id, messageBorder);
-
-                        if ((lastMessageSentAt?.Year == message.sentAtLocal.Year && lastMessageSentAt?.DayOfYear > message.sentAtLocal.DayOfYear) || lastMessageSentAt?.Year > message.sentAtLocal.Year)
-                        {
-                            var dateCard = new DateCard((DateTime)lastMessageSentAt);
-                            dateCard.SetSlideFromBottomOnLoad();
-                            MessagesStackPanel.Children.Insert(0, dateCard);
-                        }
-                        else if (lastMessageSentAt > message.sentAtLocal.AddHours(1))
-                        {
-                            messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top, messageBorder.Margin.Right, messageBorder.Margin.Bottom + 10);
-                        }
-                        else if (lastMessageSentAt > message.sentAtLocal.AddMinutes(10))
-                        {
-                            messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top, messageBorder.Margin.Right, messageBorder.Margin.Bottom + 5);
-                        }
-
-                        messageBorder.SetSlideFromBottomOnLoad();
-                        MessagesStackPanel.Children.Insert(0, messageBorder);
-                        lastMessageSentAt = message.sentAtLocal;
-                    }
+                    RenderMessages(messages);
 
                     if (messages.Count() < LoadingMessagesCount)
                     {
@@ -327,12 +321,52 @@ namespace EchoMessenger
             }
         }
 
+        private void RenderMessages(IEnumerable<Message> messages)
+        {
+            foreach (var message in messages)
+            {
+                if (firstMessageSentAt == null)
+                    firstMessageSentAt = message.sentAtLocal;
+
+                MessageBorder messageBorder = new MessageBorder(message.content, message.sender._id == currentUser._id);
+                messageBorder.SetLoaded(message);
+
+                this.messages.Add(message._id, messageBorder);
+
+                if (message.sender._id != currentUser._id && !message.haveSeen)
+                    unreadMessages.Add(message._id, messageBorder);
+
+                if ((lastMessageSentAt?.Year == message.sentAtLocal.Year && lastMessageSentAt?.DayOfYear > message.sentAtLocal.DayOfYear) || lastMessageSentAt?.Year > message.sentAtLocal.Year)
+                {
+                    var dateCard = new DateCard((DateTime)lastMessageSentAt);
+                    dateCard.SetSlideFromBottomOnLoad();
+                    MessagesStackPanel.Children.Insert(0, dateCard);
+                }
+                else if (lastMessageSentAt > message.sentAtLocal.AddHours(1))
+                {
+                    messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top, messageBorder.Margin.Right, messageBorder.Margin.Bottom + 10);
+                }
+                else if (lastMessageSentAt > message.sentAtLocal.AddMinutes(10))
+                {
+                    messageBorder.Margin = new Thickness(messageBorder.Margin.Left, messageBorder.Margin.Top, messageBorder.Margin.Right, messageBorder.Margin.Bottom + 5);
+                }
+
+                messageBorder.SetSlideFromBottomOnLoad();
+                MessagesStackPanel.Children.Insert(0, messageBorder);
+                lastMessageSentAt = message.sentAtLocal;
+            }
+        }
+
         private void MessagesScroll_LayoutUpdated(object? sender, EventArgs e)
         {
             if (MessagesScroll.ExtentHeight == prevHeight)
                 return;
 
             isLoadingMessages = false;
+
+            /*if (MessagesScroll.VerticalOffset == 0)
+                MessagesScroll_ScrollChanged(null, null);*/
+
             MessagesScroll.ScrollToVerticalOffset(MessagesScroll.ExtentHeight - prevHeight);
             MessagesScroll.LayoutUpdated -= MessagesScroll_LayoutUpdated;
         }
@@ -386,6 +420,17 @@ namespace EchoMessenger
 
         private void MessagesScroll_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
+            foreach (var message in unreadMessages)
+            {
+                Rect bounds = message.Value.TransformToAncestor(MessagesScroll).TransformBounds(new Rect(0.0, 0.0, message.Value.ActualWidth, message.Value.ActualHeight));
+                Rect rect = new Rect(0.0, 0.0, MessagesScroll.ActualWidth, MessagesScroll.ActualHeight);
+                if (rect.Contains(bounds.TopLeft) || rect.Contains(bounds.BottomRight))
+                {
+                    // MessageBox.Show(message.Value.Message?.content + " is visible");
+                    ReadMessage(message.Key);
+                }
+            }
+            
             bool isVisible = MessagesScroll.VerticalOffset + 50 < MessagesScroll.ScrollableHeight;
             ButtonGoBottom.ChangeOpacity(isVisible, TimeSpan.FromMilliseconds(150));
 

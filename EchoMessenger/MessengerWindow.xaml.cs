@@ -23,12 +23,13 @@ namespace EchoMessenger
         public readonly SettingsView SettingsView;
         public readonly SearchView SearchView;
 
-        private UserControl? openedTab;
-        
         private readonly Dictionary<String, KeyValuePair<Chat, UserIcon>> OpenedChats;
         private readonly List<String> OnlineChats;
+
         private UserIcon? firstIcon;
 
+        private UserControl? openedTab;
+        
         private UserInfo currentUser;
         private SynchronizationContext uiSync;
         private bool isLoading;
@@ -67,9 +68,7 @@ namespace EchoMessenger
             SettingsView.UpdateUser(user);
 
             if (openedTab is MessagesView messageView)
-            {
                 messageView.UpdateUser(user);
-            }
         }
 
         public void ShowLoading(bool visible)
@@ -117,9 +116,6 @@ namespace EchoMessenger
                 }
 
                 selectedButton = button;
-
-                if (selectedButton is UserIcon icon)
-                    SetNotificationsToIcon(icon, 0);
 
                 grid = (Grid)selectedButton.Child;
 
@@ -194,6 +190,14 @@ namespace EchoMessenger
             }
         }
 
+        public void ReadMessage(String userId)
+        {
+            uiSync.Post((s) =>
+            {
+                OpenedChats[userId].Value.NotificationBadge.RemoveNotification();
+            }, null);
+        }
+
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Messages.OnUsersOnlineReceived += OnlineChatsReceived;
@@ -205,6 +209,7 @@ namespace EchoMessenger
             Messages.OnMessageSendFailed += MessageSentFailed;
             Messages.OnUserUpdated += UserUpdated;
             Messages.OnUserTyping += UserTyping;
+            Messages.OnMessageRead += MessageHaveSeen;
             
             Messages.Configure();
             await Messages.Connect();
@@ -223,6 +228,7 @@ namespace EchoMessenger
             Messages.OnMessageSendFailed -= MessageSentFailed;
             Messages.OnUserUpdated -= UserUpdated;
             Messages.OnUserTyping -= UserTyping;
+            Messages.OnMessageRead -= MessageHaveSeen;
 
             await Messages.Disconnect();
         }
@@ -283,7 +289,10 @@ namespace EchoMessenger
                 PushUserIcon(icon);
 
                 if (openedTab != messageView && message.sender.username != currentUser.username)
-                    AddNotificationsToIcon(icon);
+                    uiSync.Send((s) =>
+                    {
+                        icon.NotificationBadge.AddNotification();
+                    }, null); 
 
                 messageView.AddMessage(message);
             }
@@ -326,6 +335,15 @@ namespace EchoMessenger
                 MessagesViews[chat.Key._id].UserTyping();
         }
 
+        private void MessageHaveSeen(SocketIOClient.SocketIOResponse response)
+        {
+            var userId = response.GetValue<String>();
+            var messageId = response.GetValue<String>(1);
+
+            if (OpenedChats.TryGetValue(userId, out var chat))
+                MessagesViews[chat.Key._id].MessageRead(messageId);
+        }
+
         private async Task LoadChats()
         {
             ButtonRetry.Visibility = Visibility.Collapsed;
@@ -359,6 +377,7 @@ namespace EchoMessenger
                     {
                         var targetUser = chat.sender._id == currentUser._id ? chat.receiver : chat.sender;
                         var icon = AddUserIcon(targetUser, chat, OnlineChats.Contains(targetUser._id));
+                        icon.NotificationBadge.SetNotifications(chat.unreadMessagesCount);
                         LoadChat(targetUser._id, chat, icon, OnlineChats.Contains(targetUser._id));
 
                         if (chat == chats.Last())
@@ -439,49 +458,6 @@ namespace EchoMessenger
                 icon.ChangeVisibility(true, selectionDuration);
             }, null);
         } 
-
-        private void SetNotificationsToIcon(UserIcon icon, int count)
-        {
-            uiSync.Send((s) =>
-            {
-                if (count < 0)
-                    return;
-
-                if (count == 0)
-                {
-                    icon.NotificationBadge.Visibility = Visibility.Collapsed;
-                    icon.NotificationBadge.NotificationTextBlock.Text = "0";
-                    return;
-                }
-
-                String countRepresentation = count.ToString();
-
-                if (count >= 100)
-                    countRepresentation = "99+";
-
-                icon.NotificationBadge.NotificationTextBlock.Text = countRepresentation;
-                icon.NotificationBadge.Visibility = Visibility.Visible;
-            }, null);
-        }
-
-        private void AddNotificationsToIcon(UserIcon icon)
-        {
-            uiSync.Send((s) =>
-            {
-                String countRepresentation;
-
-                int count = Convert.ToInt32(icon.NotificationBadge.NotificationTextBlock.Text);
-                count++;
-
-                if (count >= 100)
-                    countRepresentation = "99+";
-                else
-                    countRepresentation = count.ToString();
-
-                icon.NotificationBadge.NotificationTextBlock.Text = countRepresentation;
-                icon.NotificationBadge.Visibility = Visibility.Visible;
-            }, null);
-        }
 
         private void SetOnlineStatus(String userId, bool isOnline)
         {

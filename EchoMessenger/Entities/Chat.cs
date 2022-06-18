@@ -12,6 +12,7 @@ namespace EchoMessenger.Entities
         public DateTime createdAt { get; set; }
         public DateTime createdAtLocal => createdAt.ToLocalTime();
         public List<Message> messages { get; set; }
+        public int unreadMessagesCount { get; set; }
 
         public DateTime GetLastSentAt()
         {
