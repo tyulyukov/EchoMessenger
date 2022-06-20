@@ -77,6 +77,7 @@ namespace EchoMessenger.Helpers.UI
         public static readonly ImageBrush DeleteImage = Application.Current.FindResource("DeleteImage") as ImageBrush;
         public static readonly ImageBrush ReplyImage = Application.Current.FindResource("ReplyImage") as ImageBrush;
         public static readonly ImageBrush EditImage = Application.Current.FindResource("EditImage") as ImageBrush;
+        public static readonly ImageBrush CopyImage = Application.Current.FindResource("CopyImage") as ImageBrush;
 
         public TextBlockWithIcon(ImageBrush imageBrush, String text) : base()
         {
@@ -361,7 +362,7 @@ namespace EchoMessenger.Helpers.UI
             buttonsStack.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF131522");
             buttonsStack.Orientation = Orientation.Vertical;
 
-            var copyButton = new TextBlockWithIcon(TextBlockWithIcon.ReplyImage, "Copy Text");
+            var copyButton = new TextBlockWithIcon(TextBlockWithIcon.CopyImage, "Copy Text");
             copyButton.MouseLeftButtonUp += (s, e) =>
             {
                 Clipboard.SetText(MessageTextBox.Text);
