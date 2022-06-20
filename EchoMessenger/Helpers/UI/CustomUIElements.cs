@@ -396,7 +396,7 @@ namespace EchoMessenger.Helpers.UI
             messagePopup.Child = popupBorder;
             messageGrid.Children.Add(messagePopup);
 
-            MouseRightButtonUp += (s, e) => { messagePopup.IsOpen = true; };
+            MouseRightButtonUp += (s, e) => { messagePopup.IsOpen = !messagePopup.IsOpen; };
 
             messagePopup.Opened += (s, e) => OpenedPopup = messagePopup;
         }

@@ -98,17 +98,32 @@ namespace EchoMessenger
                 }
             };
 
-            MessageTextBox.KeyDown += (s, e) =>
+            MessageTextBox.PreviewKeyDown += (s, e) =>
             {
-                if (e.Key == Key.Enter && Keyboard.IsKeyDown(Key.LeftShift))
+                if (e.Key == Key.Enter && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
                 {
-                    var index = MessageTextBox.CaretIndex;
+                    int index;
+
+                    if (MessageTextBox.SelectionLength != 0)
+                    {
+                        index = MessageTextBox.SelectionStart;
+                        MessageTextBox.Text = MessageTextBox.Text.Remove(MessageTextBox.SelectionStart, MessageTextBox.SelectionLength);
+                    }
+                    else
+                    {
+                        index = MessageTextBox.CaretIndex;
+                    }
+
                     MessageTextBox.Text = MessageTextBox.Text.Insert(index, "\n");
                     MessageTextBox.CaretIndex = index + 1;
+                    MessageTextBox.SelectionLength = 0;
+
+                    e.Handled = true;
                 }
                 else if (e.Key == Key.Enter)
                 {
                     SendMessageHandle();
+                    e.Handled = true;
                 }
             };
 
