@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using dotenv.net;
 using EchoMessenger.Helpers.Api;
 using SocketIOClient;
 
@@ -31,7 +30,7 @@ namespace EchoMessenger.Helpers.Server
             if (String.IsNullOrEmpty(jwt))
                 return false;
 
-            var builder = new SocketBuilder().Host(DotEnv.Read()["SERVER_HOST"]).Jwt(jwt);
+            var builder = new SocketBuilder().Host(Host.Url).Jwt(jwt);
 
             if (OnReconnect != null && OnReconnected != null)
                 builder.Reconection(OnReconnect, OnReconnected);
@@ -93,6 +92,12 @@ namespace EchoMessenger.Helpers.Server
         {
             if (client != null)
                 await client.EmitAsync("send message", messageId, chatId, content);
+        }
+
+        public static async Task ReplyMessage(String messageId, String chatId, String content, String repliedOn)
+        {
+            if (client != null)
+                await client.EmitAsync("send message", messageId, chatId, content, repliedOn);
         }
 
         public static async Task SendTyping(String targetUserId)

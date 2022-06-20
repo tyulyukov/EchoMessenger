@@ -1,5 +1,4 @@
-﻿using dotenv.net;
-using EchoMessenger.Entities;
+﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers.Api;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -11,9 +10,7 @@ namespace EchoMessenger.Helpers.Server
 {
     public static class Database
     {
-        private static Rest rest = new Rest(DotEnv.Read()["SERVER_HOST"]);
-
-        public static String HostUrl(String source) => DotEnv.Read()["SERVER_HOST"] + "/" + source;
+        private static Rest rest = new Rest();
 
         public async static Task<UserInfo?> ConfirmJwt()
         {

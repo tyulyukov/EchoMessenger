@@ -21,6 +21,7 @@
             <ImageBrush x:Key="ReplyImage" ImageSource="/EchoMessenger;component/Images/reply.png" Stretch="UniformToFill"/>
             <ImageBrush x:Key="EditImage" ImageSource="/EchoMessenger;component/Images/edit.png" Stretch="UniformToFill"/>
             <ImageBrush x:Key="DeleteImage" ImageSource="/EchoMessenger;component/Images/delete.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="CloseImage" ImageSource="/EchoMessenger;component/Images/close.png" Stretch="UniformToFill"/>
 
             <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
                 <Setter Property="OverridesDefaultStyle" Value="true"/>

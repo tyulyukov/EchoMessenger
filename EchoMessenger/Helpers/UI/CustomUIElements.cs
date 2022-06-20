@@ -1,5 +1,4 @@
-﻿using EchoMessenger.Helpers.Server;
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -7,6 +6,8 @@ using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using LoadingSpinnerControl;
 using System.Windows.Controls.Primitives;
+using EchoMessenger.Helpers.Api;
+using System.Windows.Input;
 
 namespace EchoMessenger.Helpers.UI
 {
@@ -38,7 +39,7 @@ namespace EchoMessenger.Helpers.UI
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(Database.HostUrl(avatarUrl), UriKind.Absolute);
+            bitmap.UriSource = new Uri(Host.Combine(avatarUrl), UriKind.Absolute);
             bitmap.EndInit();
             avatarBorder.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
 
@@ -148,12 +149,13 @@ namespace EchoMessenger.Helpers.UI
 
         public Entities.Message? Message;
 
-        public TextBlock MessageTextBlock;
+        public StackPanel ReplyPanel;
+        public TextBox MessageTextBox;
         public TextBlock TimeTextBlock;
         public LoadingSpinner LoadingSpinner;
         public CheckMarks? CheckMarks;
 
-        private Grid grid;
+        private Grid messageGrid;
         private bool isOwn;
 
         public MessageBorder(String text, bool isOwn)
@@ -177,37 +179,62 @@ namespace EchoMessenger.Helpers.UI
                 Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
             }
 
-            grid = new Grid();
+            messageGrid = new Grid();
+
+            var replyRow = new RowDefinition();
+            replyRow.Height = GridLength.Auto;
+            replyRow.MaxHeight = 100;
+
+            var messageRow = new RowDefinition();
+            messageRow.Height = GridLength.Auto;
+
+            messageGrid.RowDefinitions.Add(replyRow);
+            messageGrid.RowDefinitions.Add(messageRow);
+
+            var grid = new Grid();
 
             var messageColumn = new ColumnDefinition();
-            messageColumn.MinWidth = 30;
             messageColumn.MaxWidth = 500;
 
             var timeColumn = new ColumnDefinition();
+            timeColumn.Width = GridLength.Auto;
 
             var checkMarksColumn = new ColumnDefinition();
+            checkMarksColumn.Width = GridLength.Auto;
 
             grid.ColumnDefinitions.Add(messageColumn);
             grid.ColumnDefinitions.Add(timeColumn);
             grid.ColumnDefinitions.Add(checkMarksColumn);
 
-            MessageTextBlock = new TextBlock();
-            MessageTextBlock.Text = text;
-            MessageTextBlock.TextWrapping = TextWrapping.Wrap;
-            MessageTextBlock.VerticalAlignment = VerticalAlignment.Center;
-            MessageTextBlock.Foreground = new SolidColorBrush(Colors.White);
-            MessageTextBlock.FontSize = 14;
-            MessageTextBlock.HorizontalAlignment = HorizontalAlignment.Center;
-            MessageTextBlock.Margin = new Thickness(7.5);
+            ReplyPanel = new StackPanel();
+            ReplyPanel.Orientation = Orientation.Horizontal;
+            ReplyPanel.Cursor = Cursors.Hand;
+            ReplyPanel.MaxWidth = 450;
+            ReplyPanel.Margin = new Thickness(0, 0, 10, -5);
 
-            Grid.SetColumn(MessageTextBlock, 0);
-            grid.Children.Add(MessageTextBlock);
+            Grid.SetRow(ReplyPanel, 0);
+            messageGrid.Children.Add(ReplyPanel);
+
+            MessageTextBox = new TextBox();
+            MessageTextBox.Text = text;
+            MessageTextBox.TextWrapping = TextWrapping.Wrap;
+            MessageTextBox.Foreground = new SolidColorBrush(Colors.White);
+            MessageTextBox.FontSize = 14;
+            MessageTextBox.VerticalAlignment = VerticalAlignment.Center;
+            MessageTextBox.HorizontalAlignment = HorizontalAlignment.Left;
+            MessageTextBox.Margin = new Thickness(7.5);
+            MessageTextBox.Background = new SolidColorBrush(Colors.Transparent);
+            MessageTextBox.BorderThickness = new Thickness(0);
+            MessageTextBox.IsReadOnly = true;
+
+            Grid.SetColumn(MessageTextBox, 0);
+            grid.Children.Add(MessageTextBox);
 
             TimeTextBlock = new TextBlock();
             TimeTextBlock.Visibility = Visibility.Collapsed;
             TimeTextBlock.Foreground = new SolidColorBrush(Colors.LightGray);
             TimeTextBlock.VerticalAlignment = VerticalAlignment.Bottom;
-            TimeTextBlock.Margin = new Thickness(0, 0, 10, 5);
+            TimeTextBlock.Margin = new Thickness(0, 0, 10, 6.5);
 
             Grid.SetColumn(TimeTextBlock, 1);
             grid.Children.Add(TimeTextBlock);
@@ -218,7 +245,7 @@ namespace EchoMessenger.Helpers.UI
             LoadingSpinner.Cap = PenLineCap.Round;
             LoadingSpinner.IsLoading = true;
             LoadingSpinner.VerticalAlignment = VerticalAlignment.Bottom;
-            LoadingSpinner.Margin = new Thickness(0, 0, 10, 5);
+            LoadingSpinner.Margin = new Thickness(0, 0, 10, 6.5);
             LoadingSpinner.Color = new SolidColorBrush(Colors.White);
             LoadingSpinner.StartLoading();
 
@@ -237,7 +264,71 @@ namespace EchoMessenger.Helpers.UI
                 grid.Children.Add(CheckMarks);
             }
             
-            Child = grid;
+            Grid.SetRow(grid, 1);
+            messageGrid.Children.Add(grid);
+
+            Child = messageGrid;
+        }
+
+        public void SetReplyingMessage(String text, String username, Action MouseClick)
+        {
+            var border = new Border();
+            border.Width = 2;
+            border.Margin = new Thickness(9, 10, 3, 9);
+            border.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088");
+
+            var stackPanel = new StackPanel();
+            stackPanel.Orientation = Orientation.Vertical;
+
+            var usernameLabel = new Label();
+            usernameLabel.HorizontalAlignment = HorizontalAlignment.Left;
+            usernameLabel.HorizontalContentAlignment = HorizontalAlignment.Left;
+            usernameLabel.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088");
+            usernameLabel.FontSize = 14;
+            usernameLabel.Content = username;
+
+            var textLabel = new Label();
+            textLabel.HorizontalContentAlignment = HorizontalAlignment.Left;
+            textLabel.Foreground = new SolidColorBrush(Colors.White);
+            textLabel.FontSize = 14;
+            textLabel.Margin = new Thickness(0, -10, 0, 0);
+            textLabel.Content = text;
+            textLabel.MaxHeight = 100;
+
+            var gradientStops = new GradientStopCollection();
+
+            var gradientStart = new GradientStop(Colors.Black, 0.5);
+            var gradientEnd = new GradientStop(Colors.Transparent, 1);
+
+            gradientStops.Add(gradientStart);
+            gradientStops.Add(gradientEnd);
+
+            stackPanel.Children.Add(usernameLabel);
+            stackPanel.Children.Add(textLabel);
+
+            textLabel.OpacityMask = new LinearGradientBrush(gradientStops, new Point(0.5, 0), new Point(0.5, 1));
+
+            ReplyPanel.MouseLeftButtonUp += (s, e) => MouseClick.Invoke();
+            ReplyPanel.Children.Add(border);
+            ReplyPanel.Children.Add(stackPanel);
+        }
+
+        public void DeleteReplyingMessage(System.Threading.SynchronizationContext uiSync)
+        {
+            TimeSpan deletingTime = TimeSpan.FromMilliseconds(150);
+
+            uiSync.Send((s) =>
+            {
+                ReplyPanel.ChangeVisibility(false, deletingTime);
+
+                System.Threading.Tasks.Task.Delay(deletingTime).ContinueWith(t =>
+                {
+                    uiSync.Send((s) =>
+                    {
+                        ReplyPanel.Visibility = Visibility.Collapsed;
+                    }, null);
+                });
+            }, null);
         }
 
         public void SetLoaded(Entities.Message message)
@@ -267,8 +358,17 @@ namespace EchoMessenger.Helpers.UI
             var popupBorder = new Border();
 
             var buttonsStack = new StackPanel();
-            buttonsStack.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF1C1D26");
+            buttonsStack.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF131522");
             buttonsStack.Orientation = Orientation.Vertical;
+
+            var copyButton = new TextBlockWithIcon(TextBlockWithIcon.ReplyImage, "Copy Text");
+            copyButton.MouseLeftButtonUp += (s, e) =>
+            {
+                Clipboard.SetText(MessageTextBox.Text);
+                messagePopup.IsOpen = false;
+            };
+
+            buttonsStack.Children.Add(copyButton.ConvertToSelectable());
 
             var replyButton = new TextBlockWithIcon(TextBlockWithIcon.ReplyImage, "Reply");
             if (OnReplyButtonClick != null)
@@ -293,7 +393,7 @@ namespace EchoMessenger.Helpers.UI
 
             popupBorder.Child = buttonsStack;
             messagePopup.Child = popupBorder;
-            grid.Children.Add(messagePopup);
+            messageGrid.Children.Add(messagePopup);
 
             MouseRightButtonUp += (s, e) => { messagePopup.IsOpen = true; };
 
@@ -415,7 +515,7 @@ namespace EchoMessenger.Helpers.UI
         {
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(Database.HostUrl(avatarUrl), UriKind.Absolute);
+            bitmap.UriSource = new Uri(Host.Combine(avatarUrl), UriKind.Absolute);
             bitmap.EndInit();
             Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
         }

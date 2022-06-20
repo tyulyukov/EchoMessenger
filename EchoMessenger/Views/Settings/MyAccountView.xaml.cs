@@ -1,5 +1,6 @@
 ﻿using EchoMessenger.Entities;
 using EchoMessenger.Helpers;
+using EchoMessenger.Helpers.Api;
 using EchoMessenger.Helpers.Server;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
@@ -51,7 +52,7 @@ namespace EchoMessenger.Views.Settings
             {
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
-                bitmap.UriSource = new Uri(Database.HostUrl(currentUser.avatarUrl), UriKind.Absolute);
+                bitmap.UriSource = new Uri(Host.Combine(currentUser.avatarUrl), UriKind.Absolute);
                 bitmap.EndInit();
 
                 Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
@@ -335,7 +336,7 @@ namespace EchoMessenger.Views.Settings
 
                         var bitmap = new BitmapImage();
                         bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(Database.HostUrl(avatarUrl), UriKind.Absolute);
+                        bitmap.UriSource = new Uri(Host.Combine(avatarUrl), UriKind.Absolute);
                         bitmap.EndInit();
 
                         Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };

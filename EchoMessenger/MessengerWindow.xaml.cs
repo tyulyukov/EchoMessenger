@@ -212,7 +212,8 @@ namespace EchoMessenger
             Messages.OnMessageRead += MessageHaveSeen;
             Messages.OnMessageDeleted += MessageDeleted;
             MessageBorder.OnDeleteButtonClick += DeleteMessage;
-            
+            MessageBorder.OnReplyButtonClick += SetReplyToMessage;
+
             Messages.Configure();
             await Messages.Connect();
             
@@ -233,6 +234,7 @@ namespace EchoMessenger
             Messages.OnMessageRead -= MessageHaveSeen;
             Messages.OnMessageDeleted -= MessageDeleted;
             MessageBorder.OnDeleteButtonClick -= DeleteMessage;
+            MessageBorder.OnReplyButtonClick -= SetReplyToMessage;
 
             await Messages.Disconnect();
         }
@@ -373,9 +375,19 @@ namespace EchoMessenger
             var targetUser = message.chat.sender._id == currentUser._id ? message.chat.receiver : message.chat.sender;
 
             if (OpenedChats.TryGetValue(targetUser._id, out var chat))
-                MessagesViews[chat.Key._id].MessageDeleted(message._id);
+                if (MessagesViews.TryGetValue(chat.Key._id, out var messagesView))
+                    messagesView.MessageDeleted(message._id);
 
             await Messages.DeleteMessage(message._id);
+        }
+
+        private void SetReplyToMessage(Message message)
+        {
+            var targetUser = message.chat.sender._id == currentUser._id ? message.chat.receiver : message.chat.sender;
+
+            if (OpenedChats.TryGetValue(targetUser._id, out var chat))
+                if (MessagesViews.TryGetValue(chat.Key._id, out var messagesView))
+                    messagesView.SetReplyToMessage(message);
         }
 
         private async Task LoadChats()

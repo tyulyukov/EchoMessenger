@@ -1,5 +1,4 @@
-﻿using dotenv.net;
-using EchoMessenger.Helpers.Api;
+﻿using EchoMessenger.Helpers.Api;
 using RestSharp;
 using System;
 using System.Threading.Tasks;
@@ -8,7 +7,7 @@ namespace EchoMessenger.Helpers.Server
 {
     public static class Profile
     {
-        private static Rest rest = new Rest(DotEnv.Read()["SERVER_HOST"]);
+        private static Rest rest = new Rest();
 
         public static async Task<RestResponse?> UpdateAvatar(String avatarUrl, String originalAvatarUrl)
         {

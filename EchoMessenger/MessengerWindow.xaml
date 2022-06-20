@@ -15,7 +15,7 @@
         Unloaded="Window_Unloaded">
     <Grid x:Name="MainGrid" SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 

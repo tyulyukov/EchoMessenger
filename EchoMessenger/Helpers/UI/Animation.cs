@@ -105,11 +105,11 @@ namespace EchoMessenger.Helpers.UI
             storyboard.Begin();
         }
 
-        public static Border ConvertToSelectable(this Border border)
+        public static Border ConvertToSelectable(this UIElement element)
         {
             Border selectableBorder = new Border();
             selectableBorder.Style = SelectableBorderStyle;
-            selectableBorder.Child = border;
+            selectableBorder.Child = element;
             return selectableBorder;
         }
     }
