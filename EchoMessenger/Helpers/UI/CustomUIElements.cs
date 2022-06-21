@@ -78,6 +78,7 @@ namespace EchoMessenger.Helpers.UI
         public static readonly ImageBrush ReplyImage = Application.Current.FindResource("ReplyImage") as ImageBrush;
         public static readonly ImageBrush EditImage = Application.Current.FindResource("EditImage") as ImageBrush;
         public static readonly ImageBrush CopyImage = Application.Current.FindResource("CopyImage") as ImageBrush;
+        public static readonly ImageBrush HistoryImage = Application.Current.FindResource("HistoryImage") as ImageBrush;
 
         public TextBlockWithIcon(ImageBrush imageBrush, String text) : base()
         {
@@ -145,6 +146,7 @@ namespace EchoMessenger.Helpers.UI
         public static Action<Entities.Message>? OnEditButtonClick;
         public static Action<Entities.Message>? OnDeleteButtonClick;
         public static Action<Entities.Message>? OnReplyButtonClick;
+        public static Action<Entities.Message>? OnHistoryButtonClick;
 
         public static Popup? OpenedPopup;
 
@@ -155,6 +157,9 @@ namespace EchoMessenger.Helpers.UI
         public TextBlock TimeTextBlock;
         public LoadingSpinner LoadingSpinner;
         public CheckMarks? CheckMarks;
+
+        public Label? ReplyTextLabel;
+        public Label? ReplyUsernameLabel;
 
         private Grid messageGrid;
         private bool isOwn;
@@ -281,20 +286,20 @@ namespace EchoMessenger.Helpers.UI
             var stackPanel = new StackPanel();
             stackPanel.Orientation = Orientation.Vertical;
 
-            var usernameLabel = new Label();
-            usernameLabel.HorizontalAlignment = HorizontalAlignment.Left;
-            usernameLabel.HorizontalContentAlignment = HorizontalAlignment.Left;
-            usernameLabel.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088");
-            usernameLabel.FontSize = 14;
-            usernameLabel.Content = username;
+            ReplyUsernameLabel = new Label();
+            ReplyUsernameLabel.HorizontalAlignment = HorizontalAlignment.Left;
+            ReplyUsernameLabel.HorizontalContentAlignment = HorizontalAlignment.Left;
+            ReplyUsernameLabel.Foreground = (SolidColorBrush)new BrushConverter().ConvertFrom("#ff6088");
+            ReplyUsernameLabel.FontSize = 14;
+            ReplyUsernameLabel.Content = username;
 
-            var textLabel = new Label();
-            textLabel.HorizontalContentAlignment = HorizontalAlignment.Left;
-            textLabel.Foreground = new SolidColorBrush(Colors.White);
-            textLabel.FontSize = 14;
-            textLabel.Margin = new Thickness(0, -10, 0, 0);
-            textLabel.Content = text;
-            textLabel.MaxHeight = 100;
+            ReplyTextLabel = new Label();
+            ReplyTextLabel.HorizontalContentAlignment = HorizontalAlignment.Left;
+            ReplyTextLabel.Foreground = new SolidColorBrush(Colors.White);
+            ReplyTextLabel.FontSize = 14;
+            ReplyTextLabel.Margin = new Thickness(0, -10, 0, 0);
+            ReplyTextLabel.Content = text;
+            ReplyTextLabel.MaxHeight = 100;
 
             var gradientStops = new GradientStopCollection();
 
@@ -304,10 +309,10 @@ namespace EchoMessenger.Helpers.UI
             gradientStops.Add(gradientStart);
             gradientStops.Add(gradientEnd);
 
-            stackPanel.Children.Add(usernameLabel);
-            stackPanel.Children.Add(textLabel);
+            stackPanel.Children.Add(ReplyUsernameLabel);
+            stackPanel.Children.Add(ReplyTextLabel);
 
-            textLabel.OpacityMask = new LinearGradientBrush(gradientStops, new Point(0.5, 0), new Point(0.5, 1));
+            ReplyTextLabel.OpacityMask = new LinearGradientBrush(gradientStops, new Point(0.5, 0), new Point(0.5, 1));
 
             ReplyPanel.MouseLeftButtonUp += (s, e) => MouseClick.Invoke();
             ReplyPanel.Children.Add(border);
@@ -316,7 +321,7 @@ namespace EchoMessenger.Helpers.UI
 
         public void DeleteReplyingMessage(System.Threading.SynchronizationContext uiSync)
         {
-            TimeSpan deletingTime = TimeSpan.FromMilliseconds(150);
+            TimeSpan deletingTime = TimeSpan.FromMilliseconds(250);
 
             uiSync.Send((s) =>
             {
@@ -362,15 +367,6 @@ namespace EchoMessenger.Helpers.UI
             buttonsStack.Background = (SolidColorBrush)new BrushConverter().ConvertFrom("#FF131522");
             buttonsStack.Orientation = Orientation.Vertical;
 
-            var copyButton = new TextBlockWithIcon(TextBlockWithIcon.CopyImage, "Copy Text");
-            copyButton.MouseLeftButtonUp += (s, e) =>
-            {
-                Clipboard.SetText(MessageTextBox.Text);
-                messagePopup.IsOpen = false;
-            };
-
-            buttonsStack.Children.Add(copyButton.ConvertToSelectable());
-
             var replyButton = new TextBlockWithIcon(TextBlockWithIcon.ReplyImage, "Reply");
             if (OnReplyButtonClick != null)
                 replyButton.MouseLeftButtonUp += (s, e) => OnReplyButtonClick.Invoke(Message);
@@ -392,6 +388,21 @@ namespace EchoMessenger.Helpers.UI
                 buttonsStack.Children.Add(deleteButton.ConvertToSelectable());
             }
 
+            /*var historyButton = new TextBlockWithIcon(TextBlockWithIcon.HistoryImage, "History");
+            if (OnHistoryButtonClick != null)
+                historyButton.MouseLeftButtonUp += (s, e) => OnHistoryButtonClick.Invoke(Message);
+
+            buttonsStack.Children.Add(historyButton.ConvertToSelectable());*/
+
+            var copyButton = new TextBlockWithIcon(TextBlockWithIcon.CopyImage, "Copy Text");
+            copyButton.MouseLeftButtonUp += (s, e) =>
+            {
+                Clipboard.SetText(MessageTextBox.Text);
+                messagePopup.IsOpen = false;
+            };
+
+            buttonsStack.Children.Add(copyButton.ConvertToSelectable());
+
             popupBorder.Child = buttonsStack;
             messagePopup.Child = popupBorder;
             messageGrid.Children.Add(messagePopup);
@@ -406,6 +417,36 @@ namespace EchoMessenger.Helpers.UI
             LoadingSpinner.IsLoading = false;
 
             Background = new SolidColorBrush(Colors.Red);
+        }
+
+        public void SetEdited(Entities.Message? message = null)
+        {
+            if (!TimeTextBlock.Text.StartsWith("edited"))
+                TimeTextBlock.Text = "edited " + TimeTextBlock.Text;
+
+            if (message != null)
+            {
+                Message = message;
+                MessageTextBox.Text = message.content;
+            }
+        }
+
+        public void SetReplyEdited(String content)
+        {
+            if (Message != null)
+                Message.repliedOn.content = content;
+
+            if (ReplyTextLabel != null)
+                ReplyTextLabel.Content = content;
+        }
+
+        public void ReplyUserUpdate(Entities.UserInfo user)
+        {
+            if (Message != null)
+                Message.repliedOn.sender = user;
+
+            if (ReplyUsernameLabel != null)
+                ReplyUsernameLabel.Content = user.username;
         }
     }
 

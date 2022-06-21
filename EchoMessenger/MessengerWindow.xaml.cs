@@ -67,8 +67,8 @@ namespace EchoMessenger
             
             SettingsView.UpdateUser(user);
 
-            if (openedTab is MessagesView messageView)
-                messageView.UpdateUser(user);
+            foreach (var messageView in MessagesViews)
+                messageView.Value.UpdateUser(user);
         }
 
         public void ShowLoading(bool visible)
@@ -211,8 +211,10 @@ namespace EchoMessenger
             Messages.OnUserTyping += UserTyping;
             Messages.OnMessageRead += MessageHaveSeen;
             Messages.OnMessageDeleted += MessageDeleted;
+            Messages.OnMessageEdited += MessageEdited;
             MessageBorder.OnDeleteButtonClick += DeleteMessage;
-            MessageBorder.OnReplyButtonClick += SetReplyToMessage;
+            MessageBorder.OnReplyButtonClick += EnterReplying;
+            MessageBorder.OnEditButtonClick += EnterEditing;
 
             Messages.Configure();
             await Messages.Connect();
@@ -233,8 +235,10 @@ namespace EchoMessenger
             Messages.OnUserTyping -= UserTyping;
             Messages.OnMessageRead -= MessageHaveSeen;
             Messages.OnMessageDeleted -= MessageDeleted;
+            Messages.OnMessageEdited -= MessageEdited;
             MessageBorder.OnDeleteButtonClick -= DeleteMessage;
-            MessageBorder.OnReplyButtonClick -= SetReplyToMessage;
+            MessageBorder.OnReplyButtonClick -= EnterReplying;
+            MessageBorder.OnEditButtonClick -= EnterEditing;
 
             await Messages.Disconnect();
         }
@@ -294,7 +298,7 @@ namespace EchoMessenger
 
                 PushUserIcon(icon);
 
-                if (openedTab != messageView && message.sender.username != currentUser.username)
+                if (openedTab != messageView && message.sender._id != currentUser._id)
                     uiSync.Send((s) =>
                     {
                         icon.NotificationBadge.AddNotification();
@@ -366,8 +370,18 @@ namespace EchoMessenger
                         {
                             chat.Value.NotificationBadge.RemoveNotification();
                         }, null);
+
+                    RenderChats(OpenedChats.Values.Select(c => c.Key).ToList());
                 }
             }
+        }
+
+        private void MessageEdited(SocketIOClient.SocketIOResponse response)
+        {
+            var message = response.GetValue<Message>();
+
+            if (MessagesViews.TryGetValue(message.chat._id, out var messageView))
+                messageView.MessageEdited(message);
         }
 
         private async void DeleteMessage(Message message)
@@ -375,19 +389,33 @@ namespace EchoMessenger
             var targetUser = message.chat.sender._id == currentUser._id ? message.chat.receiver : message.chat.sender;
 
             if (OpenedChats.TryGetValue(targetUser._id, out var chat))
+            {
                 if (MessagesViews.TryGetValue(chat.Key._id, out var messagesView))
+                {
                     messagesView.MessageDeleted(message._id);
+                    RenderChats(OpenedChats.Values.Select(c => c.Key).ToList());
+                }
+            }
 
             await Messages.DeleteMessage(message._id);
         }
 
-        private void SetReplyToMessage(Message message)
+        private void EnterReplying(Message message)
         {
             var targetUser = message.chat.sender._id == currentUser._id ? message.chat.receiver : message.chat.sender;
 
             if (OpenedChats.TryGetValue(targetUser._id, out var chat))
                 if (MessagesViews.TryGetValue(chat.Key._id, out var messagesView))
-                    messagesView.SetReplyToMessage(message);
+                    messagesView.EnterReplying(message);
+        }
+
+        private void EnterEditing(Message message)
+        {
+            var targetUser = message.chat.sender._id == currentUser._id ? message.chat.receiver : message.chat.sender;
+
+            if (OpenedChats.TryGetValue(targetUser._id, out var chat))
+                if (MessagesViews.TryGetValue(chat.Key._id, out var messagesView))
+                    messagesView.EnterEditing(message);
         }
 
         private async Task LoadChats()
@@ -418,17 +446,7 @@ namespace EchoMessenger
                     if (chats == null)
                         throw new Exception();
 
-                    chats = chats.OrderBy(c => c.GetLastSentAt());
-                    foreach (var chat in chats)
-                    {
-                        var targetUser = chat.sender._id == currentUser._id ? chat.receiver : chat.sender;
-                        var icon = AddUserIcon(targetUser, chat, OnlineChats.Contains(targetUser._id));
-                        icon.NotificationBadge.SetNotifications(chat.unreadMessagesCount);
-                        LoadChat(targetUser._id, chat, icon, OnlineChats.Contains(targetUser._id));
-
-                        if (chat == chats.Last())
-                            firstIcon = icon;
-                    }
+                    RenderChats(chats);
                 }
                 else if (response.StatusCode == (HttpStatusCode)401)
                 {
@@ -446,6 +464,26 @@ namespace EchoMessenger
             {
                 ShowLoading(false);
             }
+        }
+
+        private void RenderChats(IEnumerable<Chat> chats)
+        {
+            uiSync.Send((s) => {
+                ChatsMenu.Children.Clear();
+                OpenedChats.Clear();
+
+                chats = chats.OrderBy(c => c.GetLastSentAt());
+                foreach (var chat in chats)
+                {
+                    var targetUser = chat.sender._id == currentUser._id ? chat.receiver : chat.sender;
+                    var icon = AddUserIcon(targetUser, chat, OnlineChats.Contains(targetUser._id));
+                    icon.NotificationBadge.SetNotifications(chat.unreadMessagesCount);
+                    LoadChat(targetUser._id, chat, icon, OnlineChats.Contains(targetUser._id));
+
+                    if (chat == chats.Last())
+                        firstIcon = icon;
+                }
+            }, null);
         }
 
         private UserIcon AddUserIcon(UserInfo targetUser, Chat chat, bool isOnline, bool select = false)

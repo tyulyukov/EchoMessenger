@@ -23,7 +23,9 @@
             <ImageBrush x:Key="DeleteImage" ImageSource="/EchoMessenger;component/Images/delete.png" Stretch="UniformToFill"/>
             <ImageBrush x:Key="CloseImage" ImageSource="/EchoMessenger;component/Images/close.png" Stretch="UniformToFill"/>
             <ImageBrush x:Key="CopyImage" ImageSource="/EchoMessenger;component/Images/copy.png" Stretch="UniformToFill"/>
-            
+            <ImageBrush x:Key="HistoryImage" ImageSource="/EchoMessenger;component/Images/history.png" Stretch="UniformToFill"/>
+            <ImageBrush x:Key="ConfirmImage" ImageSource="/EchoMessenger;component/Images/confirm.png" Stretch="UniformToFill"/>
+
             <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
                 <Setter Property="OverridesDefaultStyle" Value="true"/>
                 <Setter Property="IsTabStop" Value="false"/>

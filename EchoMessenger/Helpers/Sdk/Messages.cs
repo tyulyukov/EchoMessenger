@@ -21,6 +21,7 @@ namespace EchoMessenger.Helpers.Server
         public static Action<SocketIOResponse>? OnUserTyping;
         public static Action<SocketIOResponse>? OnMessageRead;
         public static Action<SocketIOResponse>? OnMessageDeleted;
+        public static Action<SocketIOResponse>? OnMessageEdited;
 
         private static SocketIO? client;
 
@@ -73,6 +74,9 @@ namespace EchoMessenger.Helpers.Server
             if (OnMessageDeleted != null)
                 client.On("message deleted", OnMessageDeleted);
 
+            if (OnMessageEdited != null)
+                client.On("message edited", OnMessageEdited);
+
             return true;
         }
 
@@ -116,6 +120,12 @@ namespace EchoMessenger.Helpers.Server
         {
             if (client != null)
                 await client.EmitAsync("delete message", messageId);
+        }
+
+        public static async Task EditMessage(String messageId, String content)
+        {
+            if (client != null)
+                await client.EmitAsync("edit message", messageId, content);
         }
     }
 }

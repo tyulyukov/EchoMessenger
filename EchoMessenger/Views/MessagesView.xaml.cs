@@ -44,6 +44,7 @@ namespace EchoMessenger
         private DateTime? lastTyping = null;
 
         private Message? replyingOnMessage = null;
+        private Message? editingMessage = null;
 
         public MessagesView(MessengerWindow owner, UserInfo user, Chat chat, bool isOnline)
         {
@@ -122,7 +123,7 @@ namespace EchoMessenger
                 }
                 else if (e.Key == Key.Enter)
                 {
-                    SendMessageHandle();
+                    EnterButtonDownHandle();
                     e.Handled = true;
                 }
             };
@@ -148,6 +149,13 @@ namespace EchoMessenger
         public void UpdateUser(UserInfo user)
         {
             currentUser = user;
+
+            uiSync.Send((s) =>
+            {
+                foreach (var messageBorder in messages.Values)
+                    if (messageBorder.Message != null && messageBorder.Message.repliedOn != null && messageBorder.Message.repliedOn.sender._id == user._id)
+                        messageBorder.ReplyUserUpdate(user);
+            }, null);
         }
 
         public void ShowLoading(bool visible)
@@ -238,6 +246,13 @@ namespace EchoMessenger
             {
                 targetUser = user;
                 TargetUserName.Content = targetUser.username;
+
+                uiSync.Send((s) =>
+                {
+                    foreach (var messageBorder in messages.Values)
+                        if (messageBorder.Message != null && messageBorder.Message.repliedOn != null && messageBorder.Message.repliedOn.sender._id == user._id)
+                            messageBorder.ReplyUserUpdate(user);
+                }, null);
             }, null);
         }
 
@@ -278,10 +293,10 @@ namespace EchoMessenger
                     messageBorder.ChangeVisibility(false, deletionTime);
                     Task.Delay(deletionTime).ContinueWith((t) =>
                     {
-                        uiSync.Send(s => 
-                        { 
-                            MessagesStackPanel.Children.Remove(messageBorder); 
-                        }, null); 
+                        uiSync.Send(s =>
+                        {
+                            MessagesStackPanel.Children.Remove(messageBorder);
+                        }, null);
                     });
 
                     foreach (var message in messages.Values)
@@ -300,7 +315,7 @@ namespace EchoMessenger
                         else
                             firstMessageSentAt = null;
                     }
-                    
+
                     if (MessagesStackPanel.Children[messageIndex - 1] is DateCard dateCard
                     && (MessagesStackPanel.Children.Count <= messageIndex + 1
                      || MessagesStackPanel.Children[messageIndex + 1] is not MessageBorder))
@@ -317,18 +332,17 @@ namespace EchoMessenger
                 }, null);
         }
 
-        public void SetReplyToMessage(Message message)
+        public void MessageEdited(Message message)
         {
-            uiSync.Send(s =>
-            {
-                replyingOnMessage = message;
-                ReplyPanel.Visibility = Visibility.Visible;
+            if (messages.TryGetValue(message._id, out var messageBorder))
+                uiSync.Send(s =>
+                {
+                    messageBorder.SetEdited(message);
 
-                ReplyToNickname.Content = message.sender.username;
-                ReplyToText.Content = message.content;
-
-                MessageTextBox.Focus();
-            }, null);
+                    foreach (var messageBorder in messages.Values)
+                        if (messageBorder.Message?.repliedOn != null && messageBorder.Message?.repliedOn._id == message._id)
+                            messageBorder.SetReplyEdited(message.content);
+                }, null);
         }
 
         public bool IsUnreadMessage(String messageId) => unreadMessages.ContainsKey(messageId);
@@ -455,6 +469,11 @@ namespace EchoMessenger
 
                 messageBorder.SetLoaded(message);
 
+                if (message.edits != null && message.edits.Count > 0)
+                {
+                    messageBorder.SetEdited();
+                }
+
                 this.messages.Add(message._id, messageBorder);
 
                 if (message.sender._id != currentUser._id && !message.haveSeen)
@@ -492,61 +511,9 @@ namespace EchoMessenger
             MessagesScroll.LayoutUpdated -= MessagesScroll_LayoutUpdated;
         }
 
-        private void SendMessageButtonClick(object sender, RoutedEventArgs e)
+        private MessageBorder CreateOwnMessageBorder(String content, bool isOwn, DateTime sentAt)
         {
-            SendMessageHandle();
-        }
-
-        private async void SendMessageHandle()
-        {
-            if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
-                return;
-
-            var sentAt = DateTime.Now;
-            var messageId = Guid.NewGuid().ToString();
-            var content = MessageTextBox.Text.Trim();
-
-            MessageTextBox.Text = String.Empty;
-
-            if (replyingOnMessage == null)
-                await Messages.SendMessage(messageId, currentChat._id, content);
-            else
-                await Messages.ReplyMessage(messageId, currentChat._id, content, replyingOnMessage._id);
-
             var messageBorder = new MessageBorder(content, true);
-
-            if (replyingOnMessage != null)
-            {
-                var replyingOnMessageId = replyingOnMessage._id;
-                messageBorder.SetReplyingMessage(replyingOnMessage.content, replyingOnMessage.sender.username, () =>
-                {
-                    uiSync.Send(async s =>
-                    {
-                        while (true)
-                        {
-                            if (this.messages.TryGetValue(replyingOnMessageId, out var repliedMessageBorder))
-                            {
-                                _ = Task.Delay(150).ContinueWith((t) =>
-                                  {
-                                      uiSync.Send(s =>
-                                      {
-                                          repliedMessageBorder.BringIntoView(new Rect(0, -50, repliedMessageBorder.ActualWidth, repliedMessageBorder.ActualHeight + 50));
-                                      }, null);
-                                  });
-
-                                return;
-                            }
-
-                            await LoadOlderMessages();
-                        }
-                    }, null);
-                });
-
-                replyingOnMessage = null;
-                ReplyPanel.Visibility = Visibility.Collapsed;
-            }
-
-            messages.Add(messageId, messageBorder);
 
             if (firstMessageSentAt == null || (firstMessageSentAt?.Year == sentAt.Year && firstMessageSentAt?.DayOfYear < sentAt.DayOfYear) || firstMessageSentAt?.Year < sentAt.Year)
             {
@@ -566,8 +533,120 @@ namespace EchoMessenger
             firstMessageSentAt = sentAt;
 
             messageBorder.SetSlideFromBottomOnLoad();
+            return messageBorder;
+        }
+
+        private void SendMessageButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (replyingOnMessage == null)
+                SendMessage();
+            else
+                ReplyOnMessage();
+        }
+
+        private void EnterButtonDownHandle()
+        {
+            if (replyingOnMessage != null)
+                ReplyOnMessage();
+            else if (editingMessage != null)
+                EditMessage();
+            else
+                SendMessage();
+        }
+
+        private void SendMessage()
+        {
+            if (String.IsNullOrWhiteSpace(MessageTextBox.Text))
+                return;
+
+            var sentAt = DateTime.Now;
+            var messageId = Guid.NewGuid().ToString();
+            var content = MessageTextBox.Text.Trim();
+            
+            _ = Task.Run(() => Messages.SendMessage(messageId, currentChat._id, content));
+
+            MessageTextBox.Text = String.Empty;
+
+            var messageBorder = CreateOwnMessageBorder(content, true, sentAt);
+
+            messages.Add(messageId, messageBorder);
+
             MessagesStackPanel.Children.Add(messageBorder);
             MessagesScroll.ScrollToBottom();
+        }
+
+        private void ReplyOnMessage()
+        {
+            if (String.IsNullOrWhiteSpace(MessageTextBox.Text) || replyingOnMessage == null)
+                return;
+
+            var sentAt = DateTime.Now;
+            var messageId = Guid.NewGuid().ToString();
+            var content = MessageTextBox.Text.Trim();
+
+            _ = Task.Run(() => Messages.ReplyMessage(messageId, currentChat._id, content, replyingOnMessage._id));
+
+            MessageTextBox.Text = String.Empty;
+
+            var messageBorder = CreateOwnMessageBorder(content, true, sentAt);
+
+            var replyingOnMessageId = replyingOnMessage._id;
+            messageBorder.SetReplyingMessage(replyingOnMessage.content, replyingOnMessage.sender.username, () =>
+            {
+                uiSync.Send(async s =>
+                {
+                    while (true)
+                    {
+                        if (this.messages.TryGetValue(replyingOnMessageId, out var repliedMessageBorder))
+                        {
+                            _ = Task.Delay(150).ContinueWith((t) =>
+                            {
+                                uiSync.Send(s =>
+                                {
+                                    repliedMessageBorder.BringIntoView(new Rect(0, -50, repliedMessageBorder.ActualWidth, repliedMessageBorder.ActualHeight + 50));
+                                }, null);
+                            });
+
+                            return;
+                        }
+
+                        await LoadOlderMessages();
+                    }
+                }, null);
+            });
+
+            LeaveReplying();
+
+            messages.Add(messageId, messageBorder);
+
+            MessagesStackPanel.Children.Add(messageBorder);
+            MessagesScroll.ScrollToBottom();
+        }
+
+        private void EditMessage()
+        {
+            if (String.IsNullOrWhiteSpace(MessageTextBox.Text) || editingMessage == null)
+                return;
+
+            var content = MessageTextBox.Text.Trim();
+
+            _ = Task.Run(() => Messages.EditMessage(editingMessage._id, content));
+
+            if (messages.TryGetValue(editingMessage._id, out var editedMessageBorder))
+            {
+                editingMessage.content = content;
+                editedMessageBorder.SetEdited(editingMessage);
+
+                foreach (var messageBorder in messages.Values)
+                    if (messageBorder.Message?.repliedOn != null && messageBorder.Message?.repliedOn._id == editingMessage._id)
+                        messageBorder.SetReplyEdited(editingMessage.content);
+
+                editedMessageBorder.BringIntoView(new Rect(0, -50, editedMessageBorder.ActualWidth, editedMessageBorder.ActualHeight + 50));
+            }
+
+            MessageTextBox.Text = String.Empty;
+
+            LeaveEditing();
         }
 
         private void ButtonGoBottom_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -620,8 +699,7 @@ namespace EchoMessenger
 
         private void CancelReplyButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            replyingOnMessage = null;
-            ReplyPanel.Visibility = Visibility.Collapsed;
+            LeaveReplying();
         }
 
         private void ReplyMessagePanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -629,6 +707,76 @@ namespace EchoMessenger
             if (replyingOnMessage != null)
                 if (messages.TryGetValue(replyingOnMessage._id, out var messageBorder))
                     messageBorder.BringIntoView();
+        }
+        private void StackPanel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (editingMessage != null)
+                if (messages.TryGetValue(editingMessage._id, out var messageBorder))
+                    messageBorder.BringIntoView();
+        }
+
+        private void CancelEditButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            LeaveEditing();
+        }
+
+        private void ConfirmEditButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            EditMessage();
+        }
+
+        public void EnterReplying(Message message)
+        {
+            uiSync.Send(s =>
+            {
+                replyingOnMessage = message;
+                ReplyPanel.Visibility = Visibility.Visible;
+
+                ReplyToNickname.Content = message.sender.username;
+                ReplyToText.Content = message.content;
+
+                MessageTextBox.Focus();
+            }, null);
+        }
+
+        public void LeaveReplying()
+        {
+            uiSync.Send(s =>
+            {
+                replyingOnMessage = null;
+                ReplyPanel.Visibility = Visibility.Collapsed;
+            }, null);
+            
+        }
+
+        public void EnterEditing(Message message)
+        {
+            uiSync.Send(s =>
+            {
+                editingMessage = message;
+                EditPanel.Visibility = Visibility.Visible;
+
+                EditText.Content = message.content;
+
+                MessageTextBox.Text = message.content;
+                MessageTextBox.Focus();
+                SendMessageButton.Visibility = Visibility.Collapsed;
+                ConfirmEditButton.Visibility = Visibility.Visible;
+            }, null);
+        }
+
+        public void LeaveEditing()
+        {
+            uiSync.Send(s =>
+            {
+                editingMessage = null;
+                EditPanel.Visibility = Visibility.Collapsed;
+
+                MessageTextBox.Text = String.Empty;
+                MessageTextBox.MoveFocus(new TraversalRequest(FocusNavigationDirection.Previous));
+                SendMessageButton.Visibility = Visibility.Visible;
+                ConfirmEditButton.Visibility = Visibility.Collapsed;
+            }, null);
         }
     }
 }
