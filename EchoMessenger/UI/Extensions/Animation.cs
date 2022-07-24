@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EchoMessenger.UI.Controls.Loading;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -88,7 +89,7 @@ namespace EchoMessenger.UI.Extensions
             element.BeginAnimation(UIElement.OpacityProperty, animation);
         }
 
-        public static void StartLoading(this LoadingSpinnerControl.LoadingSpinner spinner)
+        public static void StartLoading(this LoadingSpinner spinner)
         {
             Storyboard storyboard = new Storyboard();
             storyboard.RepeatBehavior = RepeatBehavior.Forever;
@@ -99,7 +100,7 @@ namespace EchoMessenger.UI.Extensions
             opacityAnimation.SpeedRatio = 0.35;
             opacityAnimation.AutoReverse = true;
 
-            Storyboard.SetTargetProperty(opacityAnimation, new PropertyPath(LoadingSpinnerControl.LoadingSpinner.StrokeGapProperty));
+            Storyboard.SetTargetProperty(opacityAnimation, new PropertyPath(LoadingSpinner.StrokeGapProperty));
             Storyboard.SetTarget(opacityAnimation, spinner);
 
             storyboard.Begin();

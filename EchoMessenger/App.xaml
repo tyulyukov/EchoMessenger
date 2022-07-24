@@ -2,7 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:EchoMessenger"
+             xmlns:converters="clr-namespace:EchoMessenger.UI.Converters"
              xmlns:xf="clr-namespace:XamlFlair;assembly=XamlFlair.WPF"
+             xmlns:loadingspinner="clr-namespace:EchoMessenger.UI.Controls.Loading"
+             xmlns:typingindicator="clr-namespace:EchoMessenger.UI.Controls.Typing"
              Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
@@ -232,6 +235,149 @@
                         </Trigger.ExitActions>
                     </Trigger>
                 </Style.Triggers>
+            </Style>
+
+            <Style TargetType="{x:Type loadingspinner:LoadingSpinner}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type loadingspinner:LoadingSpinner}">
+                            <ControlTemplate.Resources>
+                                <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+                                <converters:DiameterAndThicknessToStrokeDashArrayConverter x:Key="DiameterAndThicknessToStrokeDashArrayConverter" />
+                            </ControlTemplate.Resources>
+                            <Ellipse
+                        Width="{TemplateBinding Diameter}"
+                        Height="{TemplateBinding Diameter}"
+                        RenderTransformOrigin="0.5 0.5"
+                        Stroke="{TemplateBinding Color}"
+                        StrokeDashCap="{TemplateBinding Cap}"
+                        StrokeThickness="{TemplateBinding Thickness}"
+                        Visibility="{TemplateBinding IsLoading,
+                                    Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Ellipse.StrokeDashArray>
+                                    <MultiBinding Converter="{StaticResource DiameterAndThicknessToStrokeDashArrayConverter}">
+                                        <Binding Path="Diameter" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="Thickness" RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="StrokeGap" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    </MultiBinding>
+                                </Ellipse.StrokeDashArray>
+                                <Ellipse.RenderTransform>
+                                    <RotateTransform x:Name="Rotation" Angle="0" />
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimation
+                                            Storyboard.TargetName="Rotation"
+                                            Storyboard.TargetProperty="Angle"
+                                            From="0"
+                                            To="360" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Ellipse.Triggers>
+                            </Ellipse>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="{x:Type typingindicator:TypingIndicator}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type typingindicator:TypingIndicator}">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Margin="{TemplateBinding Spacing}"
+                                 Fill="{TemplateBinding Color}"
+                                 Width="{TemplateBinding Diameter}"
+                                 Height="{TemplateBinding Diameter}">
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform x:Name="AnimatedTranslateTransform" Y="2"/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard
+                                            BeginTime="0:0:0:0.05">
+                                                    <DoubleAnimation
+                                                Storyboard.TargetName="AnimatedTranslateTransform"
+                                                Storyboard.TargetProperty="Y"
+                                                To="-2"
+                                                Duration="0:0:0:0.4"
+                                                AutoReverse="True"
+                                                RepeatBehavior="Forever">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <QuadraticEase EasingMode="EaseInOut"></QuadraticEase>
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+
+                                <Ellipse Margin="{TemplateBinding Spacing}"
+                                 Fill="{TemplateBinding Color}"
+                                 Width="{TemplateBinding Diameter}"
+                                 Height="{TemplateBinding Diameter}">
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform x:Name="AnimatedTranslateTransform1" Y="2"/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard
+                                            BeginTime="0:0:0:0.25">
+                                                    <DoubleAnimation
+                                                Storyboard.TargetName="AnimatedTranslateTransform1"
+                                                Storyboard.TargetProperty="Y"
+                                                To="-2"
+                                                Duration="0:0:0:0.4"
+                                                AutoReverse="True"
+                                                RepeatBehavior="Forever">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <QuadraticEase EasingMode="EaseInOut"></QuadraticEase>
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+
+                                <Ellipse Margin="{TemplateBinding Spacing}"
+                                 Fill="{TemplateBinding Color}"
+                                 Width="{TemplateBinding Diameter}"
+                                 Height="{TemplateBinding Diameter}">
+                                    <Ellipse.RenderTransform>
+                                        <TranslateTransform x:Name="AnimatedTranslateTransform2" Y="2"/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard
+                                            BeginTime="0:0:0:0.45">
+                                                    <DoubleAnimation
+                                                Storyboard.TargetName="AnimatedTranslateTransform2"
+                                                Storyboard.TargetProperty="Y"
+                                                To="-2"
+                                                Duration="0:0:0:0.4"
+                                                AutoReverse="True"
+                                                RepeatBehavior="Forever">
+                                                        <DoubleAnimation.EasingFunction>
+                                                            <QuadraticEase EasingMode="EaseInOut"></QuadraticEase>
+                                                        </DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                            </StackPanel>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
         </ResourceDictionary>
     </Application.Resources>

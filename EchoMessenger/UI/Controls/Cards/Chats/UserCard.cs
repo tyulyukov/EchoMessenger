@@ -2,13 +2,13 @@
 using EchoMessenger.Helpers.Extensions;
 using EchoMessenger.Models;
 using EchoMessenger.UI.Controls.Checks;
+using EchoMessenger.UI.Controls.Typing;
 using EchoMessenger.UI.Extensions;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using TypingIndicatorControl;
 
 namespace EchoMessenger.UI.Controls.Cards.Chats
 {
@@ -336,7 +336,7 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
             if (typingIndicator != null)
                 typingIndicatorPlaceholder.RemoveChild(typingIndicator);
 
-            typingIndicator = new TypingIndicatorControl.TypingIndicator()
+            typingIndicator = new TypingIndicator()
             {
                 Diameter = 4d,
                 Spacing = new Thickness(1.2d),

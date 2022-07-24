@@ -16,6 +16,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using EchoMessenger.UI.Controls.Cards.Dialog;
+using EchoMessenger.UI.Controls.Typing;
 
 namespace EchoMessenger.Views.Chats
 {
@@ -42,7 +43,7 @@ namespace EchoMessenger.Views.Chats
         private Dictionary<String, MessageBorder> unreadMessages;
         private bool isAllMessagesLoaded = false;
 
-        private TypingIndicatorControl.TypingIndicator TypingIndicator;
+        private TypingIndicator TypingIndicator;
 
         private double prevHeight = 0;
         private bool isLoadingMessages = false;
@@ -778,7 +779,7 @@ namespace EchoMessenger.Views.Chats
             if (TypingIndicator != null)
                 TypingIndicatorPlaceholder.RemoveChild(TypingIndicator);
 
-            TypingIndicator = new TypingIndicatorControl.TypingIndicator()
+            TypingIndicator = new TypingIndicator()
             {
                 Diameter = 4d,
                 Spacing = new Thickness(1.2d),

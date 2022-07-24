@@ -1,6 +1,6 @@
 ﻿using EchoMessenger.UI.Controls.Checks;
+using EchoMessenger.UI.Controls.Loading;
 using EchoMessenger.UI.Extensions;
-using LoadingSpinnerControl;
 using System;
 using System.Windows;
 using System.Windows.Controls;

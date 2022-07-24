@@ -44,11 +44,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LoadingSpinnerControl\LoadingSpinnerControl.csproj" />
-    <ProjectReference Include="..\TypingIndicatorControl\TypingIndicatorControl.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Resource Include="Assets\Images\arrow down.png" />
     <Resource Include="Assets\Images\attachment.png" />
     <Resource Include="Assets\Images\chats.png" />
@@ -70,6 +65,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="UI\Controls\Loading\LoadingSpinner.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="UI\Controls\Typing\TypingIndicator.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\Settings\SettingsListView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

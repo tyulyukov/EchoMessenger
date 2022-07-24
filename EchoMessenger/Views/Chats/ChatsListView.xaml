@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:EchoMessenger.Views.Chats"
-             xmlns:custom="clr-namespace:LoadingSpinnerControl;assembly=LoadingSpinnerControl"
+             xmlns:custom="clr-namespace:EchoMessenger.UI.Controls.Loading"
              xmlns:watermark="clr-namespace:EchoMessenger.UI.Controls.Watermark"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="250"
@@ -34,7 +34,7 @@
             <Image Source="/EchoMessenger;component/Assets/Images/refresh.png" Stretch="UniformToFill"/>
         </Border>
 
-        <custom:LoadingSpinner Grid.Row="1" x:Name="LoadingSpinner" Visibility="Collapsed" IsLoading="True" Diameter="25" Color="White" Cap="Round" Thickness="2" StrokeGap="0.75">
+        <custom:LoadingSpinner Grid.Row="1" x:Name="LoadingSpinner" Visibility="Visible" IsLoading="True" Diameter="25" Color="White" Cap="Round" Thickness="2" StrokeGap="0.75">
             <custom:LoadingSpinner.Triggers>
                 <EventTrigger RoutedEvent="Loaded">
                     <BeginStoryboard>
