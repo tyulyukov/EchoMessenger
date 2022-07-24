@@ -35,7 +35,7 @@
     <Grid Background="#FF0C0D11">
         <StackPanel>
             <Border Margin="0 40" Width="100" Height="100" CornerRadius="50" Background="#FFFF1A1A">
-                <Image Margin="20" Source="/EchoMessenger;component/Images/echo.png" Stretch="Fill"/>
+                <Image Margin="20" Source="/EchoMessenger;component/Assets/Images/echo.png" Stretch="Fill"/>
             </Border>
 
             <TextBlock Foreground="White" HorizontalAlignment="Center" FontSize="35" FontWeight="Normal" FontFamily="Segoe UI Semibold">Get started!</TextBlock>

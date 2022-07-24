@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:EchoMessenger.Views.Settings"
              mc:Ignorable="d" 
-             d:DesignHeight="510.8" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800">
     <UserControl.Resources>
         <ResourceDictionary>
             <ControlTemplate x:Key="TextBoxBaseControlTemplate" TargetType="{x:Type TextBoxBase}">
@@ -21,87 +21,106 @@
             </ControlTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
-    
-    <StackPanel Orientation="Vertical">
-        <TextBlock Foreground="White" Margin="20,10,10,10" FontSize="25" FontFamily="Segoe UI Semibold">Profile</TextBlock>
-        
-        <Grid Height="150">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
 
-            <Border x:Name="Avatar" MouseEnter="Avatar_MouseEnter" MouseLeave="Avatar_MouseLeave" Grid.Column="0" Width="130" Height="130" Margin="10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
-                <Border x:Name="AvatarOverlay" MouseLeftButtonUp="AvatarOverlay_MouseLeftButtonUp" Visibility="Hidden" Background="#59000000" CornerRadius="100">
-                    <Image Width="40" Height="40" Source="/EchoMessenger;component/Images/image.png"/>
-                </Border>
-            </Border>
+    <Grid Grid.Column="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
 
-            <StackPanel VerticalAlignment="Center" Grid.Column="1" Orientation="Vertical">
-                <TextBlock x:Name="UsernameErrorAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="Red" Margin="15,0,5,0" FontSize="14">Error</TextBlock>
-                <TextBlock x:Name="UsernameSuccessAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="#FF49F449" Margin="15,0,5,0" FontSize="14">Success</TextBlock>
-                <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="14" FontFamily="Segoe UI Semibold">Username</TextBlock>
-                <DockPanel>
-                    <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="ButtonSaveUsername_Click" DockPanel.Dock="Right" x:Name="ButtonSaveUsername" Margin="5,5,10,10" Width="150" MinWidth="75"  Height="35" CornerRadius="12">
-                        <Border.Style>
-                            <Style>
-                                <Setter Property="Border.Background" Value="#1A8FFF"/>
-                                <Style.Triggers>
-                                    <Trigger Property="Border.IsMouseOver" Value="True">
-                                        <Setter Property="Border.Background" Value="#FF56A1E9" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
+        <ProgressBar x:Name="SettingsProgressBar" Grid.Row="0" Foreground="White" BorderThickness="0" BorderBrush="#FF0C0D11"></ProgressBar>
 
-                        <Label HorizontalContentAlignment="Center" FontFamily="Segoe UI Semibold" FontSize="15" Foreground="White">Save</Label>
-                    </Border>
-                    <TextBox CharacterCasing="Lower" x:Name="UsernameBox" Template="{StaticResource TextBoxBaseControlTemplate}" Margin="10,5,5,10" Height="35" Foreground="White" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"></TextBox>
-                </DockPanel>
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Orientation="Vertical">
+                <TextBlock x:Name="TabName" HorizontalAlignment="Center" Foreground="White" Margin="10" FontSize="22" FontFamily="Segoe UI Semibold">My account</TextBlock>
+
+                <Border Margin="15 0" Background="{StaticResource SeparationBrush}" Height="1"/>
+
+                <Grid x:Name="OpenedTab">
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Foreground="White" Margin="20,10,10,10" FontSize="25" FontFamily="Segoe UI Semibold">Profile</TextBlock>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border x:Name="Avatar" MouseEnter="Avatar_MouseEnter" MouseLeave="Avatar_MouseLeave" Grid.Column="0" Width="130" Height="130" Margin="10" CornerRadius="100" BorderBrush="Gray" BorderThickness="1">
+                                <Border x:Name="AvatarOverlay" MouseLeftButtonUp="AvatarOverlay_MouseLeftButtonUp" Visibility="Hidden" Background="#59000000" CornerRadius="100">
+                                    <Image Width="40" Height="40" Source="/EchoMessenger;component/Assets/Images/image.png"/>
+                                </Border>
+                            </Border>
+
+                            <StackPanel VerticalAlignment="Center" Grid.Column="1" Orientation="Vertical">
+                                <TextBlock x:Name="UsernameErrorAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="Red" Margin="15,0,5,0" FontSize="14">Error</TextBlock>
+                                <TextBlock x:Name="UsernameSuccessAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="#FF49F449" Margin="15,0,5,0" FontSize="14">Success</TextBlock>
+                                <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="14" FontFamily="Segoe UI Semibold">Username</TextBlock>
+                                <DockPanel>
+                                    <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="ButtonSaveUsername_Click" DockPanel.Dock="Right" x:Name="ButtonSaveUsername" Margin="5,5,10,10" Width="150" MinWidth="75"  Height="35" CornerRadius="12">
+                                        <Border.Style>
+                                            <Style>
+                                                <Setter Property="Border.Background" Value="#1A8FFF"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="Border.IsMouseOver" Value="True">
+                                                        <Setter Property="Border.Background" Value="#FF56A1E9" />
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+
+                                        <Label HorizontalContentAlignment="Center" FontFamily="Segoe UI Semibold" FontSize="15" Foreground="White">Save</Label>
+                                    </Border>
+                                    <TextBox CharacterCasing="Lower" x:Name="UsernameBox" Template="{StaticResource TextBoxBaseControlTemplate}" Margin="10,5,5,10" Height="35" Foreground="White" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"></TextBox>
+                                </DockPanel>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Margin="5" Orientation="Vertical">
+                            <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="25" FontFamily="Segoe UI Semibold">Password</TextBlock>
+
+                            <TextBlock x:Name="PasswordErrorAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="Red" Margin="15,0,5,0" FontSize="14">Error</TextBlock>
+                            <TextBlock x:Name="PasswordSuccessAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="#FF49F449" Margin="15,0,5,0" FontSize="14">Success</TextBlock>
+
+                            <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="14" FontFamily="Segoe UI Semibold">Old password</TextBlock>
+                            <PasswordBox x:Name="OldPasswordBox" Template="{StaticResource PasswordBoxBaseControlTemplate}" Margin="10,5,5,5" Width="400" MaxWidth="750" Height="35" Foreground="White" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"/>
+
+                            <TextBlock Foreground="White" Margin="15,0,10,0" FontSize="14" FontFamily="Segoe UI Semibold">New password</TextBlock>
+                            <PasswordBox x:Name="NewPasswordBox" Template="{StaticResource PasswordBoxBaseControlTemplate}" Margin="10,5,5,5" Width="400" MaxWidth="750" Height="35" Foreground="White" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"/>
+
+                            <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="ButtonSavePassword_Click" x:Name="ButtonSavePassword" HorizontalAlignment="Left" Margin="10" MinWidth="75" Width="200" Height="35" CornerRadius="12">
+                                <Border.Style>
+                                    <Style>
+                                        <Setter Property="Border.Background" Value="#1A8FFF"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="Border.IsMouseOver" Value="True">
+                                                <Setter Property="Border.Background" Value="#FF56A1E9" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+
+                                <Label HorizontalContentAlignment="Center" FontFamily="Segoe UI Semibold" FontSize="15" Foreground="White">Save</Label>
+                            </Border>
+                        </StackPanel>
+
+                        <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="LogOutButton_Click" x:Name="LogOutButton" HorizontalAlignment="Left" Margin="15" MinWidth="75" Width="200" Height="35" CornerRadius="12">
+                            <Border.Style>
+                                <Style>
+                                    <Setter Property="Border.Background" Value="#FFD61E1E"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="Border.IsMouseOver" Value="True">
+                                            <Setter Property="Border.Background" Value="#FFDD4545" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+
+                            <Label HorizontalContentAlignment="Center" FontFamily="Segoe UI Semibold" FontSize="15" Foreground="White">Log Out</Label>
+                        </Border>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
-        </Grid>
-
-        <StackPanel Margin="5" Orientation="Vertical">
-            <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="25" FontFamily="Segoe UI Semibold">Password</TextBlock>
-
-            <TextBlock x:Name="PasswordErrorAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="Red" Margin="15,0,5,0" FontSize="14">Error</TextBlock>
-            <TextBlock x:Name="PasswordSuccessAlertTextBlock" Visibility="Collapsed" TextWrapping="Wrap" Foreground="#FF49F449" Margin="15,0,5,0" FontSize="14">Success</TextBlock>
-
-            <TextBlock Foreground="White" Margin="15 10 10 0" FontSize="14" FontFamily="Segoe UI Semibold">Old password</TextBlock>
-            <PasswordBox x:Name="OldPasswordBox" Template="{StaticResource PasswordBoxBaseControlTemplate}" Margin="10,5,5,5" Width="400" MaxWidth="750" Height="35" Foreground="White" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"/>
-
-            <TextBlock Foreground="White" Margin="15,0,10,0" FontSize="14" FontFamily="Segoe UI Semibold">New password</TextBlock>
-            <PasswordBox x:Name="NewPasswordBox" Template="{StaticResource PasswordBoxBaseControlTemplate}" Margin="10,5,5,5" Width="400" MaxWidth="750" Height="35" Foreground="White" HorizontalAlignment="Left" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" Background="{x:Null}" FontSize="18"/>
-
-            <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="ButtonSavePassword_Click" x:Name="ButtonSavePassword" HorizontalAlignment="Left" Margin="10" MinWidth="75" Width="200" Height="35" CornerRadius="12">
-                <Border.Style>
-                    <Style>
-                        <Setter Property="Border.Background" Value="#1A8FFF"/>
-                        <Style.Triggers>
-                            <Trigger Property="Border.IsMouseOver" Value="True">
-                                <Setter Property="Border.Background" Value="#FF56A1E9" />
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-
-                <Label HorizontalContentAlignment="Center" FontFamily="Segoe UI Semibold" FontSize="15" Foreground="White">Save</Label>
-            </Border>
-        </StackPanel>
-
-        <Border BorderBrush="Gray" BorderThickness="1" MouseLeftButtonUp="LogOutButton_Click" x:Name="LogOutButton" HorizontalAlignment="Left" Margin="15" MinWidth="75" Width="200" Height="35" CornerRadius="12">
-            <Border.Style>
-                <Style>
-                    <Setter Property="Border.Background" Value="#FFD61E1E"/>
-                    <Style.Triggers>
-                        <Trigger Property="Border.IsMouseOver" Value="True">
-                            <Setter Property="Border.Background" Value="#FFDD4545" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-
-            <Label HorizontalContentAlignment="Center" FontFamily="Segoe UI Semibold" FontSize="15" Foreground="White">Log Out</Label>
-        </Border>
-    </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </UserControl>

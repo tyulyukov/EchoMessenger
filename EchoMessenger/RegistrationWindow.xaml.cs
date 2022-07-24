@@ -26,7 +26,7 @@ namespace EchoMessenger
         {
             ErrorAlertTextBlock.Visibility = Visibility.Collapsed;
 
-            var username = UsernameBox.Text;
+            var username = UsernameBox.Text.ToLower();
             var password = PasswordBox.Password;
 
             if (String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password))

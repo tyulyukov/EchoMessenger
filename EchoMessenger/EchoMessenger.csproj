@@ -6,30 +6,33 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>False</UseWindowsForms>
-    <ApplicationIcon>Images\favicon.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\arrow down.png" />
-    <None Remove="Images\attachment.png" />
-    <None Remove="Images\close.png" />
-    <None Remove="Images\confirm.png" />
-    <None Remove="Images\copy.png" />
-    <None Remove="Images\delete.png" />
-    <None Remove="Images\echo.png" />
-    <None Remove="Images\edit.png" />
-    <None Remove="Images\history.png" />
-    <None Remove="Images\image.png" />
-    <None Remove="Images\loading spinner.gif" />
-    <None Remove="Images\refresh.png" />
-    <None Remove="Images\reply.png" />
-    <None Remove="Images\search.png" />
-    <None Remove="Images\send.png" />
-    <None Remove="Images\user.png" />
+    <None Remove="Assets\Images\arrow down.png" />
+    <None Remove="Assets\Images\attachment.png" />
+    <None Remove="Assets\Images\chats.png" />
+    <None Remove="Assets\Images\close.png" />
+    <None Remove="Assets\Images\confirm.png" />
+    <None Remove="Assets\Images\copy.png" />
+    <None Remove="Assets\Images\delete.png" />
+    <None Remove="Assets\Images\echo.png" />
+    <None Remove="Assets\Images\edit.png" />
+    <None Remove="Assets\Images\history.png" />
+    <None Remove="Assets\Images\image.png" />
+    <None Remove="Assets\Images\loading spinner.gif" />
+    <None Remove="Assets\Images\message.png" />
+    <None Remove="Assets\Images\refresh.png" />
+    <None Remove="Assets\Images\reply.png" />
+    <None Remove="Assets\Images\search.png" />
+    <None Remove="Assets\Images\send.png" />
+    <None Remove="Assets\Images\settings.png" />
+    <None Remove="Assets\Images\user.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Images\favicon.ico" />
+    <Content Include="Assets\favicon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,21 +49,41 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Images\arrow down.png" />
-    <Resource Include="Images\attachment.png" />
-    <Resource Include="Images\close.png" />
-    <Resource Include="Images\confirm.png" />
-    <Resource Include="Images\copy.png" />
-    <Resource Include="Images\delete.png" />
-    <Resource Include="Images\echo.png" />
-    <Resource Include="Images\edit.png" />
-    <Resource Include="Images\history.png" />
-    <Resource Include="Images\image.png" />
-    <Resource Include="Images\refresh.png" />
-    <Resource Include="Images\reply.png" />
-    <Resource Include="Images\search.png" />
-    <Resource Include="Images\send.png" />
-    <Resource Include="Images\user.png" />
+    <Resource Include="Assets\Images\arrow down.png" />
+    <Resource Include="Assets\Images\attachment.png" />
+    <Resource Include="Assets\Images\chats.png" />
+    <Resource Include="Assets\Images\close.png" />
+    <Resource Include="Assets\Images\confirm.png" />
+    <Resource Include="Assets\Images\copy.png" />
+    <Resource Include="Assets\Images\delete.png" />
+    <Resource Include="Assets\Images\echo.png" />
+    <Resource Include="Assets\Images\edit.png" />
+    <Resource Include="Assets\Images\history.png" />
+    <Resource Include="Assets\Images\image.png" />
+    <Resource Include="Assets\Images\message.png" />
+    <Resource Include="Assets\Images\refresh.png" />
+    <Resource Include="Assets\Images\reply.png" />
+    <Resource Include="Assets\Images\search.png" />
+    <Resource Include="Assets\Images\send.png" />
+    <Resource Include="Assets\Images\settings.png" />
+    <Resource Include="Assets\Images\user.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Settings\SettingsListView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\Settings\SettingsListView.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\Screenshots\" />
   </ItemGroup>
 
 </Project>

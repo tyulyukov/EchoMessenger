@@ -1,4 +1,4 @@
-﻿using EchoMessenger.Entities;
+﻿using EchoMessenger.Models;
 using EchoMessenger.Helpers;
 using EchoMessenger.Helpers.Api;
 using EchoMessenger.Helpers.Server;
@@ -7,7 +7,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -77,7 +76,7 @@ namespace EchoMessenger.Views.Settings
 
             try
             {
-                _ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
+                //_ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
 
                 if (username == currentUser.username)
                 {
@@ -143,7 +142,7 @@ namespace EchoMessenger.Views.Settings
             }
             finally
             {
-                _ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
+                //_ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
             }
         }
 
@@ -157,7 +156,7 @@ namespace EchoMessenger.Views.Settings
 
             try
             {
-                _ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
+                //_ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
 
                 if (String.IsNullOrWhiteSpace(oldPassword) || String.IsNullOrWhiteSpace(newPassword))
                 {
@@ -219,7 +218,7 @@ namespace EchoMessenger.Views.Settings
             }
             finally
             {
-                _ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
+                //_ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
             }
         }
 
@@ -250,7 +249,7 @@ namespace EchoMessenger.Views.Settings
             {
                 try
                 {
-                    _ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
+                    //_ = Task.Run(() => owner?.SettingsView.StartFillingProgressBar());
 
                     var response = await Storage.UploadAvatar(open.FileName);
 
@@ -298,7 +297,7 @@ namespace EchoMessenger.Views.Settings
 
                     if (String.IsNullOrWhiteSpace(avatarUrl) || String.IsNullOrWhiteSpace(originalAvatarUrl))
                     {
-                        owner?.SettingsView.EndFillingProgressBar();
+                        //owner?.SettingsView.EndFillingProgressBar();
                         UsernameErrorAlertTextBlock.Text = "Something went wrong...";
                         UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                         return;
@@ -352,7 +351,7 @@ namespace EchoMessenger.Views.Settings
                 }
                 finally
                 {
-                    _ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
+                    //_ = Task.Run(() => owner?.SettingsView.EndFillingProgressBar());
                 }
             }
         }

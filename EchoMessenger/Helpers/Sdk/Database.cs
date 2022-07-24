@@ -1,4 +1,4 @@
-﻿using EchoMessenger.Entities;
+﻿using EchoMessenger.Models;
 using EchoMessenger.Helpers.Api;
 using Newtonsoft.Json.Linq;
 using RestSharp;

@@ -1,4 +1,4 @@
-﻿using EchoMessenger.Entities;
+﻿using EchoMessenger.Models;
 using EchoMessenger.Helpers;
 using EchoMessenger.Helpers.Server;
 using Newtonsoft.Json.Linq;

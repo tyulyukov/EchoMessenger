@@ -16,7 +16,7 @@ namespace EchoMessenger.Helpers.Api
             options = new RestClientOptions(Host.Url)
             {
                 ThrowOnAnyError = false,
-                Timeout = 10000
+                Timeout = 30000
             };
             client = new RestClient(options);
             cancellationToken = new CancellationToken();
