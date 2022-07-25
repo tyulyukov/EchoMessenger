@@ -33,7 +33,7 @@
             <ImageBrush x:Key="MessageImage" ImageSource="/EchoMessenger;component/Assets/Images/message.png" Stretch="UniformToFill"/>
             
             <SolidColorBrush x:Key="SeparationBrush" Color="#FF393535" />
-            <SolidColorBrush x:Key="SecondaryBrush" Color="#FF212231" />
+            <SolidColorBrush x:Key="SecondaryBrush" Color="#FF212231" /> 
             <SolidColorBrush x:Key="MainBrush" Color="#FF131522" />
             <SolidColorBrush x:Key="ActiveBrush" Color="#FF6088" />
             <SolidColorBrush x:Key="SecondaryActiveBrush" Color="#283EFF" />

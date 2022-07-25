@@ -59,5 +59,23 @@
         </Border>
 
         <Grid Grid.Column="1" x:Name="OpenedTab" Background="#FF0C0D11"/>
+
+        <Border x:Name="MessageHistoryPopupBackground" MouseLeftButtonUp="MessageHistoryPopup_MouseLeftButtonUp" Visibility="Collapsed" Grid.ColumnSpan="2" Background="Black" Opacity="0.75"></Border>
+        <Border x:Name="MessageHistoryPopup" Visibility="Collapsed" Grid.ColumnSpan="2" Background="{StaticResource MainBrush}" CornerRadius="10" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Border Height="40">
+                    <Border x:Name="CloseMessagesHistory" MouseLeftButtonUp="CloseMessagesHistory_MouseLeftButtonUp" HorizontalAlignment="Right" BorderThickness="0" Width="25" Height="25" Margin="10 5" Padding="4" Background="Transparent" Style="{StaticResource SelectableBorder}">
+                        <Image Source="/EchoMessenger;component/Assets/Images/close.png" />
+                    </Border>
+                </Border>
+
+                <StackPanel Grid.Row="1" x:Name="MessagesHistoryPopupStackPanel" Orientation="Vertical" Width="400"></StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

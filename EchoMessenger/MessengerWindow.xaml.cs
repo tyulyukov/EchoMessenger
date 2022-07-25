@@ -139,6 +139,7 @@ namespace EchoMessenger
             MessageBorder.OnDeleteButtonClick += DeleteMessage;
             MessageBorder.OnReplyButtonClick += EnterReplying;
             MessageBorder.OnEditButtonClick += EnterEditing;
+            MessageBorder.OnHistoryButtonClick += ShowMessageHistory;
 
             Messages.Configure();
             await Messages.Connect();
@@ -163,6 +164,7 @@ namespace EchoMessenger
             MessageBorder.OnDeleteButtonClick -= DeleteMessage;
             MessageBorder.OnReplyButtonClick -= EnterReplying;
             MessageBorder.OnEditButtonClick -= EnterEditing;
+            MessageBorder.OnHistoryButtonClick -= ShowMessageHistory;
 
             await Messages.Disconnect();
         }
@@ -344,6 +346,9 @@ namespace EchoMessenger
 
         private void EnterReplying(Message message)
         {
+            if (MessageBorder.OpenedPopup is not null)
+                MessageBorder.OpenedPopup.IsOpen = false;
+
             var targetUser = message.chat.sender == currentUser ? message.chat.receiver : message.chat.sender;
 
             if (ChatsList.OpenedChats.TryGetValue(targetUser._id, out var chat))
@@ -353,11 +358,39 @@ namespace EchoMessenger
 
         private void EnterEditing(Message message)
         {
+            if (MessageBorder.OpenedPopup is not null)
+                MessageBorder.OpenedPopup.IsOpen = false;
+
             var targetUser = message.chat.sender == currentUser ? message.chat.receiver : message.chat.sender;
 
             if (ChatsList.OpenedChats.TryGetValue(targetUser._id, out var chat))
                 if (ChatsList.MessagesViews.TryGetValue(chat.Key._id, out var messagesView))
                     messagesView.EnterEditing(message);
+        }
+
+        private void ShowMessageHistory(Message message)
+        {
+            if (MessageBorder.OpenedPopup is not null)
+                MessageBorder.OpenedPopup.IsOpen = false;
+
+            MessagesHistoryPopupStackPanel.Children.Clear();
+
+            bool isOwn = message.sender == currentUser;
+
+            foreach (var edit in message.edits)
+            {
+                var editedMessageBorder = new MessageBorder(edit.content, isOwn);
+                editedMessageBorder.SetLoaded(message);
+
+                MessagesHistoryPopupStackPanel.Children.Add(editedMessageBorder);
+            }
+
+            var currentMessageBorder = new MessageBorder(message.content, isOwn);
+            currentMessageBorder.SetLoaded(message);
+
+            MessagesHistoryPopupStackPanel.Children.Add(currentMessageBorder);
+
+            MessageHistoryPopup.Visibility = MessageHistoryPopupBackground.Visibility = Visibility.Visible;
         }
 
         private void ButtonSettings_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -371,6 +404,16 @@ namespace EchoMessenger
         private void ButtonChats_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             OpenList(ChatsList); 
+        }
+
+        private void CloseMessagesHistory_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            MessageHistoryPopup.Visibility = MessageHistoryPopupBackground.Visibility = Visibility.Collapsed;
+        }
+
+        private void MessageHistoryPopup_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            MessageHistoryPopup.Visibility = MessageHistoryPopupBackground.Visibility = Visibility.Collapsed;
         }
     }
 }

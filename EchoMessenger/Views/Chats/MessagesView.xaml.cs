@@ -771,7 +771,7 @@ namespace EchoMessenger.Views.Chats
             ButtonGoBottom.ChangeOpacity(isVisible, TimeSpan.FromMilliseconds(150));
 
             if (MessagesScroll.VerticalOffset == 0 && !isLoadingMessages && !isAllMessagesLoaded)
-                LoadOlderMessages();
+                _ = LoadOlderMessages();
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -834,6 +834,8 @@ namespace EchoMessenger.Views.Chats
 
         public void EnterReplying(Message message)
         {
+            LeaveEditing();
+
             uiSync.Send(s =>
             {
                 replyingOnMessage = message;
@@ -858,6 +860,8 @@ namespace EchoMessenger.Views.Chats
 
         public void EnterEditing(Message message)
         {
+            LeaveReplying();
+
             uiSync.Send(s =>
             {
                 editingMessage = message;

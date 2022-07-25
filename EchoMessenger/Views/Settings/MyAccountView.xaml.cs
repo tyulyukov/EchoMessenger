@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 
 namespace EchoMessenger.Views.Settings
 {
-    public partial class MyAccountView : UserControl
+    public partial class MyAccountView : UserControl, ITab
     {
         private SynchronizationContext uiSync;
         private MessengerWindow owner;

@@ -1,4 +1,5 @@
-﻿using EchoMessenger.Helpers;
+﻿using EchoMessenger.Core;
+using EchoMessenger.Helpers;
 using EchoMessenger.Helpers.Extensions;
 using EchoMessenger.Models;
 using EchoMessenger.UI.Controls.Checks;
@@ -38,9 +39,9 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
         private bool isTyping = false;
         private TypeAssistant userTyping;
 
-        private SolidColorBrush mainBrush = Application.Current.Resources["MainBrush"] as SolidColorBrush;
-        private SolidColorBrush activeBrush = Application.Current.Resources["ActiveBrush"] as SolidColorBrush;
-        private SolidColorBrush secondaryActiveBrush = Application.Current.Resources["SecondaryActiveBrush"] as SolidColorBrush;
+        private SolidColorBrush mainBrush = Core.Resources.Find<SolidColorBrush>("MainBrush");
+        private SolidColorBrush activeBrush = Core.Resources.Find<SolidColorBrush>("ActiveBrush"); 
+        private SolidColorBrush secondaryActiveBrush = Core.Resources.Find<SolidColorBrush>("SecondaryActiveBrush");
 
         public UserCard(UserInfo user, Chat chat, Message? lastMessage, bool isOnline, int unreadMessagesCount)
         {
