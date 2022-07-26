@@ -344,6 +344,26 @@ namespace EchoMessenger.UI.Controls.Messages
             CheckMarks?.SetHaveSeen();
         }
 
+        public void SetHistoryMessage(String edit, DateTime editedAt, bool haveSeen, bool isEdited)
+        {
+            MessageTextBox.Text = edit;
+            TimeTextBlock.Text = editedAt.ToString("HH:mm");
+
+            if (isEdited && !TimeTextBlock.Text.StartsWith("edited"))
+                TimeTextBlock.Text = "edited " + TimeTextBlock.Text;
+
+            LoadingSpinner.IsLoading = false;
+            TimeTextBlock.Visibility = Visibility.Visible;
+
+            if (CheckMarks != null)
+            {
+                CheckMarks.Visibility = Visibility.Visible;
+
+                if (haveSeen)
+                    CheckMarks.SetHaveSeen();
+            }
+        }
+
         public void RoundInTop()
         {
             if (IsOwn)

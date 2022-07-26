@@ -730,8 +730,9 @@ namespace EchoMessenger.Views.Chats
 
                 if (messages.TryGetValue(editingMessage._id, out var editedMessageBorder))
                 {
-                    editingMessage.edits.Add(new Edit() { content = editingMessage.content, date = DateTime.Now });
+                    editingMessage.edits.Add(new Edit() { content = editingMessage.content, date = editingMessage.editedAtLocal });
                     editingMessage.content = content;
+                    editingMessage.editedAt = DateTime.Now;
                     editedMessageBorder.SetEdited(editingMessage);
 
                     foreach (var messageBorder in messages.Values)
@@ -841,8 +842,8 @@ namespace EchoMessenger.Views.Chats
                 replyingOnMessage = message;
                 ReplyPanel.Visibility = Visibility.Visible;
 
-                ReplyToNickname.Content = message.sender.username;
-                ReplyToText.Content = message.content;
+                ReplyToNickname.Text = message.sender.username;
+                ReplyToText.Text = message.content;
 
                 MessageTextBox.Focus();
             }, null);
@@ -867,7 +868,7 @@ namespace EchoMessenger.Views.Chats
                 editingMessage = message;
                 EditPanel.Visibility = Visibility.Visible;
 
-                EditText.Content = message.content;
+                EditText.Text = message.content;
 
                 MessageTextBox.Text = message.content;
                 MessageTextBox.Focus();

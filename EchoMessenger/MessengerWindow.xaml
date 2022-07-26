@@ -61,7 +61,7 @@
         <Grid Grid.Column="1" x:Name="OpenedTab" Background="#FF0C0D11"/>
 
         <Border x:Name="MessageHistoryPopupBackground" MouseLeftButtonUp="MessageHistoryPopup_MouseLeftButtonUp" Visibility="Collapsed" Grid.ColumnSpan="2" Background="Black" Opacity="0.75"></Border>
-        <Border x:Name="MessageHistoryPopup" Visibility="Collapsed" Grid.ColumnSpan="2" Background="{StaticResource MainBrush}" CornerRadius="10" VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Border x:Name="MessageHistoryPopup" Margin="20" Padding="10" Visibility="Collapsed" Grid.ColumnSpan="2" Background="{StaticResource MainBrush}" CornerRadius="10" VerticalAlignment="Center" HorizontalAlignment="Center">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -74,7 +74,9 @@
                     </Border>
                 </Border>
 
-                <StackPanel Grid.Row="1" x:Name="MessagesHistoryPopupStackPanel" Orientation="Vertical" Width="400"></StackPanel>
+                <ScrollViewer Width="400" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="MessagesHistoryPopupStackPanel" Orientation="Vertical"></StackPanel>
+                </ScrollViewer>
             </Grid>
         </Border>
     </Grid>

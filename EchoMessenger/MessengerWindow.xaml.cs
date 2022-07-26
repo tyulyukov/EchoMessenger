@@ -11,6 +11,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using EchoMessenger.UI.Controls.Messages;
+using EchoMessenger.UI.Extensions;
+using EchoMessenger.Helpers.Extensions;
 
 namespace EchoMessenger
 {
@@ -324,7 +326,6 @@ namespace EchoMessenger
             if (ChatsList.MessagesViews.TryGetValue(message.chat._id, out var messageView)) 
                 messageView.MessageEdited(message);
 
-            message.edits.Add(new Edit());
             EditMessage(message);
         }
 
@@ -376,19 +377,68 @@ namespace EchoMessenger
             MessagesHistoryPopupStackPanel.Children.Clear();
 
             bool isOwn = message.sender == currentUser;
+            DateTime? lastSentAt = null;
 
-            foreach (var edit in message.edits)
+            if (message.edits.Count > 0)
             {
-                var editedMessageBorder = new MessageBorder(edit.content, isOwn);
-                editedMessageBorder.SetLoaded(message);
+                foreach (var edit in message.edits)
+                {
+                    var editedMessageBorder = new MessageBorder(edit.content, isOwn);
+                    editedMessageBorder.SetSlideFromLeftOnLoad();
+                    editedMessageBorder.SetHistoryMessage(edit.content, edit.dateLocal, message.haveSeen, edit != message.edits.First());
 
-                MessagesHistoryPopupStackPanel.Children.Add(editedMessageBorder);
+                    if (lastSentAt is null || lastSentAt.Value.Date != edit.dateLocal.Date)
+                    {
+                        var editDateCard = new DateCard(edit.dateLocal);
+                        editDateCard.SetSlideFromLeftOnLoad();
+                        MessagesHistoryPopupStackPanel.Children.Add(editDateCard);
+                    }
+                    else if (edit.dateLocal.IsOlderOnTime(lastSentAt.Value, TimeSpan.FromHours(1)))
+                    {
+                        editedMessageBorder.Margin = new Thickness(editedMessageBorder.Margin.Left, editedMessageBorder.Margin.Top + 10, editedMessageBorder.Margin.Right, editedMessageBorder.Margin.Bottom);
+                    }
+                    else if (edit.dateLocal.IsOlderOnTime(lastSentAt.Value, TimeSpan.FromMinutes(10)))
+                    {
+                        editedMessageBorder.Margin = new Thickness(editedMessageBorder.Margin.Left, editedMessageBorder.Margin.Top + 5, editedMessageBorder.Margin.Right, editedMessageBorder.Margin.Bottom);
+                    }
+
+                    lastSentAt = edit.dateLocal;
+
+                    MessagesHistoryPopupStackPanel.Children.Add(editedMessageBorder);
+                }
+
+                var currentMessageBorder = new MessageBorder(message.content, isOwn);
+                currentMessageBorder.SetSlideFromLeftOnLoad();
+                currentMessageBorder.SetHistoryMessage(message.content, message.editedAtLocal, message.haveSeen, true);
+                
+                if (lastSentAt is null || lastSentAt.Value.Date != message.editedAtLocal.Date)
+                {
+                    var dateCard = new DateCard(message.editedAtLocal);
+                    dateCard.SetSlideFromLeftOnLoad();
+                    MessagesHistoryPopupStackPanel.Children.Add(dateCard);
+                }
+                else if (message.editedAtLocal.IsOlderOnTime(lastSentAt.Value, TimeSpan.FromHours(1)))
+                {
+                    currentMessageBorder.Margin = new Thickness(currentMessageBorder.Margin.Left, currentMessageBorder.Margin.Top + 10, currentMessageBorder.Margin.Right, currentMessageBorder.Margin.Bottom);
+                }
+                else if (message.editedAtLocal.IsOlderOnTime(lastSentAt.Value, TimeSpan.FromMinutes(10)))
+                {
+                    currentMessageBorder.Margin = new Thickness(currentMessageBorder.Margin.Left, currentMessageBorder.Margin.Top + 5, currentMessageBorder.Margin.Right, currentMessageBorder.Margin.Bottom);
+                }
+
+                MessagesHistoryPopupStackPanel.Children.Add(currentMessageBorder);
             }
+            else
+            {
+                var dateCard = new DateCard(message.sentAtLocal);
+                dateCard.SetSlideFromLeftOnLoad();
+                MessagesHistoryPopupStackPanel.Children.Add(dateCard);
 
-            var currentMessageBorder = new MessageBorder(message.content, isOwn);
-            currentMessageBorder.SetLoaded(message);
-
-            MessagesHistoryPopupStackPanel.Children.Add(currentMessageBorder);
+                var currentMessageBorder = new MessageBorder(message.content, isOwn);
+                currentMessageBorder.SetSlideFromLeftOnLoad();
+                currentMessageBorder.SetHistoryMessage(message.content, message.sentAtLocal, message.haveSeen, false);
+                MessagesHistoryPopupStackPanel.Children.Add(currentMessageBorder);
+            }
 
             MessageHistoryPopup.Visibility = MessageHistoryPopupBackground.Visibility = Visibility.Visible;
         }

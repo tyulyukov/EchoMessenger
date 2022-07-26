@@ -13,6 +13,8 @@ namespace EchoMessenger.Models
         public List<Attachment> attachments { get; set; }
         public DateTime sentAt { get; set; }
         public DateTime sentAtLocal => sentAt.ToLocalTime();
+        public DateTime editedAt { get; set; }
+        public DateTime editedAtLocal => editedAt.ToLocalTime();
         public Message repliedOn { get; set; }
         public Chat chat { get; set; }
 
