@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EchoMessenger.Helpers.Api
+namespace EchoMessenger.Core
 {
     public static class Host
     {

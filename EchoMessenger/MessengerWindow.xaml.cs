@@ -13,6 +13,7 @@ using System.Windows.Input;
 using EchoMessenger.UI.Controls.Messages;
 using EchoMessenger.UI.Extensions;
 using EchoMessenger.Helpers.Extensions;
+using EchoMessenger.Core;
 
 namespace EchoMessenger
 {

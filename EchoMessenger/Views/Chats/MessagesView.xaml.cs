@@ -17,6 +17,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using EchoMessenger.UI.Controls.Cards.Dialog;
 using EchoMessenger.UI.Controls.Typing;
+using EchoMessenger.Core;
 
 namespace EchoMessenger.Views.Chats
 {

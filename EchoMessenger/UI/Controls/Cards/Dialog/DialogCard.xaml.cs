@@ -1,4 +1,5 @@
-﻿using EchoMessenger.Helpers.Api;
+﻿using EchoMessenger.Core;
+using EchoMessenger.Helpers.Api;
 using EchoMessenger.Models;
 using System;
 using System.Windows.Controls;

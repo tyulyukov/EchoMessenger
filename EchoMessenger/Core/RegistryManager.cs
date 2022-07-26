@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 
-namespace EchoMessenger.Helpers
+namespace EchoMessenger.Core
 {
     public static class RegistryManager
     {

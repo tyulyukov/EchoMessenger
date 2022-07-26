@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using EchoMessenger.Core;
 using EchoMessenger.Helpers.Api;
 using SocketIOClient;
 

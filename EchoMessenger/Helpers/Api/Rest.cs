@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using EchoMessenger.Core;
+using RestSharp;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

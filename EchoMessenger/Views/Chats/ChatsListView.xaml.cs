@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using EchoMessenger.Core;
 
 namespace EchoMessenger.Views.Chats
 {
