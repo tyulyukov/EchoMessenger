@@ -1,12 +1,7 @@
 # Echo
 Messenger named ```Echo```, using WPF, based on WebSockets and Client-Server
 
-#### hey look at this
-
-<span>
-<img src="EchoMessenger/Assets/Screenshots/login.png" />
-<img src="EchoMessenger/Assets/Screenshots/register.png" />
-</span>
+#### some screenshots
 
 <img src="EchoMessenger/Assets/Screenshots/chat1.png" />
 <img src="EchoMessenger/Assets/Screenshots/chat2.png" />
