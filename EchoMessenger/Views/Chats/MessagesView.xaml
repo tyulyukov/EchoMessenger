@@ -39,6 +39,7 @@
         </Border>
 
         <StackPanel Orientation="Horizontal" Background="{StaticResource SecondaryBrush}" Grid.Row="0">
+            <Border x:Name="TargerAvatar" Margin="12 5 -3 5" Width="35" Height="35" CornerRadius="100" BorderThickness="1" BorderBrush="Gray"></Border>
             <StackPanel Orientation="Vertical">
                 <Label x:Name="TargetUserName" HorizontalAlignment="Left" HorizontalContentAlignment="Left" Margin="10 0 0 0" MaxWidth="300" Foreground="White" FontSize="16">nickname</Label>
                 <StackPanel Margin="15,-7,0,0" Orientation="Horizontal">

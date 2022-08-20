@@ -18,6 +18,7 @@ using System.Windows.Media;
 using EchoMessenger.UI.Controls.Cards.Dialog;
 using EchoMessenger.UI.Controls.Typing;
 using EchoMessenger.Core;
+using System.Windows.Media.Imaging;
 
 namespace EchoMessenger.Views.Chats
 {
@@ -69,6 +70,7 @@ namespace EchoMessenger.Views.Chats
             currentChat = chat;
 
             targetUser = currentChat.sender == currentUser ? currentChat.receiver : currentChat.sender;
+            UpdateTargetUser(targetUser);
 
             messages = new Dictionary<String, MessageBorder>();
             unreadMessages = new Dictionary<String, MessageBorder>();
@@ -130,8 +132,6 @@ namespace EchoMessenger.Views.Chats
             {
                 SetUserTyping(false);
             };
-
-            TargetUserName.Content = targetUser.username;
         }
 
         public void Open()
@@ -267,6 +267,11 @@ namespace EchoMessenger.Views.Chats
             {
                 targetUser = user;
                 TargetUserName.Content = targetUser.username;
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(targetUser.avatarUrl, UriKind.Absolute);
+                bitmap.EndInit();
+                TargerAvatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
 
                 uiSync.Send((s) =>
                 {

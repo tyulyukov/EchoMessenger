@@ -9,15 +9,15 @@
         UseLayoutRounding="True"
         Title="Echo" 
         Height="550" Width="1000"
-        MinWidth="350" MinHeight="200"
+        MinWidth="650" MinHeight="300"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
         Loaded="Window_Loaded"
         Unloaded="Window_Unloaded">
     <Grid x:Name="MainGrid" SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="6*"/>
+            <ColumnDefinition MinWidth="250" Width="2*"/>
+            <ColumnDefinition MinWidth="350" Width="6*"/>
         </Grid.ColumnDefinitions>
 
         <Border BorderThickness="0 0 1 0" BorderBrush="{DynamicResource SeparationBrush}">

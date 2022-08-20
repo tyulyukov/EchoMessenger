@@ -32,10 +32,10 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
             selectedOnlineBrush = new SolidColorBrush(Colors.DeepPink);
 
             Background = OfflineBrush.Clone();
-            Width = Height = 10;
+            Width = Height = 13;
             CornerRadius = new CornerRadius(100);
             BorderBrush = mainBrush.Clone();
-            BorderThickness = new Thickness(2);
+            BorderThickness = new Thickness(3);
 
             SetStatus(isOnline);
         }

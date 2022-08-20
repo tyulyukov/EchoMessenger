@@ -1,6 +1,4 @@
-﻿using EchoMessenger.Core;
-using EchoMessenger.Helpers.Api;
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -24,7 +22,7 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
             this.baseSelectionBackground = baseSelectionBackground;
             this.selectionDuration = selectionDuration;
 
-            Width = Height = 40;
+            Width = Height = 45;
             CornerRadius = new CornerRadius(100);
             BorderBrush = new SolidColorBrush(Colors.Gray);
             BorderThickness = new Thickness(1);

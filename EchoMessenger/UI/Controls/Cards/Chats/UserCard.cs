@@ -83,7 +83,8 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
             usernameTextBlock.Text = user.username;
             usernameTextBlock.Foreground = new SolidColorBrush(Colors.White);
             usernameTextBlock.TextTrimming = TextTrimming.CharacterEllipsis;
-            usernameTextBlock.FontFamily = new FontFamily("Segoe UI Semibold");
+            //usernameTextBlock.FontFamily = new FontFamily("Segoe UI Semibold");
+            usernameTextBlock.FontSize = 13.5;
 
             mainStackPanel.Children.Add(usernameTextBlock);
 
@@ -95,8 +96,9 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
             lastActivityTextBlock = new TextBlock();
             lastActivityTextBlock.TextTrimming = TextTrimming.CharacterEllipsis;
             lastActivityTextBlock.HorizontalAlignment = HorizontalAlignment.Left;
-            lastActivityTextBlock.MaxHeight = 15;
+            lastActivityTextBlock.MaxHeight = 20;
             lastActivityTextBlock.MinWidth = 0;
+            lastActivityTextBlock.FontSize = 13;
 
             Grid.SetColumn(lastActivityTextBlock, 0);
             activityGrid.Children.Add(lastActivityTextBlock);
@@ -104,7 +106,7 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
             editedPlaceholderTextBlock = new TextBlock();
             editedPlaceholderTextBlock.Text = "edited";
             editedPlaceholderTextBlock.Visibility = Visibility.Collapsed;
-            editedPlaceholderTextBlock.FontSize = 10d;
+            editedPlaceholderTextBlock.FontSize = 12d;
             editedPlaceholderTextBlock.Foreground = new SolidColorBrush(Colors.Gray);
             editedPlaceholderTextBlock.Margin = new Thickness(3, 3, 0, 0);
             editedPlaceholderTextBlock.HorizontalAlignment = HorizontalAlignment.Left;
@@ -144,6 +146,7 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
 
             timeTextBlock = new TextBlock();
             timeTextBlock.Foreground = new SolidColorBrush(Colors.LightGray);
+            timeTextBlock.FontSize = 11.5;
 
             var metaInfoGrid = new Grid();
 
