@@ -4,8 +4,8 @@ namespace EchoMessenger.Core
 {
     public static class Host
     {
-        public static readonly String Url = "http://localhost:4224";
-        // public static readonly String Url = "https://server-echo.herokuapp.com";
+        // public static readonly String Url = "http://localhost:4224";
+        public static readonly String Url = "https://server-echo.herokuapp.com";
 
         public static String Combine(String source)
         {

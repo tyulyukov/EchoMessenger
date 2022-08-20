@@ -36,7 +36,7 @@ namespace EchoMessenger
                 return;
             }
 
-            if (!LogInManager.ValidateUsername(username))
+            /*if (!LogInManager.ValidateUsername(username))
             {
                 ErrorAlertTextBlock.Text = "Username must contain at least 5 symbols and less than 20 symbols. Username must have only latin letters or/and digits. Allowed special symbols: . - _";
                 ErrorAlertTextBlock.Visibility = Visibility.Visible;
@@ -48,7 +48,7 @@ namespace EchoMessenger
                 ErrorAlertTextBlock.Text = "Password must contain at least 8 symbols. It must have letters and digits";
                 ErrorAlertTextBlock.Visibility = Visibility.Visible;
                 return;
-            }
+            }*/
 
             var response = await Database.RegisterAsync(username, password);
 
