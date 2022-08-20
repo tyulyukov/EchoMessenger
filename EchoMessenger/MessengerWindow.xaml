@@ -16,8 +16,8 @@
         Unloaded="Window_Unloaded">
     <Grid x:Name="MainGrid" SnapsToDevicePixels="True">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
 
         <Border BorderThickness="0 0 1 0" BorderBrush="{DynamicResource SeparationBrush}">

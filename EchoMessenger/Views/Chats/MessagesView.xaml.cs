@@ -23,7 +23,7 @@ namespace EchoMessenger.Views.Chats
 {
     public partial class MessagesView : UserControl
     {
-        public const int LoadingMessagesCount = 15;
+        public const int LoadingMessagesCount = 50;
         public Message? LastSentMessage { get; private set; }
 
         public int UnreadMessagesCount => unreadMessages.Count;

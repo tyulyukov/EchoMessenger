@@ -52,7 +52,7 @@ namespace EchoMessenger.Views.Settings
             {
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
-                bitmap.UriSource = new Uri(Host.Combine(currentUser.avatarUrl), UriKind.Absolute);
+                bitmap.UriSource = new Uri(currentUser.avatarUrl, UriKind.Absolute);
                 bitmap.EndInit();
 
                 Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
@@ -244,7 +244,7 @@ namespace EchoMessenger.Views.Settings
             var open = new OpenFileDialog();
             open.Multiselect = false;
             open.CheckFileExists = true;
-            open.Filter = "Image Files|*.jpg;*.jpeg;*.png;";
+            open.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.webp;*.bmp;";
 
             if (open.ShowDialog(owner) == true)
             {
@@ -295,6 +295,18 @@ namespace EchoMessenger.Views.Settings
                         owner.Close();
                         return;
                     }
+                    else if (response.StatusCode == (HttpStatusCode)415)
+                    {
+                        UsernameErrorAlertTextBlock.Text = "File has unsupported type. Supported types: .png, .jpg, .jpeg, .gif, .webp, .bmp, .heic, .heif";
+                        UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
+                        return;
+                    }
+                    else if (response.StatusCode == (HttpStatusCode)422)
+                    {
+                        UsernameErrorAlertTextBlock.Text = "File is bigger than 10MB";
+                        UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
+                        return;
+                    }
 
                     if (String.IsNullOrWhiteSpace(avatarUrl) || String.IsNullOrWhiteSpace(originalAvatarUrl))
                     {
@@ -336,7 +348,7 @@ namespace EchoMessenger.Views.Settings
 
                         var bitmap = new BitmapImage();
                         bitmap.BeginInit();
-                        bitmap.UriSource = new Uri(Host.Combine(avatarUrl), UriKind.Absolute);
+                        bitmap.UriSource = new Uri(avatarUrl, UriKind.Absolute);
                         bitmap.EndInit();
 
                         Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };

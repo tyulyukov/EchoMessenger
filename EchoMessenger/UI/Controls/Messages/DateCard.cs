@@ -17,7 +17,7 @@ namespace EchoMessenger.UI.Controls.Messages
             ColumnDefinitions.Add(new ColumnDefinition());
 
             var startLine = new Border();
-            startLine.Height = 0.5;
+            startLine.Height = 1;
             startLine.Background = separationBrush.Clone();
             startLine.HorizontalAlignment = HorizontalAlignment.Stretch;
             startLine.VerticalAlignment = VerticalAlignment.Center;

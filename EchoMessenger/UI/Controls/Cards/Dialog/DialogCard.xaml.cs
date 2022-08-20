@@ -27,7 +27,7 @@ namespace EchoMessenger.UI.Controls.Cards.Dialog
             {
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
-                bitmap.UriSource = new Uri(Host.Combine(targetUser.avatarUrl), UriKind.Absolute);
+                bitmap.UriSource = new Uri(targetUser.avatarUrl, UriKind.Absolute);
                 bitmap.EndInit();
 
                 Avatar.Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };

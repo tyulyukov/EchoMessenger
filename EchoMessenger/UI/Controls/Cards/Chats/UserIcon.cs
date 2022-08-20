@@ -45,7 +45,7 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
         {
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
-            bitmap.UriSource = new Uri(Host.Combine(avatarUrl), UriKind.Absolute);
+            bitmap.UriSource = new Uri(avatarUrl, UriKind.Absolute);
             bitmap.EndInit();
             Background = new ImageBrush() { ImageSource = bitmap, Stretch = Stretch.UniformToFill };
         }

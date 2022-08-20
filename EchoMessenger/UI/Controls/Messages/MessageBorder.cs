@@ -48,8 +48,8 @@ namespace EchoMessenger.UI.Controls.Messages
             this.IsOwn = isOwn;
 
             MinHeight = 30;
-            BorderBrush = new SolidColorBrush(Colors.White);
-            BorderThickness = new Thickness(1);
+            /*BorderBrush = new SolidColorBrush(Colors.White);
+            BorderThickness = new Thickness(1);*/
             Margin = new Thickness(0, 3, 0, 0);
             CornerRadius = new CornerRadius(cornerRoundingOut);
             Padding = new Thickness(7);
