@@ -1,11 +1,7 @@
-﻿using EchoMessenger.Models;
-using EchoMessenger.Helpers.Api;
-using Newtonsoft.Json.Linq;
+﻿using EchoMessenger.Helpers.Api;
 using RestSharp;
 using System;
-using System.Net;
 using System.Threading.Tasks;
-using EchoMessenger.Core;
 
 namespace EchoMessenger.Helpers.Server
 {
@@ -13,29 +9,9 @@ namespace EchoMessenger.Helpers.Server
     {
         private static Rest rest = new Rest();
 
-        public async static Task<UserInfo?> ConfirmJwt()
+        public async static Task<RestResponse?> ConfirmJwt()
         {
-            var jwt = RegistryManager.GetCurrentJwt();
-            if (String.IsNullOrEmpty(jwt))
-                return null;
-
-            var response = await rest.Get("auth/jwt");
-
-            if (response == null)
-                return null;
-
-            if (response.StatusCode == (HttpStatusCode)200)
-            {
-                if (response.Content == null)
-                    return null;
-
-                var result = JObject.Parse(response.Content);
-                var user = result.ToObject<UserInfo>();
-
-                return user;
-            }
-
-            return null;
+            return await rest.Get("auth/jwt");
         }
 
         public static async Task<RestResponse?> RegisterAsync(String username, String password)

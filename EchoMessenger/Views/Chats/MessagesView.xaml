@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:EchoMessenger.Views.Chats"
              xmlns:custom="clr-namespace:EchoMessenger.UI.Controls.Loading"
-             xmlns:typingindicatorcontrol="clr-namespace:EchoMessenger.UI.Controls.Typing"
              xmlns:watermark="clr-namespace:EchoMessenger.UI.Controls.Watermark"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
@@ -20,7 +19,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border x:Name="LoadingBorder" Visibility="Collapsed" Panel.ZIndex="1" Grid.Row="0" Grid.RowSpan="4" Background="#7F000000">
+        <Border x:Name="LoadingBorder" Visibility="Collapsed" Panel.ZIndex="1" Grid.Row="0" Grid.RowSpan="5" Background="#7F000000">
             <custom:LoadingSpinner IsLoading="True" Diameter="30" Color="White" Cap="Round" Thickness="2" StrokeGap="0.75">
                 <custom:LoadingSpinner.Triggers>
                     <EventTrigger RoutedEvent="Loaded">

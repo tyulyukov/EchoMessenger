@@ -95,12 +95,12 @@ namespace EchoMessenger.Views.Settings
                     return;
                 }
 
-                if (!LogInManager.ValidateUsername(username))
+                /*if (!LogInManager.ValidateUsername(username))
                 {
                     UsernameErrorAlertTextBlock.Text = "Username must contain at least 5 symbols and less than 20 symbols. Username must have only latin letters or/and digits. Allowed special symbols: . - _";
                     UsernameErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
-                }
+                }*/
 
                 var response = await Profile.UpdateUsername(username);
 
@@ -173,12 +173,12 @@ namespace EchoMessenger.Views.Settings
                     return;
                 }
 
-                if (!LogInManager.ValidatePassword(newPassword))
+                /*if (!LogInManager.ValidatePassword(newPassword))
                 {
                     PasswordErrorAlertTextBlock.Text = "Password must contain at least 8 symbols. It must have letters and digits";
                     PasswordErrorAlertTextBlock.Visibility = Visibility.Visible;
                     return;
-                }
+                }*/
 
                 var response = await Profile.UpdatePassword(oldPassword, newPassword);
 
