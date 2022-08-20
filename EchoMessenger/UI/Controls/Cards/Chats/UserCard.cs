@@ -238,13 +238,13 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
             selected = false;
         }
         
-        public void UpdateTargetUser(Models.UserInfo user)
+        public void UpdateTargetUser(UserInfo user)
         {
             AvatarIcon.UpdateAvatar(user.avatarUrl);
             usernameTextBlock.Text = user.username;
         }
 
-        public void UpdateLastMessage(Models.Message lastMessage)
+        public void UpdateLastMessage(Message lastMessage)
         {
             Dispatcher.Invoke(() =>
             {
@@ -288,7 +288,7 @@ namespace EchoMessenger.UI.Controls.Cards.Chats
             });
         }
 
-        public void EditMessage(Models.Message message)
+        public void EditMessage(Message message)
         {
             if (lastMessage == message)
             {

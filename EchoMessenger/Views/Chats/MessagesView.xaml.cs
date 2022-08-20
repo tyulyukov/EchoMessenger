@@ -736,7 +736,7 @@ namespace EchoMessenger.Views.Chats
 
                 if (messages.TryGetValue(editingMessage._id, out var editedMessageBorder))
                 {
-                    editingMessage.edits.Add(new Edit() { content = editingMessage.content, date = editingMessage.editedAtLocal });
+                    editingMessage.edits.Add(new Edit() { content = editingMessage.content, date = editingMessage.editedAt });
                     editingMessage.content = content;
                     editingMessage.editedAt = DateTime.Now;
                     editedMessageBorder.SetEdited(editingMessage);
