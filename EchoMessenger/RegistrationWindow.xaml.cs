@@ -69,6 +69,16 @@ namespace EchoMessenger
                 window.Login(username, password);
                 this.Close();
             }
+            else if (response.StatusCode == (HttpStatusCode)403)
+            {
+                ErrorAlertTextBlock.Text = "Password must contain at least 8 symbols. It must have letters and digits";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
+            }
+            else if (response.StatusCode == (HttpStatusCode)406)
+            {
+                ErrorAlertTextBlock.Text = "Username must contain at least 5 symbols and less than 20 symbols. Username must have only latin letters or/and digits. Allowed special symbols: . - _";
+                ErrorAlertTextBlock.Visibility = Visibility.Visible;
+            }
             else if (response.StatusCode == (HttpStatusCode)405)
             {
                 ErrorAlertTextBlock.Text = "This username is not free";
